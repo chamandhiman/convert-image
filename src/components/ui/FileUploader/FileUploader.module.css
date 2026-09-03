@@ -1,0 +1,144 @@
+/* =============================================================================
+   FileUploader
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Drop zone
+   ------------------------------------------------------------------------ */
+.dropZone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-6);
+  border: var(--border-width-thick) dashed var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-bg-subtle);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.dropZone:hover,
+.dropZone:focus-visible {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-subtle);
+}
+
+.dropZoneActive {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-subtle);
+}
+
+.uploadIcon {
+  color: var(--color-text-muted);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.dropZone:hover .uploadIcon,
+.dropZoneActive .uploadIcon {
+  color: var(--color-primary);
+}
+
+.dropText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.dropTextPrimary {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.dropTextSecondary {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Selected file
+   ------------------------------------------------------------------------ */
+.selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-subtle);
+}
+
+.fileInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.fileIcon {
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.fileMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0);
+  min-width: 0;
+}
+
+.fileName {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileSize {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.clearBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.clearBtn:hover {
+  color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 10%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Error
+   ------------------------------------------------------------------------ */
+.error {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in srgb, var(--color-danger) 8%, transparent);
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+}

@@ -1,0 +1,512 @@
+/* =============================================================================
+   RemoveBackgroundPage — Flagship AI Background Remover Styles
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Privacy Banner
+   ------------------------------------------------------------------------ */
+.privacyBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-subtle);
+  border: var(--border-width) solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.privacyIcon {
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Processing State / Model Loading Card
+   ------------------------------------------------------------------------ */
+.processingWorkspace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  max-width: 38rem;
+  margin-inline: auto;
+}
+
+.sourceThumbnailWrap {
+  width: 6rem;
+  height: 6rem;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background-color: var(--color-bg-subtle);
+  border: var(--border-width) solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.sourceThumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.statusCard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-6);
+  border-radius: var(--radius-2xl);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-surface);
+  text-align: center;
+}
+
+.spinnerWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: var(--radius-full);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.statusTextWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.statusTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.statusMessage {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.firstTimeNote {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: var(--space-2) 0 0 0;
+  max-width: 32ch;
+  line-height: var(--line-height-normal);
+}
+
+.progressBarWrap {
+  width: 100%;
+  max-width: 20rem;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-muted);
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.2s ease-out;
+}
+
+.btnCancel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.btnCancel:hover {
+  color: var(--color-danger);
+}
+
+/* ---------------------------------------------------------------------------
+   Error Block
+   ------------------------------------------------------------------------ */
+.errorBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8);
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid color-mix(in srgb, var(--color-danger) 30%, transparent);
+  background-color: color-mix(in srgb, var(--color-danger) 5%, transparent);
+  text-align: center;
+  max-width: 36rem;
+  margin-inline: auto;
+}
+
+.errorTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-danger);
+  margin: 0;
+}
+
+.errorText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+.errorActionsRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-primary);
+  color: var(--color-text-on-brand);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.btnPrimary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* ---------------------------------------------------------------------------
+   Result Workspace
+   ------------------------------------------------------------------------ */
+.resultWorkspace {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 64rem;
+  margin-inline: auto;
+}
+
+.resultHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.resultHeadingWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.successBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-success);
+}
+
+.resultTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin: 0;
+  max-width: 40ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.changeImageBtn {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Backdrop Selector */
+.backdropSelectorCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.backdropLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.backdropOptions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.backdropBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-bg-subtle);
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.backdropBtn:hover {
+  border-color: var(--color-primary);
+}
+
+.backdropBtnActive {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-subtle);
+  box-shadow: 0 0 0 1px var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.swatchTransparent {
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 6px 6px;
+  background-color: #fff;
+}
+
+.swatchWhite {
+  background-color: #ffffff;
+}
+
+.swatchBlack {
+  background-color: #000000;
+}
+
+/* ---------------------------------------------------------------------------
+   Large Comparison Container
+   ------------------------------------------------------------------------ */
+.comparisonContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .comparisonContainer {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.comparisonCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-2xl);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.cardTag {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-muted);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+}
+
+.cardTagActive {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.cardMetaPill {
+  font-size: var(--font-size-xs);
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+}
+
+/* Image Stages */
+.imageStageOriginal,
+.imageStageCutout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid var(--color-border);
+  min-height: 280px;
+  max-height: 420px;
+  overflow: hidden;
+  padding: var(--space-4);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.imageStageOriginal {
+  background-color: var(--color-bg-subtle);
+}
+
+/* Subtle Checkerboard for Transparency */
+.checkerboard {
+  background-color: var(--color-surface);
+  background-image:
+    linear-gradient(45deg, color-mix(in srgb, var(--color-text) 7%, transparent) 25%, transparent 25%),
+    linear-gradient(-45deg, color-mix(in srgb, var(--color-text) 7%, transparent) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, color-mix(in srgb, var(--color-text) 7%, transparent) 75%),
+    linear-gradient(-45deg, transparent 75%, color-mix(in srgb, var(--color-text) 7%, transparent) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+
+.bgWhite {
+  background-color: #ffffff;
+}
+
+.bgBlack {
+  background-color: #000000;
+}
+
+.stageImage {
+  max-width: 100%;
+  max-height: 380px;
+  object-fit: contain;
+}
+
+.stageCaption {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin: 0;
+  font-family: var(--font-mono);
+}
+
+/* ---------------------------------------------------------------------------
+   Primary Actions Row
+   ------------------------------------------------------------------------ */
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.btnPrimaryLg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-8);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-primary);
+  color: var(--color-text-on-brand);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.btnPrimaryLg:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.btnSecondary:hover {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-bg-muted);
+}

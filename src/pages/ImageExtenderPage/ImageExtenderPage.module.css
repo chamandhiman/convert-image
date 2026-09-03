@@ -1,0 +1,573 @@
+/* =============================================================================
+   AI Image Extender Page Styles
+   ========================================================================== */
+
+.pageWrap {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Privacy notice banner */
+.privacyBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: hsla(var(--color-primary-hsl, 230 90% 56%), 0.08);
+  border: 1px solid hsla(var(--color-primary-hsl, 230 90% 56%), 0.2);
+  color: var(--color-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-4);
+}
+
+/* ---------------------------------------------------------------------------
+   Editor Workspace (LOADED phase)
+   ------------------------------------------------------------------------ */
+.editorWorkspace {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.controlsCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.controlsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+/* Preset Buttons Bar */
+.presetsBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.presetBtn {
+  padding: 8px 16px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.presetBtn:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.presetBtnActive {
+  background: hsla(var(--color-primary-hsl, 230 90% 56%), 0.12);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Directional Inputs Grid */
+.paddingInputsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.inputLabel {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.numberInput {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.numberInput:focus {
+  border-color: var(--color-primary);
+}
+
+/* Optional Prompt Box */
+.promptRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.promptInput {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.promptInput:focus {
+  border-color: var(--color-primary);
+}
+
+.promptInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Primary Action Bar */
+.editorActionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.dimSummary {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.dimSummary strong {
+  color: var(--color-text);
+}
+
+/* ---------------------------------------------------------------------------
+   Processing Overlay Modal
+   ------------------------------------------------------------------------ */
+.processingOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 20, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.processingCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.spinnerHalo {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-full);
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-top-color: var(--color-primary);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.processingHeadline {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.processingSubtext {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.progressMessage {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  font-weight: 600;
+  background: hsla(var(--color-primary-hsl, 230 90% 56%), 0.08);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.progressBarWrap {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin: var(--space-1) 0;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+/* ---------------------------------------------------------------------------
+   Result Screen & Comparison
+   ------------------------------------------------------------------------ */
+.resultWorkspace {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* View Mode Segmented Control */
+.viewModeNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.viewModeToggle {
+  display: inline-flex;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  gap: 2px;
+}
+
+.toggleBtn {
+  padding: 6px 16px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toggleBtn:hover {
+  color: var(--color-text);
+}
+
+.toggleBtnActive {
+  background: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+/* Side by Side Grid (DEFAULT) */
+.sideBySideGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.comparisonCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardTag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.cardTagResult {
+  color: var(--color-primary);
+}
+
+.cardDim {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.cardPreviewBox {
+  width: 100%;
+  height: 380px;
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewImg {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Split Comparison Slider */
+.splitBox {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-subtle);
+  user-select: none;
+}
+
+.splitImgAfter {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.splitImgBeforeWrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.splitImgBefore {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.splitDivider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.splitHandle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  background: #ffffff;
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a1a2e;
+}
+
+.splitRangeInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: ew-resize;
+  margin: 0;
+}
+
+/* Overlay Comparison View */
+.overlayBox {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlayControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.overlaySlider {
+  width: 240px;
+  accent-color: var(--color-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   Result Action Bar (Desktop & Mobile)
+   ------------------------------------------------------------------------ */
+.resultActionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding-top: var(--space-2);
+}
+
+.actionGroupLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.actionGroupRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+
+.formatSelect {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 8px 12px;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.formatSelect:focus {
+  border-color: var(--color-primary);
+}
+
+/* Error State Block */
+.errorBlock {
+  background: hsla(0, 84%, 60%, 0.1);
+  border: 1px solid hsla(0, 84%, 60%, 0.3);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  text-align: center;
+  margin: var(--space-6) 0;
+}
+
+.errorTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: #ef4444;
+  margin: 0 0 var(--space-2);
+}
+
+.errorText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-4);
+}
+
+.errorActionsRow {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+/* ---------------------------------------------------------------------------
+   Mobile Layout
+   ------------------------------------------------------------------------ */
+@media (max-width: 767px) {
+  .sideBySideGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .paddingInputsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .resultActionBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .actionGroupLeft {
+    order: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  .actionGroupLeft > *:last-child {
+    grid-column: span 2;
+  }
+
+  .actionGroupRight {
+    order: 1;
+    width: 100%;
+    margin-left: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-2);
+  }
+
+  .actionGroupRight > button {
+    width: 100%;
+  }
+}

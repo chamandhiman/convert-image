@@ -1,0 +1,101 @@
+/* =============================================================================
+   CleanContent — Typography and layout for educational / SEO content.
+   ========================================================================== */
+
+.prose {
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.prose h2 {
+  margin-top: var(--space-6);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.prose h2:first-child {
+  margin-top: 0;
+}
+
+.prose p {
+  line-height: var(--line-height-relaxed);
+}
+
+.prose ul,
+.prose ol {
+  padding-inline-start: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.prose li {
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+}
+
+/* ---------------------------------------------------------------------------
+   FAQ — collapsible details
+   ------------------------------------------------------------------------ */
+.faq {
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.faq + .faq {
+  margin-top: calc(-1 * var(--border-width));
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.faq:has(+ .faq) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.faq summary {
+  padding: var(--space-4);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::after {
+  content: '+';
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.faq[open] summary::after {
+  content: '−';
+}
+
+.faq summary:hover {
+  background-color: var(--color-bg-subtle);
+}
+
+.faq p {
+  padding: 0 var(--space-4) var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}

@@ -1,0 +1,61 @@
+/* =============================================================================
+   ToolPageLayout
+   ========================================================================== */
+
+.hero {
+  padding-block: clamp(var(--space-10), 5vw, var(--space-16))
+    clamp(var(--space-6), 3vw, var(--space-10));
+  background-color: var(--color-bg-subtle);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.heroInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-full);
+  border: var(--border-width) solid var(--color-border-strong);
+  background-color: var(--color-bg-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-tight);
+  max-width: 20ch;
+}
+
+.subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  max-width: 48ch;
+  line-height: var(--line-height-relaxed);
+}
+
+/* ---------------------------------------------------------------------------
+   Tool workspace
+   ------------------------------------------------------------------------ */
+.workspace {
+  padding-block: var(--space-8) var(--space-12);
+}
+
+/* ---------------------------------------------------------------------------
+   Content / SEO section
+   ------------------------------------------------------------------------ */
+.content {
+  padding-block: var(--space-12) var(--space-16);
+  border-top: var(--border-width) solid var(--color-border);
+}

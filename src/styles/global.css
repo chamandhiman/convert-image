@@ -1,0 +1,14 @@
+/* =============================================================================
+   Global stylesheet entry point.
+   Import order matters: tokens define the variables everything else consumes,
+   the reset clears UA defaults, base applies element styling, utilities last so
+   helper classes can win over element rules.
+
+   This is the only stylesheet imported by main.jsx. Component styles are
+   colocated as *.module.css next to the component that owns them.
+   ========================================================================== */
+
+@import './tokens.css';
+@import './reset.css';
+@import './base.css';
+@import './utilities.css';

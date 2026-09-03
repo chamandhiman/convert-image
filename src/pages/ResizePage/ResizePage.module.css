@@ -1,0 +1,819 @@
+/* =============================================================================
+   ResizePage — Image Resizer Styles
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Privacy Banner
+   ------------------------------------------------------------------------ */
+.privacyBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-subtle);
+  border: var(--border-width) solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.privacyIcon {
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Workspace Grid (Two Columns on Desktop / Tablet)
+   ------------------------------------------------------------------------ */
+.workspace {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .workspace {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Panels
+   ------------------------------------------------------------------------ */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.panelTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  letter-spacing: 0;
+  margin: 0;
+}
+
+.replaceBtn {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.replaceBtn:hover {
+  opacity: 0.8;
+}
+
+.resetBtn {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.resetBtn:hover {
+  color: var(--color-text);
+}
+
+/* ---------------------------------------------------------------------------
+   Preview Box
+   ------------------------------------------------------------------------ */
+.previewBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-bg-subtle);
+  border-radius: var(--radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  padding: var(--space-4);
+  max-height: 280px;
+  overflow: hidden;
+}
+
+.sourcePreview {
+  max-width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+}
+
+/* ---------------------------------------------------------------------------
+   Metadata List
+   ------------------------------------------------------------------------ */
+.metaList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0);
+  min-width: 0;
+}
+
+.metaItem dt {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.metaItem dd {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.dimensionBadge {
+  font-family: var(--font-mono);
+  color: var(--color-primary) !important;
+}
+
+.truncateText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.formatBadge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-xs);
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---------------------------------------------------------------------------
+   Mode Switcher Tabs
+   ------------------------------------------------------------------------ */
+.modeTabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  background-color: var(--color-bg-muted);
+  border-radius: var(--radius-lg);
+  gap: 2px;
+}
+
+.modeTab {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.modeTabActive {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ---------------------------------------------------------------------------
+   Mode A: Dimensions Controls
+   ------------------------------------------------------------------------ */
+.controlsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dimensionsRow {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.dimensionField {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.fieldLabel {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.inputWithSuffix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.numberInput {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  padding-right: var(--space-8);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.numberInput:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  outline: none;
+}
+
+.inputSuffix {
+  position: absolute;
+  right: var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  pointer-events: none;
+  user-select: none;
+}
+
+.lockContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding-bottom: 2px;
+}
+
+.lockBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.lockBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.lockBtnActive {
+  background-color: var(--color-primary-subtle);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.lockText {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   Mode B: Percentage Controls
+   ------------------------------------------------------------------------ */
+.presetGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.presetBtn {
+  flex: 1 1 calc(25% - var(--space-2));
+  min-width: 3.5rem;
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.presetBtn:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+.presetBtnActive {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: var(--color-text-on-brand);
+  font-weight: var(--font-weight-bold);
+}
+
+.customPctRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+
+.customPctRow .inputWithSuffix {
+  max-width: 7rem;
+}
+
+.pctResultPreview {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.pctResultPreview strong {
+  color: var(--color-text);
+  font-family: var(--font-mono);
+}
+
+/* ---------------------------------------------------------------------------
+   Select & Slider Controls
+   ------------------------------------------------------------------------ */
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.select {
+  appearance: none;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  padding-right: var(--space-8);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.select:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  outline: none;
+}
+
+.sliderHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.qualityValue {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  min-width: 3.5ch;
+  text-align: right;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-muted);
+  outline: none;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  border: 2px solid var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: var(--shadow-md);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  border: 2px solid var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.slider:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+}
+
+.controlHint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Buttons
+   ------------------------------------------------------------------------ */
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-primary);
+  color: var(--color-text-on-brand);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-standard);
+  border: none;
+  cursor: pointer;
+}
+
+.btnPrimary:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btnPrimary:active {
+  background-color: var(--color-primary-active);
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+  cursor: pointer;
+}
+
+.btnSecondary:hover {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-bg-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Resizing State / Spinner
+   ------------------------------------------------------------------------ */
+.resizingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-16) var(--space-6);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid var(--color-border);
+  text-align: center;
+}
+
+.resizingText {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.spinnerDot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.spinnerDot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.spinnerDot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes pulse {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Error Block
+   ------------------------------------------------------------------------ */
+.errorBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8);
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid color-mix(in srgb, var(--color-danger) 30%, transparent);
+  background-color: color-mix(in srgb, var(--color-danger) 5%, transparent);
+  text-align: center;
+}
+
+.errorTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-danger);
+  margin: 0;
+}
+
+.errorText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  max-width: 48ch;
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Results Workspace
+   ------------------------------------------------------------------------ */
+.resultsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Summary Bar */
+.summaryBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.summaryLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.summaryValue {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+}
+
+.summaryArrow {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+}
+
+.dimensionBadgeResult {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0;
+}
+
+.badgeSuccess {
+  background-color: color-mix(in srgb, var(--color-success) 12%, transparent);
+  color: var(--color-success);
+  border: var(--border-width) solid color-mix(in srgb, var(--color-success) 30%, transparent);
+}
+
+.badgeInfo {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+  border: var(--border-width) solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+/* Before & After Comparison Grid */
+.comparisonGrid {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .comparisonGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.comparisonCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.cardBadge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-muted);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.cardBadgeActive {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+.cardTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+.comparisonPreviewBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-bg-subtle);
+  border-radius: var(--radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  padding: var(--space-4);
+  min-height: 220px;
+  max-height: 280px;
+  overflow: hidden;
+}
+
+.comparisonImg {
+  max-width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+}
+
+.cardMetaList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: 0;
+  padding-top: var(--space-2);
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.cardMetaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardMetaItem dt {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.cardMetaItem dd {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.highlightedDim {
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-mono);
+  color: var(--color-primary) !important;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}

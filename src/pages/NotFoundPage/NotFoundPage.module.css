@@ -1,0 +1,90 @@
+/* =============================================================================
+   NotFoundPage
+   ========================================================================== */
+
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - var(--header-height) - 12rem);
+  padding-block: var(--space-section);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  max-width: 28rem;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: clamp(4rem, 12vw, 8rem);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  letter-spacing: var(--letter-spacing-tight);
+  background: linear-gradient(
+    135deg,
+    var(--color-neutral-300),
+    var(--color-neutral-200)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  user-select: none;
+}
+
+:root[data-theme='dark'] .code {
+  background: linear-gradient(
+    135deg,
+    var(--color-neutral-700),
+    var(--color-neutral-800)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+}
+
+.message {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  max-width: 36ch;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-primary);
+  color: var(--color-text-on-brand);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.action:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-on-brand);
+}
+
+.action:active {
+  background-color: var(--color-primary-active);
+  transform: translateY(0);
+  box-shadow: none;
+}

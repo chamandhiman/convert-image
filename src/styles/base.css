@@ -1,0 +1,192 @@
+/* =============================================================================
+   Base
+   Element-level defaults built on the design tokens. Everything here is global
+   and unclassed — component styles live in CSS Modules.
+   ========================================================================== */
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-normal);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
+}
+
+/* ---------------------------------------------------------------------------
+   Headings
+   ------------------------------------------------------------------------ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text);
+}
+
+h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+}
+
+h2 {
+  font-size: var(--font-size-3xl);
+}
+
+h3 {
+  font-size: var(--font-size-2xl);
+}
+
+h4 {
+  font-size: var(--font-size-xl);
+}
+
+h5 {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-snug);
+}
+
+h6 {
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-snug);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+/* ---------------------------------------------------------------------------
+   Text
+   ------------------------------------------------------------------------ */
+p {
+  color: var(--color-text-secondary);
+}
+
+small {
+  font-size: var(--font-size-sm);
+}
+
+strong,
+b {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+code {
+  background-color: var(--color-bg-muted);
+  border-radius: var(--radius-xs);
+  padding: 0.15em 0.4em;
+}
+
+pre {
+  background-color: var(--color-bg-subtle);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  overflow-x: auto;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+hr {
+  border: none;
+  border-top: var(--border-width) solid var(--color-border);
+  margin-block: var(--space-8);
+}
+
+/* ---------------------------------------------------------------------------
+   Links
+   ------------------------------------------------------------------------ */
+a {
+  color: var(--color-primary);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* ---------------------------------------------------------------------------
+   Lists
+   ------------------------------------------------------------------------ */
+ul:not([role='list']),
+ol:not([role='list']) {
+  padding-inline-start: var(--space-5);
+  color: var(--color-text-secondary);
+}
+
+li + li {
+  margin-top: var(--space-1);
+}
+
+/* ---------------------------------------------------------------------------
+   Focus
+   One consistent, visible focus ring for keyboard users everywhere.
+   ------------------------------------------------------------------------ */
+:focus-visible {
+  outline: var(--border-width-thick) solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* Drop the ring for pointer interaction only — never remove it wholesale. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-brand);
+}
+
+/* ---------------------------------------------------------------------------
+   Scrollbars — subtle, theme-aware.
+   ------------------------------------------------------------------------ */
+@supports selector(::-webkit-scrollbar) {
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: var(--color-bg-subtle);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-strong);
+    border: 3px solid transparent;
+    border-radius: var(--radius-full);
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-text-muted);
+  }
+}

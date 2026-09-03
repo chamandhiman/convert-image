@@ -1,0 +1,212 @@
+/* =============================================================================
+   AI Models & Licenses Page
+   ========================================================================== */
+
+.page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.pageTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 var(--space-3);
+}
+
+.pageIntro {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  margin: 0 0 var(--space-8);
+  max-width: 680px;
+}
+
+/* ---------------------------------------------------------------------------
+   Model Cards
+   ------------------------------------------------------------------------ */
+.modelCards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.modelCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  transition: border-color 0.2s ease;
+}
+
+.modelCard:hover {
+  border-color: var(--color-border-strong);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.modelName {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.licenseBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-primary);
+  background: hsla(var(--color-primary-hsl, 230 90% 56%), 0.1);
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* Meta list — key/value pairs */
+.metaList {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+}
+
+.metaLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.metaValue {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.metaValue a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.metaValue a:hover {
+  text-decoration: underline;
+}
+
+/* Required notice block */
+.noticeBlock {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.noticeTitle {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 var(--space-2);
+}
+
+.noticeText {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-line;
+  font-family: var(--font-mono, 'SF Mono', 'Fira Code', monospace);
+}
+
+/* ---------------------------------------------------------------------------
+   Additional Section
+   ------------------------------------------------------------------------ */
+.additionalSection {
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 var(--space-3);
+}
+
+.sectionText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.runtimeList {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-4) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.runtimeItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.runtimeItem strong {
+  white-space: nowrap;
+}
+
+.runtimeItem a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.runtimeItem a:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------------------ */
+@media (max-width: 640px) {
+  .page {
+    padding: var(--space-6) var(--space-3);
+  }
+
+  .modelCard {
+    padding: var(--space-4);
+  }
+
+  .metaList {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  .metaLabel {
+    margin-top: var(--space-2);
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+}

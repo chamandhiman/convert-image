@@ -1,0 +1,962 @@
+/* =============================================================================
+   ObjectRemoverPage — Premium AI Object Remover Editor Styles
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Privacy Banner
+   ------------------------------------------------------------------------ */
+.privacyBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-subtle);
+  border: var(--border-width) solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.privacyIcon {
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Idle Upload
+   ------------------------------------------------------------------------ */
+.idleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Editor Workspace
+   ------------------------------------------------------------------------ */
+.editorWorkspace {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-4);
+  max-width: 62rem;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.editorTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-subtle);
+  border: var(--border-width) solid var(--color-border);
+}
+
+.metaInfo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.photoName {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.photoDims {
+  font-size: var(--font-size-xs);
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+}
+
+.btnChangeImage {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+  font-weight: var(--font-weight-medium);
+}
+.btnChangeImage:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------------------
+   Editor Toolbar (tool mode selector + hardness)
+   ------------------------------------------------------------------------ */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.toolGroupRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.toolGroupLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  white-space: nowrap;
+}
+
+.toolGroupBtns {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.toolModeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+  white-space: nowrap;
+}
+.toolModeBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+.toolModeBtnActive {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+.toolBtnLabelText {
+  display: none;
+}
+@media (min-width: 480px) {
+  .toolBtnLabelText {
+    display: inline;
+  }
+}
+
+.hardnessRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sliderLbl {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.inlineSlider {
+  width: 8rem;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------------
+   Validation Banner
+   ------------------------------------------------------------------------ */
+.validationBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background-color: color-mix(in srgb, var(--color-warning, #f59e0b) 12%, transparent);
+  border: var(--border-width) solid color-mix(in srgb, var(--color-warning, #f59e0b) 40%, transparent);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  width: 100%;
+}
+.validationBanner svg {
+  color: var(--color-warning, #f59e0b);
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Editor Actions (Remove / Clear)
+   ------------------------------------------------------------------------ */
+.editorActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+/* ---------------------------------------------------------------------------
+   Processing — editor-overlay layout
+   ------------------------------------------------------------------------ */
+
+/* Outer container holds the dimmed editor + floating card */
+.processingEditorWrap {
+  position: relative;
+  max-width: 62rem;
+  margin-inline: auto;
+  width: 100%;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+}
+
+/* The dimmed/blurred editor preview behind the card */
+.processingEditorDim {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  filter: blur(3px) brightness(0.55);
+  pointer-events: none;
+  user-select: none;
+}
+
+.processingPreviewImg {
+  width: 100%;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background-color: #0b0f19;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.processingPreviewImg img {
+  display: block;
+  width: 100%;
+  max-height: 55vh;
+  object-fit: contain;
+}
+
+/* Frosted card centered over the dim layer */
+.processingOverlayCard {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: var(--space-10) var(--space-8);
+  text-align: center;
+}
+
+/* ── Animated SVG ring ────────────────────────────────── */
+.processingRingWrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+}
+
+.processingRing {
+  width: 72px;
+  height: 72px;
+  animation: ringRotate 1.4s linear infinite;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--color-primary) 45%, transparent));
+}
+
+@keyframes ringRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Percentage number inside the ring */
+.processingRingPercent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-mono);
+  color: var(--color-text);
+  pointer-events: none;
+}
+
+/* ── Text block ──────────────────────────────────────── */
+.processingTextWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 28rem;
+}
+
+.processingHeadline {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.5);
+}
+
+.processingSubtext {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: rgba(255,255,255,0.82);
+  margin: 0;
+  line-height: var(--line-height-relaxed);
+  transition: opacity 0.4s ease;
+}
+
+.processingHint {
+  font-size: var(--font-size-xs);
+  color: rgba(255,255,255,0.52);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+/* ── Progress track ─────────────────────────────────── */
+.processingTrack {
+  width: min(22rem, 90%);
+  height: 4px;
+  border-radius: var(--radius-full);
+  background-color: rgba(255,255,255,0.15);
+  overflow: hidden;
+}
+
+.processingTrackFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-primary), hsl(270,68%,68%));
+  transition: width 0.35s ease-out;
+  /* Indeterminate shimmer when no explicit width */
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { opacity: 0.6; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.processingTrackFill[style] {
+  animation: none;
+}
+
+/* ── Cancel button ──────────────────────────────────── */
+.btnCancelOverlay {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  padding: var(--space-2) var(--space-5);
+  backdrop-filter: blur(4px);
+  transition: color var(--duration-fast) ease,
+              border-color var(--duration-fast) ease,
+              background-color var(--duration-fast) ease;
+  letter-spacing: 0.02em;
+}
+.btnCancelOverlay:hover {
+  color: rgba(255,255,255,0.9);
+  border-color: rgba(255,80,80,0.5);
+  background: rgba(255,60,60,0.1);
+}
+
+/* ---------------------------------------------------------------------------
+   Error Block — premium consumer-friendly
+   ------------------------------------------------------------------------ */
+.errorBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-10) var(--space-8);
+  border-radius: var(--radius-2xl);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-surface);
+  text-align: center;
+  max-width: 36rem;
+  margin-inline: auto;
+}
+
+.errorIconWrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  border: var(--border-width) solid color-mix(in srgb, var(--color-danger) 25%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-danger);
+  flex-shrink: 0;
+}
+
+.errorTextWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.errorTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin: 0;
+}
+.errorText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+.errorActionsRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+/* ---------------------------------------------------------------------------
+   Result Workspace
+   ------------------------------------------------------------------------ */
+.resultWorkspace {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 64rem;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.resultHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.resultHeadingWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.successBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-success);
+}
+
+.resultTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin: 0;
+  max-width: 36ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dimensionFlow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-mono);
+  margin: 0;
+}
+
+.dimOriginal { color: var(--color-text-muted); }
+.dimDivider  { color: var(--color-border-strong); }
+.dimResult   { color: var(--color-text); font-weight: var(--font-weight-bold); }
+.dimTime     { color: var(--color-text-secondary); }
+.backendBadge {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-muted);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---------------------------------------------------------------------------
+   View Mode Toggle (Segmented control)
+   ------------------------------------------------------------------------ */
+.viewModeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-xl);
+  background-color: var(--color-bg-muted);
+  border: var(--border-width) solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.viewModeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-standard);
+  white-space: nowrap;
+}
+
+.viewModeBtn:hover {
+  color: var(--color-text);
+}
+
+.viewModeBtnActive {
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------------------------------------------------------------------------
+   Phase Transition Animations
+   ------------------------------------------------------------------------ */
+.phaseIn {
+  animation: phaseFadeIn var(--duration-normal, 250ms) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes phaseFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Split Viewer
+   ------------------------------------------------------------------------ */
+.splitViewer {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
+  background-color: #0b0f19;
+  cursor: col-resize;
+  user-select: none;
+  box-shadow: var(--shadow-md);
+  min-height: 200px;
+  touch-action: none;
+}
+
+.enhancedLayer {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.originalLayerClip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  border-right: 2px solid rgba(255, 255, 255, 0.85);
+}
+
+.originalLayer {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: left center;
+  pointer-events: none;
+}
+
+.badgeLeft {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+.badgeRight {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+.sliderHandle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 3px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.handleLine {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.handleButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: var(--color-text);
+}
+
+/* ---------------------------------------------------------------------------
+   Side by Side
+   ------------------------------------------------------------------------ */
+.sideBySideWrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+}
+
+@media (max-width: 500px) {
+  .sideBySideWrap {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sideBySidePanel {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
+  background-color: #0b0f19;
+}
+
+.sideBySideImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.sideLabel {
+  position: absolute;
+  bottom: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background-color: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   Overlay View
+   ------------------------------------------------------------------------ */
+.overlayWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-border);
+}
+
+.overlayImgStack {
+  position: relative;
+  width: 100%;
+}
+
+.overlayBase {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.overlayTop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.05s linear;
+}
+
+.overlaySliderRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  width: 100%;
+}
+
+.overlaySliderLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.overlaySlider {
+  flex: 1;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.overlayHint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin: 0;
+  padding-bottom: var(--space-3);
+}
+
+/* ---------------------------------------------------------------------------
+   Result Action Bar — Desktop & Mobile Layout
+   ------------------------------------------------------------------------ */
+.resultActionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding-top: var(--space-2);
+}
+
+.actionGroupLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.actionGroupRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+
+@media (max-width: 767px) {
+  .resultActionBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .actionGroupLeft {
+    order: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  .actionGroupLeft > *:last-child {
+    grid-column: span 2;
+  }
+
+  .actionGroupRight {
+    order: 1;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .actionGroupRight > * {
+    width: 100%;
+  }
+}
+
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+/* ---------------------------------------------------------------------------
+   Shared Buttons
+   ------------------------------------------------------------------------ */
+.btnPrimaryLg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-primary);
+  color: var(--color-text-on-brand);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              transform var(--duration-fast) var(--ease-standard);
+}
+.btnPrimaryLg:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-primary);
+  color: var(--color-text-on-brand);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.btnPrimary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-lg);
+  border: var(--border-width) solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+.btnSecondary:hover {
+  background-color: var(--color-bg-muted);
+  border-color: var(--color-border-strong);
+}
+
+/* Active state for Compare button when split mode is on */
+.btnSecondaryActive {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+/* Subtle muted variant for low-priority actions (New Photo etc.) */
+.btnSecondarySubtle {
+  color: var(--color-text-muted);
+  border-color: transparent;
+  background-color: transparent;
+}
+.btnSecondarySubtle:hover {
+  color: var(--color-text);
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-border);
+}
+
+/* Download button — distinct from primary so it doesn't compete */
+.btnDownload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-lg);
+  border: var(--border-width) solid var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+.btnDownload:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+}

@@ -1,0 +1,135 @@
+/* =============================================================================
+   Button — Global Standard Action System
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-snug);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--radius-lg);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.btn:disabled,
+.btnDisabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ---------------------------------------------------------------------------
+   Sizes
+   ------------------------------------------------------------------------ */
+.sizeSm {
+  height: 2.25rem; /* 36px */
+  padding-inline: var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.sizeMd {
+  height: 2.625rem; /* 42px */
+  padding-inline: var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.sizeLg {
+  height: 2.875rem; /* 46px */
+  padding-inline: var(--space-5);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---------------------------------------------------------------------------
+   Variants
+   ------------------------------------------------------------------------ */
+
+/* PRIMARY: Strongest CTA for main tool actions (Download, Remove, Convert, etc.) */
+.variantPrimary {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-brand);
+  border: var(--border-width) solid transparent;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary) 28%, transparent);
+}
+
+.variantPrimary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  color: var(--color-text-on-brand);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--color-primary) 38%, transparent);
+}
+
+.variantPrimary:active:not(:disabled) {
+  background-color: var(--color-primary-active);
+  transform: translateY(0);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--color-primary) 28%, transparent);
+}
+
+/* SECONDARY: Important editing & configuration actions (Edit Again, Adjust, etc.) */
+.variantSecondary {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.variantSecondary:hover:not(:disabled) {
+  background-color: var(--color-bg-muted);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.variantSecondary:active:not(:disabled) {
+  background-color: var(--color-bg-subtle);
+}
+
+/* TERTIARY / SUBTLE: Low priority reset/navigation actions (New Photo, Clear, etc.) */
+.variantTertiary {
+  background-color: transparent;
+  color: var(--color-text-muted);
+  border: var(--border-width) solid transparent;
+  font-weight: var(--font-weight-medium);
+}
+
+.variantTertiary:hover:not(:disabled) {
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text);
+}
+
+.variantTertiary:active:not(:disabled) {
+  background-color: var(--color-bg-muted);
+}
+
+/* Full Width helper */
+.fullWidth {
+  width: 100%;
+}
+
+/* Icon container within button */
+.btnIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

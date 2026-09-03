@@ -1,0 +1,33 @@
+.wrapper {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-3);
+  min-height: 100dvh;
+  padding: var(--space-section) var(--container-padding);
+  text-align: center;
+}
+
+.status {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-danger);
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+}
+
+.message {
+  max-width: 42ch;
+  color: var(--color-text-secondary);
+}
+
+.action {
+  margin-top: var(--space-2);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
