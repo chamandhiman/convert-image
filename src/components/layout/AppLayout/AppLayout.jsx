@@ -2,38 +2,41 @@ import { Outlet, useNavigation } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import RouteScrollReset from '@/components/layout/RouteScrollReset';
+import BackToTopButton from '@/components/layout/BackToTopButton';
+import { DragProvider } from '@/hooks/useDragOverlay';
+import DragOverlay from '@/components/ui/DragOverlay';
 
 import styles from './AppLayout.module.css';
 
-/**
- * Application shell.
- *
- * Owns the page frame every route shares: skip link, sticky header, the main
- * landmark, and the footer. Route content renders through <Outlet />.
- *
- * The CSS grid keeps the footer pinned to the bottom on short pages.
- */
 function AppLayout() {
   const navigation = useNavigation();
   const isNavigating = navigation.state === 'loading';
 
   return (
-    <div className={styles.shell}>
-      <a className="skip-link" href="#main-content">
-        Skip to main content
-      </a>
+    <DragProvider>
+      <div className={styles.shell}>
+        <RouteScrollReset />
 
-      <Header />
+        <a className="skip-link" href="#main-content">
+          Skip to main content
+        </a>
 
-      <main
-        id="main-content"
-        className={`${styles.main} ${isNavigating ? styles.mainLoading : ''}`}
-      >
-        <Outlet />
-      </main>
+        <Header />
 
-      <Footer />
-    </div>
+        <main
+          id="main-content"
+          className={`${styles.main} ${isNavigating ? styles.mainLoading : ''}`}
+        >
+          <Outlet />
+        </main>
+
+        <Footer />
+
+        <BackToTopButton />
+        <DragOverlay />
+      </div>
+    </DragProvider>
   );
 }
 

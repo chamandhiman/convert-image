@@ -1,11 +1,19 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import ToolPageLayout from '@/components/layout/ToolPageLayout';
-import FileUploader from '@/components/ui/FileUploader';
-import ImagePreview from '@/components/ui/ImagePreview';
+import MultiImageUploader from '@/components/ui/MultiImageUploader';
+import {
+  ToolTopBar,
+  ToolImageGrid,
+  ToolImageCard,
+  ToolResultGrid,
+  ToolResultCard,
+  ToolProcessingState,
+  ToolResultToolbar,
+} from '@/components/ui/tool-ui';
 import { Button } from '@/components/ui/Button';
-import { IconDownload, IconImagePlus } from '@/components/ui/Icons/Icons';
+import { IconSparkles } from '@/components/ui/Icons/Icons';
 import { formatFileSize } from '@/utils/formatFileSize';
 import {
   CONVERT_INPUT_TYPES,
@@ -29,9 +37,6 @@ import { consumePendingToolInput } from '@/utils/toolStateBridge';
 import OptimizeContent from './OptimizeContent';
 import styles from './OptimizePage.module.css';
 
-/* ---------------------------------------------------------------------- */
-/*  State machine phases                                                  */
-/* ---------------------------------------------------------------------- */
 const PHASE = {
   IDLE: 'idle',
   LOADED: 'loaded',
@@ -40,45 +45,39 @@ const PHASE = {
   ERROR: 'error',
 };
 
-function OptimizePage() {
+function OptimizePage({ embedded }) {
   useDocumentTitle('Smart Image Optimizer — Reduce Image Size Easily');
 
   const [phase, setPhase] = useState(PHASE.IDLE);
-  const [file, setFile] = useState(null);
-  const [img, setImg] = useState(null);
-  const [originalMeta, setOriginalMeta] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
-
-  /* User's selected goal */
+  const [queueItems, setQueueItems] = useState([]);
   const [selectedGoal, setSelectedGoal] = useState(DEFAULT_GOAL_ID);
-
-  /* Advanced settings toggle & overrides */
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [customFormat, setCustomFormat] = useState('auto');
   const [customQuality, setCustomQuality] = useState(null);
   const [customMaxWidth, setCustomMaxWidth] = useState('');
   const [customMaxHeight, setCustomMaxHeight] = useState('');
   const [lockAspectRatio, setLockAspectRatio] = useState(true);
-
-  /* Supported formats list */
   const outputFormats = useMemo(() => getSupportedOutputFormats(), []);
-
-  /* Result */
-  const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [processingIndex, setProcessingIndex] = useState(0);
 
-  /* -------------------------------------------------------------------- */
-  /*  Cleanup helper                                                      */
-  /* -------------------------------------------------------------------- */
-  const cleanup = () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    if (result?.url) URL.revokeObjectURL(result.url);
-    setFile(null);
-    setImg(null);
-    setOriginalMeta(null);
-    setPreviewUrl('');
-    setResult(null);
+  const hasImages = queueItems.length > 0;
+  const completedCount = queueItems.filter((i) => i.status === 'complete').length;
+
+  const totalSize = useMemo(
+    () => queueItems.reduce((sum, item) => sum + (item.file?.size || 0), 0),
+    [queueItems],
+  );
+
+  const cleanup = useCallback(() => {
+    queueItems.forEach((item) => {
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+      if (item.result?.url) URL.revokeObjectURL(item.result.url);
+    });
+    setQueueItems([]);
     setError('');
+    setPhase(PHASE.IDLE);
+    setProcessingIndex(0);
     setSelectedGoal(DEFAULT_GOAL_ID);
     setShowAdvanced(false);
     setCustomFormat('auto');
@@ -86,70 +85,86 @@ function OptimizePage() {
     setCustomMaxWidth('');
     setCustomMaxHeight('');
     setLockAspectRatio(true);
-    setPhase(PHASE.IDLE);
-  };
+  }, [queueItems]);
 
-  /* -------------------------------------------------------------------- */
-  /*  File selection                                                      */
-  /* -------------------------------------------------------------------- */
-  const handleFileSelect = async (f) => {
-    cleanup();
-    setFile(f);
-    setError('');
+  const handleFilesChange = useCallback((files) => {
+    if (!files || files.length === 0) return;
 
-    try {
-      const image = await loadImage(f);
-      const meta = getImageMeta(image, f);
-      setImg(image);
-      setOriginalMeta(meta);
-      setPreviewUrl(image.src);
-      setPhase(PHASE.LOADED);
-    } catch (err) {
-      setError(err?.message || 'Could not load the image file.');
-      setPhase(PHASE.ERROR);
-    }
-  };
-
-  const handleClear = () => {
-    cleanup();
-  };
-
-  /* Consume staged tool input on mount if navigated from Analyzer */
-  useEffect(() => {
-    const { file: stagedFile, goal: stagedGoal } = consumePendingToolInput();
-    if (stagedFile) {
-      Promise.resolve().then(() => {
-        if (stagedGoal) setSelectedGoal(stagedGoal);
-        handleFileSelect(stagedFile);
+    const accepted = [];
+    Array.from(files).forEach((file) => {
+      const previewUrl = URL.createObjectURL(file);
+      accepted.push({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+        file,
+        previewUrl,
+        status: 'ready',
+        error: '',
+        img: null,
+        meta: null,
+        result: null,
       });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    });
+
+    setQueueItems((prev) => [...prev, ...accepted]);
+    setPhase(PHASE.LOADED);
+    setError('');
   }, []);
 
-  /* -------------------------------------------------------------------- */
-  /*  Deterministic Recommendation Calculation                            */
-  /* -------------------------------------------------------------------- */
+  const handleFileSelect = useCallback(
+    async (file) => {
+      setError('');
+      try {
+        const image = await loadImage(file);
+        const meta = getImageMeta(image, file);
+
+        setQueueItems((prev) =>
+          prev.map((item) =>
+            item.file === file ? { ...item, img: image, meta, status: 'ready' } : item,
+          ),
+        );
+      } catch (err) {
+        setError(err?.message || 'Could not load the image file.');
+      }
+    },
+    [],
+  );
+
+  const handleRemoveItem = useCallback((id) => {
+    setQueueItems((prev) => {
+      const item = prev.find((i) => i.id === id);
+      if (item) {
+        if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+        if (item.result?.url) URL.revokeObjectURL(item.result.url);
+      }
+      return prev.filter((i) => i.id !== id);
+    });
+  }, []);
+
+  const handleClear = useCallback(() => {
+    cleanup();
+  }, [cleanup]);
+
+  const readyItems = queueItems.filter((item) => item.img && item.meta);
+
+  const firstReadyMeta = readyItems.length > 0 ? readyItems[0].meta : null;
+
   const recommendation = useMemo(() => {
-    if (!originalMeta) return null;
+    if (!firstReadyMeta) return null;
 
     const parsedMaxWidth = customMaxWidth ? parseInt(customMaxWidth, 10) : null;
     const parsedMaxHeight = customMaxHeight ? parseInt(customMaxHeight, 10) : null;
 
-    return getOptimizationRecommendation(originalMeta, selectedGoal, {
+    return getOptimizationRecommendation(firstReadyMeta, selectedGoal, {
       format: customFormat,
       quality: customQuality !== null ? customQuality : undefined,
       maxWidth: parsedMaxWidth,
       maxHeight: parsedMaxHeight,
     });
-  }, [originalMeta, selectedGoal, customFormat, customQuality, customMaxWidth, customMaxHeight]);
+  }, [firstReadyMeta, selectedGoal, customFormat, customQuality, customMaxWidth, customMaxHeight]);
 
-  /* -------------------------------------------------------------------- */
-  /*  Optimize action                                                     */
-  /* -------------------------------------------------------------------- */
-  const handleOptimize = async () => {
-    if (!img || !originalMeta || !recommendation) return;
+  const handleOptimize = useCallback(async () => {
+    if (!recommendation || readyItems.length === 0) return;
 
-    // Check if target format is AVIF and verify browser support
     if (recommendation.targetFormat === 'image/avif') {
       const avifFormat = outputFormats.find((f) => f.value === 'image/avif');
       if (!avifFormat?.isSupported) {
@@ -158,7 +173,6 @@ function OptimizePage() {
       }
     }
 
-    // Safety checks
     if (
       recommendation.targetWidth > MAX_CANVAS_DIMENSION ||
       recommendation.targetHeight > MAX_CANVAS_DIMENSION
@@ -174,72 +188,81 @@ function OptimizePage() {
 
     setPhase(PHASE.OPTIMIZING);
     setError('');
+    setProcessingIndex(0);
 
-    try {
-      const output = await resizeImage(img, {
-        width: recommendation.targetWidth,
-        height: recommendation.targetHeight,
-        outputType: recommendation.targetFormat,
-        quality: recommendation.targetQuality / 100,
+    for (let i = 0; i < readyItems.length; i++) {
+      const item = readyItems[i];
+      setProcessingIndex(i + 1);
+
+      try {
+        const output = await resizeImage(item.img, {
+          width: recommendation.targetWidth,
+          height: recommendation.targetHeight,
+          outputType: recommendation.targetFormat,
+          quality: recommendation.targetQuality / 100,
+        });
+
+        setQueueItems((prev) =>
+          prev.map((qItem) =>
+            qItem.id === item.id ? { ...qItem, result: output, status: 'complete' } : qItem,
+          ),
+        );
+      } catch (err) {
+        const errMsg = err?.message || 'Failed to optimize this image.';
+        setQueueItems((prev) =>
+          prev.map((qItem) =>
+            qItem.id === item.id ? { ...qItem, status: 'failed', error: errMsg } : qItem,
+          ),
+        );
+      }
+    }
+
+    setPhase(PHASE.DONE);
+  }, [readyItems, recommendation, outputFormats]);
+
+  const handleDownload = useCallback(
+    (item) => {
+      if (!item.result?.blob || !item.meta) return;
+      const rec = getOptimizationRecommendation(item.meta, selectedGoal, {});
+      const filename = buildOptimizedFilename(
+        item.meta.name,
+        item.result.outputType || rec.targetFormat,
+        selectedGoal,
+      );
+      downloadBlob(item.result.blob, filename);
+    },
+    [selectedGoal],
+  );
+
+  const handleDownloadAll = useCallback(async () => {
+    const completedItems = queueItems.filter((item) => item.status === 'complete' && item.result);
+    if (completedItems.length === 0) return;
+
+    for (const item of completedItems) {
+      const rec = getOptimizationRecommendation(item.meta, selectedGoal, {});
+      const filename = buildOptimizedFilename(
+        item.meta.name,
+        item.result.outputType || rec.targetFormat,
+        selectedGoal,
+      );
+      downloadBlob(item.result.blob, filename);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+  }, [queueItems, selectedGoal]);
+
+  const handleStartAgain = useCallback(() => {
+    cleanup();
+  }, [cleanup]);
+
+  useEffect(() => {
+    const { file: stagedFile, goal: stagedGoal } = consumePendingToolInput();
+    if (stagedFile) {
+      Promise.resolve().then(() => {
+        if (stagedGoal) setSelectedGoal(stagedGoal);
+        handleFilesChange([stagedFile]);
       });
-
-      setResult(output);
-      setPhase(PHASE.DONE);
-    } catch (err) {
-      setError(err?.message || 'Failed to optimize the image.');
-      setPhase(PHASE.ERROR);
     }
-  };
-
-  /* -------------------------------------------------------------------- */
-  /*  Download action                                                     */
-  /* -------------------------------------------------------------------- */
-  const handleDownload = () => {
-    if (!result?.blob || !originalMeta || !recommendation) return;
-    const filename = buildOptimizedFilename(
-      originalMeta.name,
-      result.outputType || recommendation.targetFormat,
-      selectedGoal,
-    );
-    downloadBlob(result.blob, filename);
-  };
-
-  /* -------------------------------------------------------------------- */
-  /*  Result comparison calculation                                       */
-  /* -------------------------------------------------------------------- */
-  const _resultComparison = useMemo(() => {
-    if (!result || !originalMeta) return null;
-
-    const diffBytes = originalMeta.size - result.blob.size;
-    const isSmaller = diffBytes > 0;
-    const isLarger = diffBytes < 0;
-    const absDiff = Math.abs(diffBytes);
-    const percentage = Math.round((absDiff / originalMeta.size) * 100);
-
-    let summaryText = 'Visual quality preserved';
-    if (isLarger) {
-      summaryText =
-        'This version is already smaller in this format. Try another format or stronger optimization.';
-    } else if (percentage >= 50) {
-      summaryText = 'Significant size reduction · Visual quality preserved';
-    } else {
-      summaryText = 'Optimized with selected settings';
-    }
-
-    return {
-      isSmaller,
-      isLarger,
-      isEqual: diffBytes === 0,
-      percentage,
-      diffFormatted: formatFileSize(absDiff),
-      summaryText,
-      badgeLabel: isSmaller
-        ? `${percentage}% smaller`
-        : isLarger
-          ? `${percentage}% larger`
-          : 'Same file size',
-    };
-  }, [result, originalMeta]);
+  }, [handleFilesChange]);
 
   return (
     <ToolPageLayout
@@ -247,457 +270,351 @@ function OptimizePage() {
       title="Smart Image Optimizer"
       subtitle="Optimize images based on how you plan to use them. Sensible recommendations, zero complex guesswork."
       content={<OptimizeContent />}
+      contentFullWidth
+      embedded={embedded}
+      showHero={false}
     >
-      {/* ================================================================ */}
-      {/*  Privacy banner                                                  */}
-      {/* ================================================================ */}
-      <div className={styles.privacyBanner} role="note">
-        <svg
-          className={styles.privacyIcon}
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-        <span>
-          Your image stays on your device. Processing happens locally in your browser.
-        </span>
-      </div>
-
-      {/* ================================================================ */}
-      {/*  IDLE — File Uploader                                            */}
-      {/* ================================================================ */}
-      {phase === PHASE.IDLE && (
-        <FileUploader
-          onFileSelect={handleFileSelect}
-          file={file}
-          onClear={handleClear}
-          accept={CONVERT_ACCEPT_STRING}
-          acceptedTypes={CONVERT_INPUT_TYPES}
-          hint="JPG, PNG, WebP, AVIF, GIF, SVG — up to 50 MB"
-        />
-      )}
-
-      {/* ================================================================ */}
-      {/*  ERROR — Message & Retry                                         */}
-      {/* ================================================================ */}
-      {phase === PHASE.ERROR && (
-        <div className={styles.errorBlock} role="alert">
-          <p className={styles.errorTitle}>Optimization Error</p>
-          <p className={styles.errorText}>{error}</p>
-          <button type="button" className={styles.btnSecondary} onClick={handleClear}>
-            Try another image
-          </button>
-        </div>
-      )}
-
-      {/* ================================================================ */}
-      {/*  LOADED — Goal selection & Smart recommendations                 */}
-      {/* ================================================================ */}
-      {phase === PHASE.LOADED && originalMeta && recommendation && (
-        <div className={styles.optimizerWorkspace}>
-          {/* Section 1: Original Image Overview */}
-          <div className={styles.imageHeaderCard}>
-            <div className={styles.imageThumbnailWrap}>
-              <ImagePreview
-                src={previewUrl}
-                alt={originalMeta.name}
-                className={styles.compactPreview}
-              />
-            </div>
-            <div className={styles.imageDetails}>
-              <div className={styles.titleRow}>
-                <h2 className={styles.imageFileName} title={originalMeta.name}>
-                  {originalMeta.name}
-                </h2>
-                <button
-                  type="button"
-                  className={styles.changeImageLink}
-                  onClick={handleClear}
-                >
-                  Change image
-                </button>
-              </div>
-              <div className={styles.badgeRow}>
-                <span className={styles.infoPill}>
-                  {getFormatLabel(originalMeta.type, originalMeta.name)}
-                </span>
-                <span className={styles.infoPill}>
-                  {originalMeta.width} × {originalMeta.height} px
-                </span>
-                <span className={styles.infoPill}>
-                  {formatFileSize(originalMeta.size)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Ask the user's goal */}
-          <section className={styles.goalSection} aria-labelledby="goal-prompt">
-            <h3 id="goal-prompt" className={styles.sectionHeading}>
-              What are you using this image for?
-            </h3>
-            <div className={styles.goalsGrid} role="radiogroup" aria-label="Image use case">
-              {OPTIMIZER_GOALS.map((goal) => {
-                const isSelected = selectedGoal === goal.id;
-                return (
-                  <button
-                    key={goal.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    className={`${styles.goalCard} ${isSelected ? styles.goalCardActive : ''}`}
-                    onClick={() => setSelectedGoal(goal.id)}
-                  >
-                    <div className={styles.goalCardTop}>
-                      <span className={styles.goalLabel}>{goal.label}</span>
-                      {goal.badge && (
-                        <span className={styles.goalBadge}>{goal.badge}</span>
-                      )}
-                    </div>
-                    <p className={styles.goalSummary}>{goal.summary}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Section 3: Smart Recommendation Card */}
-          <div className={styles.recommendationCard}>
-            <div className={styles.recHeader}>
-              <div className={styles.recIconWrap} aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-              </div>
+      <div className={styles.converterSurface}>
+        {!hasImages ? (
+          <div className={styles.uploadSurface}>
+            <div className={styles.uploadHeader}>
               <div>
-                <h4 className={styles.recTitle}>
-                  Recommended for {recommendation.goalLabel}
-                </h4>
-                <p className={styles.recRationale}>{recommendation.goalRationale}</p>
+                <h2 className={styles.uploadTitle}>Optimize your images</h2>
+                <p className={styles.uploadDesc}>
+                  Select images and we&rsquo;ll recommend the best format, size, and quality based on your goal.
+                </p>
               </div>
             </div>
 
-            {/* Parameter chips */}
-            <div className={styles.recPillGroup}>
-              <div className={styles.recPill}>
-                <span className={styles.recPillLabel}>Format:</span>
-                <strong>{getFormatLabel(recommendation.targetFormat)}</strong>
-              </div>
-              {!recommendation.isTargetLossless && (
-                <div className={styles.recPill}>
-                  <span className={styles.recPillLabel}>Quality:</span>
-                  <strong>{recommendation.targetQuality}%</strong>
-                </div>
-              )}
-              <div className={styles.recPill}>
-                <span className={styles.recPillLabel}>Resolution:</span>
-                <strong>
-                  {recommendation.targetWidth} × {recommendation.targetHeight} px
-                </strong>
-              </div>
-            </div>
+            <MultiImageUploader
+              onFilesChange={handleFilesChange}
+              onFileSelect={handleFileSelect}
+              accept={CONVERT_ACCEPT_STRING}
+              acceptedTypes={CONVERT_INPUT_TYPES}
+              hint="JPG, PNG, WebP, AVIF, GIF, SVG — up to 50 MB"
+            />
 
-            {/* Pre-optimization Estimate Comparison */}
-            <div className={styles.estimateBox}>
-              <div className={styles.estimateItem}>
-                <span className={styles.estimateLabel}>Original</span>
-                <span className={styles.estimateValue}>
-                  {formatFileSize(originalMeta.size)}
-                </span>
-                <span className={styles.estimateSub}>
-                  {originalMeta.width} × {originalMeta.height} px
-                </span>
-              </div>
-              <span className={styles.estimateArrow} aria-hidden="true">
-                →
-              </span>
-              <div className={styles.estimateItem}>
-                <span className={styles.estimateLabel}>Estimated size</span>
-                <span className={styles.estimateValueHighlight}>
-                  ~{formatFileSize(recommendation.estimatedBytes)}
-                </span>
-                <span className={styles.estimateSub}>
-                  {recommendation.targetWidth} × {recommendation.targetHeight} px
-                </span>
-              </div>
-            </div>
-
-            {/* Context notices */}
-            {recommendation.notices.length > 0 && (
-              <div className={styles.noticesWrap}>
-                {recommendation.notices.map((notice, idx) => (
-                  <p key={idx} className={styles.noticeText}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="12" y1="16" x2="12" y2="12" />
-                      <line x1="12" y1="8" x2="12.01" y2="8" />
-                    </svg>
-                    <span>{notice.message}</span>
-                  </p>
-                ))}
-              </div>
+            {error && (
+              <p className={styles.emptyError} role="status">
+                {error}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className={styles.workspaceSurface}>
+            {phase === PHASE.DONE ? (
+              <ToolResultToolbar
+                completedCount={completedCount}
+                totalCount={queueItems.length}
+                totalSize={formatFileSize(totalSize)}
+                onDownloadAll={handleDownloadAll}
+                onDownloadZip={handleDownloadAll}
+                onStartAgain={handleStartAgain}
+                startAgainLabel="Optimize Another"
+                downloadAllLabel="Download All"
+              />
+            ) : (
+              <ToolTopBar
+                itemCount={queueItems.length}
+                totalSize={totalSize}
+                onAddMore={handleFilesChange}
+                onClearAll={handleClear}
+                addMoreAccept={CONVERT_ACCEPT_STRING}
+              />
             )}
 
-            {/* Primary Optimize CTA */}
-            <button
-              type="button"
-              className={styles.btnPrimaryLg}
-              onClick={handleOptimize}
-              aria-label={`Optimize image for ${recommendation.goalLabel}`}
-            >
-              Optimize Image
-            </button>
-          </div>
-
-          {/* Section 4: Advanced settings toggle */}
-          <div className={styles.advancedToggleRow}>
-            <button
-              type="button"
-              className={styles.advancedToggleBtn}
-              onClick={() => setShowAdvanced((prev) => !prev)}
-              aria-expanded={showAdvanced}
-              aria-controls="advanced-settings-panel"
-            >
-              <span>Want more control?</span>
-              <strong>{showAdvanced ? 'Hide advanced settings ▴' : 'Advanced settings ▾'}</strong>
-            </button>
-          </div>
-
-          {/* Section 5: Advanced Settings Panel */}
-          {showAdvanced && (
-            <div id="advanced-settings-panel" className={styles.advancedPanel}>
-              <h4 className={styles.advancedTitle}>Custom Optimization Overrides</h4>
-
-              <div className={styles.advancedGrid}>
-                {/* Format selection */}
-                <div className={styles.controlField}>
-                  <label htmlFor="adv-format" className={styles.fieldLabel}>
-                    Output format
-                  </label>
-                  <select
-                    id="adv-format"
-                    className={styles.selectInput}
-                    value={customFormat}
-                    onChange={(e) => setCustomFormat(e.target.value)}
-                  >
-                    <option value="auto">
-                      Automatic ({getFormatLabel(recommendation.targetFormat)})
-                    </option>
-                    {outputFormats.map((f) => (
-                      <option key={f.value} value={f.value} disabled={!f.isSupported}>
-                        {f.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Quality slider */}
-                <div className={styles.controlField}>
-                  <div className={styles.sliderHeader}>
-                    <label htmlFor="adv-quality" className={styles.fieldLabel}>
-                      Quality
+            {phase !== PHASE.DONE && (
+              <div className={styles.controlBar}>
+                <div className={styles.controlBarLeft}>
+                  <div className={styles.controlGroup}>
+                    <label className={styles.controlLabel} id="goal-prompt">
+                      What are you using this image for?
                     </label>
-                    <span className={styles.qualityNumber}>
-                      {recommendation.isTargetLossless
-                        ? 'Lossless'
-                        : `${customQuality !== null ? customQuality : recommendation.targetQuality}%`}
-                    </span>
+                    <div className={styles.goalsGrid} role="radiogroup" aria-labelledby="goal-prompt">
+                      {OPTIMIZER_GOALS.map((goal) => {
+                        const isSelected = selectedGoal === goal.id;
+                        return (
+                          <button
+                            key={goal.id}
+                            type="button"
+                            role="radio"
+                            aria-checked={isSelected}
+                            className={`${styles.goalCard} ${isSelected ? styles.goalCardActive : ''}`}
+                            onClick={() => setSelectedGoal(goal.id)}
+                          >
+                            <div className={styles.goalCardTop}>
+                              <span className={styles.goalLabel}>{goal.label}</span>
+                              {goal.badge && (
+                                <span className={styles.goalBadge}>{goal.badge}</span>
+                              )}
+                            </div>
+                            <p className={styles.goalSummary}>{goal.summary}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <input
-                    id="adv-quality"
-                    type="range"
-                    min="10"
-                    max="100"
-                    step="1"
-                    value={customQuality !== null ? customQuality : recommendation.targetQuality}
-                    onChange={(e) => setCustomQuality(Number(e.target.value))}
-                    disabled={recommendation.isTargetLossless}
-                    className={styles.rangeInput}
-                  />
-                  {recommendation.isTargetLossless && (
-                    <span className={styles.fieldHint}>
-                      PNG quality is always lossless.
-                    </span>
+
+                  {recommendation && (
+                    <div className={styles.recommendationCard}>
+                      <div className={styles.recHeader}>
+                        <div className={styles.recIconWrap} aria-hidden="true">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className={styles.recTitle}>
+                            Recommended for {recommendation.goalLabel}
+                          </h4>
+                          <p className={styles.recRationale}>{recommendation.goalRationale}</p>
+                        </div>
+                      </div>
+
+                      <div className={styles.recPillGroup}>
+                        <div className={styles.recPill}>
+                          <span className={styles.recPillLabel}>Format:</span>
+                          <strong>{getFormatLabel(recommendation.targetFormat)}</strong>
+                        </div>
+                        {!recommendation.isTargetLossless && (
+                          <div className={styles.recPill}>
+                            <span className={styles.recPillLabel}>Quality:</span>
+                            <strong>{recommendation.targetQuality}%</strong>
+                          </div>
+                        )}
+                        <div className={styles.recPill}>
+                          <span className={styles.recPillLabel}>Resolution:</span>
+                          <strong>
+                            {recommendation.targetWidth} &times; {recommendation.targetHeight} px
+                          </strong>
+                        </div>
+                      </div>
+
+                      <div className={styles.estimateBox}>
+                        <div className={styles.estimateItem}>
+                          <span className={styles.estimateLabel}>Original</span>
+                          <span className={styles.estimateValue}>
+                            {firstReadyMeta ? formatFileSize(firstReadyMeta.size) : '—'}
+                          </span>
+                          <span className={styles.estimateSub}>
+                            {firstReadyMeta
+                              ? `${firstReadyMeta.width} &times; ${firstReadyMeta.height} px`
+                              : ''}
+                          </span>
+                        </div>
+                        <span className={styles.estimateArrow} aria-hidden="true">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                          </svg>
+                        </span>
+                        <div className={styles.estimateItem}>
+                          <span className={styles.estimateLabel}>Estimated size</span>
+                          <span className={styles.estimateValueHighlight}>
+                            ~{formatFileSize(recommendation.estimatedBytes)}
+                          </span>
+                          <span className={styles.estimateSub}>
+                            {recommendation.targetWidth} &times; {recommendation.targetHeight} px
+                          </span>
+                        </div>
+                      </div>
+
+                      {recommendation.notices.length > 0 && (
+                        <div className={styles.noticesWrap}>
+                          {recommendation.notices.map((notice, idx) => (
+                            <p key={idx} className={styles.noticeText}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                              </svg>
+                              <span>{notice.message}</span>
+                            </p>
+                          ))}
+                        </div>
+                      )}
+
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        icon={<IconSparkles />}
+                        onClick={handleOptimize}
+                        disabled={phase === PHASE.OPTIMIZING}
+                      >
+                        {phase === PHASE.OPTIMIZING ? 'Optimizing…' : 'Optimize Images'}
+                      </Button>
+                    </div>
+                  )}
+
+                  <div className={styles.advancedToggleRow}>
+                    <button
+                      type="button"
+                      className={styles.advancedToggleBtn}
+                      onClick={() => setShowAdvanced((prev) => !prev)}
+                      aria-expanded={showAdvanced}
+                      aria-controls="advanced-settings-panel"
+                    >
+                      <span>Want more control?</span>
+                      <strong>{showAdvanced ? 'Hide advanced settings ▲' : 'Advanced settings ▼'}</strong>
+                    </button>
+                  </div>
+
+                  {showAdvanced && (
+                    <div id="advanced-settings-panel" className={styles.advancedPanel}>
+                      <h4 className={styles.advancedTitle}>Custom Optimization Overrides</h4>
+                      <div className={styles.advancedGrid}>
+                        <div className={styles.controlField}>
+                          <label htmlFor="adv-format" className={styles.fieldLabel}>
+                            Output format
+                          </label>
+                          <select
+                            id="adv-format"
+                            className={styles.selectInput}
+                            value={customFormat}
+                            onChange={(e) => setCustomFormat(e.target.value)}
+                          >
+                            <option value="auto">
+                              Automatic ({recommendation ? getFormatLabel(recommendation.targetFormat) : 'recommended'})
+                            </option>
+                            {outputFormats.map((f) => (
+                              <option key={f.value} value={f.value} disabled={!f.isSupported}>
+                                {f.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className={styles.controlField}>
+                          <div className={styles.sliderHeader}>
+                            <label htmlFor="adv-quality" className={styles.fieldLabel}>
+                              Quality
+                            </label>
+                            <span className={styles.qualityNumber}>
+                              {recommendation && recommendation.isTargetLossless
+                                ? 'Lossless'
+                                : `${customQuality !== null ? customQuality : (recommendation?.targetQuality ?? 82)}%`}
+                            </span>
+                          </div>
+                          <input
+                            id="adv-quality"
+                            type="range"
+                            min="10"
+                            max="100"
+                            step="1"
+                            value={customQuality !== null ? customQuality : (recommendation?.targetQuality ?? 82)}
+                            onChange={(e) => setCustomQuality(Number(e.target.value))}
+                            disabled={recommendation ? recommendation.isTargetLossless : false}
+                            className={styles.rangeInput}
+                          />
+                          {recommendation?.isTargetLossless && (
+                            <span className={styles.fieldHint}>
+                              PNG quality is always lossless.
+                            </span>
+                          )}
+                        </div>
+
+                        <div className={styles.controlField}>
+                          <label htmlFor="adv-max-width" className={styles.fieldLabel}>
+                            Maximum width (px)
+                          </label>
+                          <input
+                            id="adv-max-width"
+                            type="number"
+                            min="1"
+                            max={MAX_CANVAS_DIMENSION}
+                            placeholder={recommendation ? `Auto (${recommendation.targetWidth})` : 'Auto'}
+                            value={customMaxWidth}
+                            onChange={(e) => setCustomMaxWidth(e.target.value)}
+                            className={styles.textInput}
+                          />
+                        </div>
+
+                        <div className={styles.controlField}>
+                          <label htmlFor="adv-max-height" className={styles.fieldLabel}>
+                            Maximum height (px)
+                          </label>
+                          <input
+                            id="adv-max-height"
+                            type="number"
+                            min="1"
+                            max={MAX_CANVAS_DIMENSION}
+                            placeholder={recommendation ? `Auto (${recommendation.targetHeight})` : 'Auto'}
+                            value={customMaxHeight}
+                            onChange={(e) => setCustomMaxHeight(e.target.value)}
+                            className={styles.textInput}
+                          />
+                        </div>
+                      </div>
+
+                      <div className={styles.checkboxRow}>
+                        <label className={styles.checkboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={lockAspectRatio}
+                            onChange={(e) => setLockAspectRatio(e.target.checked)}
+                            className={styles.checkbox}
+                          />
+                          <span>Maintain aspect ratio</span>
+                        </label>
+                      </div>
+                    </div>
                   )}
                 </div>
 
-                {/* Maximum Width */}
-                <div className={styles.controlField}>
-                  <label htmlFor="adv-max-width" className={styles.fieldLabel}>
-                    Maximum width (px)
-                  </label>
-                  <input
-                    id="adv-max-width"
-                    type="number"
-                    min="1"
-                    max={MAX_CANVAS_DIMENSION}
-                    placeholder={`Auto (${recommendation.targetWidth})`}
-                    value={customMaxWidth}
-                    onChange={(e) => setCustomMaxWidth(e.target.value)}
-                    className={styles.textInput}
+                {phase === PHASE.OPTIMIZING && (
+                  <ToolProcessingState
+                    label="Optimizing your images"
+                    current={processingIndex}
+                    total={queueItems.length}
                   />
-                </div>
+                )}
 
-                {/* Maximum Height */}
-                <div className={styles.controlField}>
-                  <label htmlFor="adv-max-height" className={styles.fieldLabel}>
-                    Maximum height (px)
-                  </label>
-                  <input
-                    id="adv-max-height"
-                    type="number"
-                    min="1"
-                    max={MAX_CANVAS_DIMENSION}
-                    placeholder={`Auto (${recommendation.targetHeight})`}
-                    value={customMaxHeight}
-                    onChange={(e) => setCustomMaxHeight(e.target.value)}
-                    className={styles.textInput}
-                  />
-                </div>
+                {phase === PHASE.ERROR && error && (
+                  <div className={styles.errorBlock} role="alert">
+                    <p className={styles.errorTitle}>Optimization Error</p>
+                    <p className={styles.errorText}>{error}</p>
+                    <button type="button" className={styles.btnSecondary} onClick={handleClear}>
+                      Try another image
+                    </button>
+                  </div>
+                )}
+
+                {phase !== PHASE.DONE && (
+                  <ToolImageGrid>
+                    {queueItems.map((item) => (
+                      <ToolImageCard
+                        key={item.id}
+                        previewUrl={item.previewUrl}
+                        fileName={item.file.name}
+                        fileSize={`${(item.file.size / (1024 * 1024)).toFixed(1)} MB`}
+                        status={item.status}
+                        error={item.error}
+                        onRemove={() => handleRemoveItem(item.id)}
+                      />
+                    ))}
+                  </ToolImageGrid>
+                )}
+
+                {phase === PHASE.DONE && (
+                  <ToolResultGrid>
+                    {queueItems.map((item) => (
+                      <ToolResultCard
+                        key={item.id}
+                        previewUrl={item.status === 'complete' && item.result ? item.result.url : item.previewUrl}
+                        fileName={item.file.name}
+                        fileSize={item.meta ? formatFileSize(item.meta.size) : ''}
+                        status={item.status}
+                        error={item.error}
+                        onDownload={() => handleDownload(item)}
+                      />
+                    ))}
+                  </ToolResultGrid>
+                )}
               </div>
-
-              {/* Maintain aspect ratio checkbox */}
-              <div className={styles.checkboxRow}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={lockAspectRatio}
-                    onChange={(e) => setLockAspectRatio(e.target.checked)}
-                    className={styles.checkbox}
-                  />
-                  <span>Maintain aspect ratio</span>
-                </label>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ================================================================ */}
-      {/*  OPTIMIZING — spinner                                            */}
-      {/* ================================================================ */}
-      {phase === PHASE.OPTIMIZING && (
-        <div className={styles.spinner} role="status">
-          <span className={styles.spinnerDot} />
-          <span className={styles.spinnerDot} />
-          <span className={styles.spinnerDot} />
-          <span className="visually-hidden">Optimizing image…</span>
-        </div>
-      )}
-
-      {/* ================================================================ */}
-      {/*  DONE — results                                                  */}
-      {/* ================================================================ */}
-      {phase === PHASE.DONE && result && originalMeta && (
-        <div className={styles.results}>
-          {/* Stats bar */}
-          <div className={styles.statsRow}>
-            <div className={styles.statCard}>
-              <span className={styles.statLabel}>Original</span>
-              <span className={styles.statValue}>{formatFileSize(originalMeta.size)}</span>
-            </div>
-            <div className={styles.statArrow} aria-hidden="true">
-              →
-            </div>
-            <div className={styles.statCard}>
-              <span className={styles.statLabel}>Optimized</span>
-              <span className={styles.statValue}>{formatFileSize(result.blob.size)}</span>
-            </div>
-            <div
-              className={`${styles.statCard} ${reduction > 0 ? styles.statCardSuccess : styles.statCardWarn}`}
-            >
-              <span className={styles.statLabel}>Reduction</span>
-              <span className={styles.statValue}>
-                {reduction > 0 ? `${reduction}%` : 'No reduction'}
-              </span>
-            </div>
+            )}
           </div>
-
-          {/* Comparison grid */}
-          <div className={styles.comparisonGrid}>
-            <div className={styles.comparisonCard}>
-              <h3 className={styles.cardTitle}>Original</h3>
-              <ImagePreview
-                src={previewUrl}
-                alt={`Original: ${originalMeta.name}`}
-                caption={originalMeta.name}
-              />
-              <dl className={styles.cardMeta}>
-                <div className={styles.metaItem}>
-                  <dt>Format</dt>
-                  <dd>{getFormatLabel(originalMeta.type, originalMeta.name)}</dd>
-                </div>
-                <div className={styles.metaItem}>
-                  <dt>Dimensions</dt>
-                  <dd>
-                    {originalMeta.width} × {originalMeta.height} px
-                  </dd>
-                </div>
-                <div className={styles.metaItem}>
-                  <dt>Size</dt>
-                  <dd>{formatFileSize(originalMeta.size)}</dd>
-                </div>
-              </dl>
-            </div>
-
-            <div className={styles.comparisonCard}>
-              <h3 className={styles.cardTitle}>Optimized</h3>
-              <ImagePreview
-                src={result.url}
-                alt={`Optimized: ${buildOptimizedFilename(originalMeta.name, selectedGoalId, resolvedOutputType)}`}
-                caption={buildOptimizedFilename(originalMeta.name, selectedGoalId, resolvedOutputType)}
-              />
-              <dl className={styles.cardMeta}>
-                <div className={styles.metaItem}>
-                  <dt>Format</dt>
-                  <dd>{getFormatLabel(resolvedOutputType)}</dd>
-                </div>
-                <div className={styles.metaItem}>
-                  <dt>Dimensions</dt>
-                  <dd>
-                    {result.width} × {result.height} px
-                  </dd>
-                </div>
-                <div className={styles.metaItem}>
-                  <dt>Size</dt>
-                  <dd className={styles.sizeHighlight}>
-                    {formatFileSize(result.blob.size)}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className={styles.actionsRow}>
-            <Button
-              variant="secondary"
-              icon={<IconImagePlus />}
-              onClick={handleClear}
-              aria-label="Optimize another image"
-            >
-              Optimize Another Image
-            </Button>
-            <Button
-              variant="primary"
-              size="lg"
-              icon={<IconDownload />}
-              onClick={handleDownload}
-              aria-label="Download optimized image"
-            >
-              Download Image
-            </Button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </ToolPageLayout>
   );
 }

@@ -1,0 +1,36 @@
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line-strong);
+  border-radius: 30px;
+  padding: 4px;
+  margin-bottom: 40px;
+  margin-inline: auto;
+}
+
+.toggleBtn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  border: none;
+  background: none;
+  padding: 9px 18px;
+  border-radius: 24px;
+  cursor: pointer;
+  color: var(--color-ink-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.toggleBtnActive {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.saveBadge {
+  font-size: 11px;
+  color: var(--color-success);
+  margin-left: 2px;
+}

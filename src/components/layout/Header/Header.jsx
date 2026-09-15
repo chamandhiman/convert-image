@@ -1,36 +1,59 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { site } from '@/config/site';
 import { ROUTES } from '@/routes/paths';
 
 import styles from './Header.module.css';
 
-/**
- * Site header with brand mark, navigation, and responsive mobile menu.
- *
- * Keyboard-accessible: the mobile toggle is a proper `<button>`, the nav is
- * contained in a `<nav>` landmark, and focus is trapped visually via scroll
- * lock on the body when the drawer is open.
- */
+const CHIP_TOOLS = [
+  { to: ROUTES.convert, label: 'Convert', icon: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z"/><path d="M9 21v-6h6v6"/></svg>
+  ) },
+  { to: ROUTES.compress, label: 'Compress', icon: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M4 21l7-7"/></svg>
+  ) },
+  { to: ROUTES.resize, label: 'Resize', icon: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="4" width="10" height="16" rx="1"/><rect x="16" y="9" width="4" height="11" rx="1"/></svg>
+  ) },
+  { to: ROUTES.removeBackground, label: 'Background remover', pro: true, icon: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+  ) },
+  { to: ROUTES.objectRemover, label: 'Object remover', pro: true, icon: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4M2 12a10 10 0 1 0 5-8.6"/></svg>
+  ) },
+  { to: ROUTES.upscaler, label: 'Upscaler', pro: true, icon: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+  ) },
+  { to: ROUTES.photoRestorer, label: 'Photo restorer', pro: true, icon: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
+  ) },
+  { to: '#tools', label: 'All tools', icon: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+  ) },
+];
+
+const TOP_NAV = [
+  { to: '#tools', label: 'Tools' },
+  { to: '#security', label: 'Security' },
+  { to: '#pricing', label: 'Pricing' },
+  { to: '#customers', label: 'Customers' },
+  { to: '#faq', label: 'FAQ' },
+];
+
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
 
-  const closeMenu = useCallback(() => setMenuOpen(false), []);
-
-  /* Close menu on Escape key. */
   useEffect(() => {
     if (!menuOpen) return;
-
     const handleKey = (e) => {
       if (e.key === 'Escape') setMenuOpen(false);
     };
-
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [menuOpen]);
 
-  /* Lock body scroll when mobile menu is open. */
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => {
@@ -42,62 +65,37 @@ function Header() {
     setMenuOpen((prev) => !prev);
   }, []);
 
-  const navLinks = [
-    { to: ROUTES.home, label: 'Home' },
-    { to: ROUTES.objectRemover, label: 'Erase' },
-    { to: ROUTES.upscaler, label: 'Upscale' },
-    { to: ROUTES.removeBackground, label: 'Remove BG' },
-    { to: ROUTES.optimize, label: 'Optimize' },
-    { to: ROUTES.compress, label: 'Compress' },
-    { to: ROUTES.convert, label: 'Convert' },
-    { to: ROUTES.resize, label: 'Resize' },
-  ];
+  const isActive = (path) => location.pathname === path;
 
   return (
     <header className={styles.header}>
       <div className={`container ${styles.inner}`}>
-        {/* Brand */}
         <Link to={ROUTES.home} className={styles.brand} aria-label={`${site.name} — home`}>
-          <svg
-            className={styles.logo}
-            width="28"
-            height="28"
-            viewBox="0 0 28 28"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <rect width="28" height="28" rx="7" fill="currentColor" />
-            <path
-              d="M8 18l4-8 3 5 2-3 3 6H8z"
-              fill="var(--color-text-on-brand)"
-              fillRule="evenodd"
-            />
-            <circle cx="18" cy="11" r="2" fill="var(--color-text-on-brand)" />
-          </svg>
+          <span className={styles.brandMark}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.2"/><path d="M12 3v3.2M12 17.8V21M21 12h-3.2M6.2 12H3M18.4 5.6l-2.3 2.3M8 15.8l-2.3 2.3M18.4 18.4l-2.3-2.3M8 8l-2.3-2.3"/>
+            </svg>
+          </span>
           <span className={styles.brandName}>{site.name}</span>
         </Link>
 
-        {/* Desktop navigation */}
-        <nav className={styles.desktopNav} aria-label="Main navigation">
-          <ul className={styles.navList} role="list">
-            {navLinks.map(({ to, label }) => (
-              <li key={to}>
-                <NavLink
-                  to={to}
-                  end
-                  className={({ isActive }) =>
-                    `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
-                  }
-                >
-                  {label}
-                </NavLink>
+        <nav className={styles.desktopNav} aria-label="Primary">
+          <ul className={styles.topNav} role="list">
+            {TOP_NAV.map((item) => (
+              <li key={item.label}>
+                <Link to={item.to} className={styles.topNavLink}>
+                  {item.label}
+                </Link>
               </li>
             ))}
           </ul>
         </nav>
 
-        {/* Mobile toggle */}
+        <div className={styles.desktopRight}>
+          <Link to={ROUTES.home} className={styles.loginLink}>Log in</Link>
+          <Link to={ROUTES.convert} className={styles.btnPrimary}>Start free</Link>
+        </div>
+
         <button
           className={styles.menuToggle}
           onClick={toggleMenu}
@@ -113,7 +111,28 @@ function Header() {
         </button>
       </div>
 
-      {/* Mobile drawer */}
+      <div className={styles.chipBar}>
+        <div className={`container ${styles.chipInner}`}>
+          <div className={styles.chipScroll} role="tablist" aria-label="Tool categories">
+            {CHIP_TOOLS.map((tool) => {
+              const active = isActive(tool.to);
+              return (
+                <Link
+                  key={tool.label}
+                  to={tool.to}
+                  aria-current={active ? 'page' : undefined}
+                  className={`${styles.chip} ${active ? styles.chipActive : ''}`}
+                >
+                  {tool.icon}
+                  {tool.label}
+                  {tool.pro && <span className={styles.proBadge} aria-hidden="true">Pro</span>}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {menuOpen && (
         <div className={styles.backdrop} onClick={() => setMenuOpen(false)} aria-hidden="true" />
       )}
@@ -123,20 +142,31 @@ function Header() {
         aria-label="Mobile navigation"
       >
         <ul className={styles.mobileNavList} role="list">
-          {navLinks.map(({ to, label }) => (
-            <li key={to}>
-              <NavLink
-                to={to}
-                end
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `${styles.mobileNavLink} ${isActive ? styles.mobileNavLinkActive : ''}`
-                }
-              >
-                {label}
-              </NavLink>
+          {TOP_NAV.map((item) => (
+            <li key={item.label}>
+              <Link to={item.to} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                {item.label}
+              </Link>
             </li>
           ))}
+          <li className={styles.mobileDivider} />
+          {CHIP_TOOLS.filter(t => t.to !== '#tools').map((tool) => (
+            <li key={tool.label}>
+              <Link to={tool.to} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>
+                {tool.label}
+                {tool.pro && <span className={styles.mobileProBadge}>Pro</span>}
+              </Link>
+            </li>
+          ))}
+          <li className={styles.mobileDivider} />
+          <li>
+            <Link to={ROUTES.home} className={styles.mobileNavLink} onClick={() => setMenuOpen(false)}>Log in</Link>
+          </li>
+          <li>
+            <Link to={ROUTES.convert} className={styles.mobileNavPrimary} onClick={() => setMenuOpen(false)}>
+              Start free
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>

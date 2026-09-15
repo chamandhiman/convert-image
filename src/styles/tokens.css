@@ -13,79 +13,71 @@
   --color-white: #ffffff;
   --color-black: #000000;
 
-  --color-neutral-50: #f8fafc;
-  --color-neutral-100: #f1f5f9;
-  --color-neutral-200: #e2e8f0;
-  --color-neutral-300: #cbd5e1;
-  --color-neutral-400: #94a3b8;
-  --color-neutral-500: #64748b;
-  --color-neutral-600: #475569;
-  --color-neutral-700: #334155;
-  --color-neutral-800: #1e293b;
-  --color-neutral-900: #0f172a;
-  --color-neutral-950: #020818;
+  /* Ink palette */
+  --color-ink: #12141C;
+  --color-ink-soft: #4A4E5A;
+  --color-ink-faint: #7C7F89;
 
-  --color-brand-50: #eef4ff;
-  --color-brand-100: #d9e5ff;
-  --color-brand-200: #bcd0ff;
-  --color-brand-300: #8eb0ff;
-  --color-brand-400: #5985fd;
-  --color-brand-500: #345ef8;
-  --color-brand-600: #1f3fed;
-  --color-brand-700: #182dda;
-  --color-brand-800: #1a27b0;
-  --color-brand-900: #1b278b;
+  /* Paper palette */
+  --color-paper: #F5F3EE;
+  --color-paper-deep: #ECE8DE;
+  --color-surface: #FFFFFF;
 
-  --color-success-500: #12a150;
-  --color-success-600: #0d8043;
-  --color-warning-500: #d97708;
-  --color-warning-600: #b45309;
-  --color-danger-500: #e2483a;
-  --color-danger-600: #c62f26;
+  /* Borders */
+  --color-line: #E1DED4;
+  --color-line-strong: #CFCBBD;
 
-  /* ---------------------------------------------------------------------------
-     Semantic colour — light theme is the default.
-     ------------------------------------------------------------------------ */
-  --color-bg: var(--color-white);
-  --color-bg-subtle: var(--color-neutral-50);
-  --color-bg-muted: var(--color-neutral-100);
-  --color-bg-inverse: var(--color-neutral-900);
+  /* Accent */
+  --color-accent: #2451FF;
+  --color-accent-ink: #173BC4;
+  --color-accent-tint: #EAEFFF;
 
-  --color-surface: var(--color-white);
-  --color-surface-raised: var(--color-white);
-  --color-surface-overlay: rgb(2 8 24 / 55%);
+  /* Gold/Pro */
+  --color-gold: #B5811A;
+  --color-gold-tint: #F7ECD4;
 
-  --color-text: var(--color-neutral-900);
-  --color-text-secondary: var(--color-neutral-600);
-  --color-text-muted: var(--color-neutral-500);
-  --color-text-inverse: var(--color-neutral-50);
-  --color-text-on-brand: var(--color-white);
+  /* Semantic */
+  --color-success: #1F8A5D;
 
-  --color-border: var(--color-neutral-200);
-  --color-border-strong: var(--color-neutral-300);
+  /* Semantic colours — light paper/ink default */
+  --color-bg: #F5F3EE;
+  --color-bg-subtle: #ECE8DE;
+  --color-bg-muted: #F5F3EE;
+  --color-bg-inverse: #12141C;
 
-  --color-primary: var(--color-brand-600);
-  --color-primary-hover: var(--color-brand-700);
-  --color-primary-active: var(--color-brand-800);
-  --color-primary-subtle: var(--color-brand-50);
+  --color-surface: #FFFFFF;
+  --color-surface-raised: #FFFFFF;
+  --color-surface-overlay: rgba(18, 20, 28, 72%);
 
-  --color-success: var(--color-success-600);
-  --color-warning: var(--color-warning-600);
-  --color-danger: var(--color-danger-600);
+  --color-text: #12141C;
+  --color-text-secondary: #4A4E5A;
+  --color-text-muted: #7C7F89;
+  --color-text-inverse: #F5F3EE;
+  --color-text-on-brand: #FFFFFF;
 
-  --color-focus-ring: var(--color-brand-500);
+  --color-border: #E1DED4;
+  --color-border-strong: #CFCBBD;
+  --color-matte-black: #1A1A1A;
 
-  /* ---------------------------------------------------------------------------
-     Typography
-     ------------------------------------------------------------------------ */
+  --color-primary: #2451FF;
+  --color-primary-hover: #173BC4;
+  --color-primary-active: #173BC4;
+  --color-primary-subtle: #EAEFFF;
+  --color-focus-ring: #2451FF;
+
+  --color-success: #1F8A5D;
+  --color-warning: #B5811A;
+  --color-danger: #ef4444;
+  --color-accent: #2451FF;
+  --color-accent-subtle: #EAEFFF;
+
+  /* Typography */
   --font-sans:
-    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   --font-mono:
-    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
-  /* Fluid type scale — clamp(min, preferred, max) so text adapts without
-     breakpoint-specific overrides. */
   --font-size-xs: clamp(0.75rem, 0.73rem + 0.1vw, 0.8125rem);
   --font-size-sm: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
   --font-size-md: clamp(0.9375rem, 0.91rem + 0.15vw, 1rem);
@@ -110,9 +102,7 @@
   --letter-spacing-normal: 0;
   --letter-spacing-wide: 0.04em;
 
-  /* ---------------------------------------------------------------------------
-     Spacing — 4px base step.
-     ------------------------------------------------------------------------ */
+  /* Spacing */
   --space-0: 0;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -120,6 +110,7 @@
   --space-4: 1rem;
   --space-5: 1.25rem;
   --space-6: 1.5rem;
+  --space-7: 1.75rem;
   --space-8: 2rem;
   --space-10: 2.5rem;
   --space-12: 3rem;
@@ -127,17 +118,13 @@
   --space-20: 5rem;
   --space-24: 6rem;
   --space-32: 8rem;
-
-  /* Vertical rhythm for page sections — grows with the viewport. */
   --space-section: clamp(var(--space-12), 6vw, var(--space-24));
 
-  /* ---------------------------------------------------------------------------
-     Radius, borders, shadows
-     ------------------------------------------------------------------------ */
-  --radius-xs: 0.25rem;
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 22px;
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
@@ -145,23 +132,21 @@
   --border-width: 1px;
   --border-width-thick: 2px;
 
-  --shadow-xs: 0 1px 2px rgb(2 8 24 / 6%);
-  --shadow-sm: 0 1px 3px rgb(2 8 24 / 8%), 0 1px 2px rgb(2 8 24 / 4%);
-  --shadow-md: 0 4px 10px rgb(2 8 24 / 8%), 0 2px 4px rgb(2 8 24 / 4%);
-  --shadow-lg: 0 12px 24px rgb(2 8 24 / 10%), 0 4px 8px rgb(2 8 24 / 4%);
-  --shadow-xl: 0 24px 48px rgb(2 8 24 / 14%);
+  --shadow-card: 0 1px 2px rgba(18, 20, 28, 6%), 0 12px 28px -18px rgba(18, 20, 28, 28%);
+  --shadow-xs: 0 1px 2px rgba(18, 20, 28, 6%);
+  --shadow-sm: 0 1px 3px rgba(18, 20, 28, 8%), 0 1px 2px rgba(18, 20, 28, 4%);
+  --shadow-md: 0 4px 10px rgba(18, 20, 28, 8%), 0 2px 4px rgba(18, 20, 28, 4%);
+  --shadow-lg: 0 12px 24px rgba(18, 20, 28, 10%), 0 4px 8px rgba(18, 20, 28, 4%);
+  --shadow-xl: 0 24px 48px rgba(18, 20, 28, 14%);
+  --shadow-glow-primary: 0 0 0 4px rgba(36, 81, 255, 16%);
 
-  /* ---------------------------------------------------------------------------
-     Layout
-     ------------------------------------------------------------------------ */
-  --container-max: 75rem; /* 1200px */
-  --container-narrow: 48rem; /* 768px — long-form reading width */
+  /* Layout */
+  --container-max: 1240px;
+  --container-narrow: 48rem;
   --container-padding: clamp(var(--space-4), 4vw, var(--space-8));
   --header-height: 4rem;
 
-  /* ---------------------------------------------------------------------------
-     Motion
-     ------------------------------------------------------------------------ */
+  /* Motion */
   --duration-instant: 80ms;
   --duration-fast: 150ms;
   --duration-normal: 240ms;
@@ -171,9 +156,7 @@
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* ---------------------------------------------------------------------------
-     Z-index scale — keep stacking decisions in one place.
-     ------------------------------------------------------------------------ */
+  /* Z-index */
   --z-base: 0;
   --z-raised: 10;
   --z-sticky: 100;
@@ -185,39 +168,41 @@
   --z-tooltip: 700;
 }
 
-/* Dark theme. Applied via [data-theme='dark'] on <html> so it can be toggled
-   in JS, and mirrored to the OS preference for users who have not chosen. */
+/* Dark theme override */
 :root[data-theme='dark'] {
-  --color-bg: var(--color-neutral-950);
-  --color-bg-subtle: var(--color-neutral-900);
-  --color-bg-muted: var(--color-neutral-800);
-  --color-bg-inverse: var(--color-neutral-50);
+  --color-bg: #12141C;
+  --color-bg-subtle: #1a1c24;
+  --color-bg-muted: #12141C;
+  --color-bg-inverse: #F5F3EE;
 
-  --color-surface: var(--color-neutral-900);
-  --color-surface-raised: var(--color-neutral-800);
-  --color-surface-overlay: rgb(2 8 24 / 72%);
+  --color-surface: #1a1c24;
+  --color-surface-raised: #1a1c24;
+  --color-surface-overlay: rgba(0 0 0 / 72%);
 
-  --color-text: var(--color-neutral-50);
-  --color-text-secondary: var(--color-neutral-300);
-  --color-text-muted: var(--color-neutral-400);
-  --color-text-inverse: var(--color-neutral-900);
+  --color-text: #F5F3EE;
+  --color-text-secondary: #7C7F89;
+  --color-text-muted: #4A4E5A;
+  --color-text-inverse: #12141C;
 
-  --color-border: var(--color-neutral-800);
-  --color-border-strong: var(--color-neutral-700);
+  --color-border: #2A2C36;
+  --color-border-strong: #3A3C46;
 
-  --color-primary: var(--color-brand-400);
-  --color-primary-hover: var(--color-brand-300);
-  --color-primary-active: var(--color-brand-200);
-  --color-primary-subtle: rgb(52 94 248 / 16%);
-  --color-text-on-brand: var(--color-neutral-950);
+  --color-primary: #5B7AFF;
+  --color-primary-hover: #2451FF;
+  --color-primary-active: #2451FF;
+  --color-primary-subtle: rgba(36, 81, 255, 12%);
+  --color-focus-ring: #5B7AFF;
 
-  --color-success: var(--color-success-500);
-  --color-warning: var(--color-warning-500);
-  --color-danger: var(--color-danger-500);
+  --color-success: #2DA872;
+  --color-warning: #D4982A;
+  --color-danger: #f87171;
+  --color-accent: #5B7AFF;
+  --color-accent-subtle: rgba(36, 81, 255, 12%);
 
-  --shadow-xs: 0 1px 2px rgb(0 0 0 / 40%);
-  --shadow-sm: 0 1px 3px rgb(0 0 0 / 45%), 0 1px 2px rgb(0 0 0 / 30%);
-  --shadow-md: 0 4px 10px rgb(0 0 0 / 45%), 0 2px 4px rgb(0 0 0 / 30%);
-  --shadow-lg: 0 12px 24px rgb(0 0 0 / 50%), 0 4px 8px rgb(0 0 0 / 30%);
-  --shadow-xl: 0 24px 48px rgb(0 0 0 / 55%);
+  --shadow-xs: 0 1px 2px rgba(0 0 0 / 30%);
+  --shadow-sm: 0 1px 3px rgba(0 0 0 / 35%), 0 1px 2px rgba(0 0 0 / 20%);
+  --shadow-md: 0 4px 10px rgba(0 0 0 / 40%), 0 2px 4px rgba(0 0 0 / 25%);
+  --shadow-lg: 0 12px 24px rgba(0 0 0 / 45%), 0 4px 8px rgba(0 0 0 / 25%);
+  --shadow-xl: 0 24px 48px rgba(0 0 0 / 55%);
+  --shadow-glow-primary: 0 0 0 4px rgba(91, 122, 255, 20%);
 }

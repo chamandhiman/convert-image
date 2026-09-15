@@ -1,205 +1,238 @@
 import styles from './ResizeContent.module.css';
 
-/**
- * Educational / SEO content for the Image Resizer tool.
- *
- * Provides practical guidance on image scaling, pixel dimensions, aspect ratio
- * preservation, website optimization guidelines, and common FAQs.
- */
 function ResizeContent() {
   return (
-    <div className={styles.prose}>
+    <div className={styles.page}>
       {/* ------------------------------------------------------------------ */}
-      <h2>What Does Image Resizing Do?</h2>
-      <p>
-        Image resizing alters the physical pixel dimensions (width and height) of a digital
-        picture. When you downscale an image, the browser recalculates the pixel grid using
-        interpolation algorithms, blending adjacent pixels into a smaller matrix. Unlike
-        pure compression—which reduces file size by altering how color data is stored—resizing
-        directly removes excess pixels that your target screen or layout may never display.
-      </p>
-
+      {/*  Hero Banner                                                       */}
       {/* ------------------------------------------------------------------ */}
-      <h2>Resize Images by Width and Height</h2>
-      <p>
-        Specifying exact pixel dimensions is crucial when designing for defined container
-        slots, such as hero banners (e.g., 1920 × 1080 px), blog thumbnails (e.g., 1200 × 630 px),
-        or product avatars (e.g., 400 × 400 px). Setting explicit width and height eliminates
-        browser layout shifts (Cumulative Layout Shift) and ensures images fit their designated
-        spaces precisely.
-      </p>
+      <section className={styles.heroBanner} aria-label="Resize images online banner">
+        <div className={`container ${styles.heroInner}`}>
+          <div className={styles.heroBadge}>Free · In-Browser</div>
+          <h2 className={styles.heroTitle}>Resize Images Online</h2>
+          <p className={styles.heroLead}>
+            Resize JPG, PNG, WebP, GIF and SVG images by exact pixels or percentage.
+            Fast, free and completely private — your photos never leave your device.
+          </p>
+          <div className={styles.heroCtas}>
+            <a href="#tool" className={styles.heroPrimary}>Start Resizing</a>
+            <a href="#how-it-works" className={styles.heroSecondary}>Learn More</a>
+          </div>
+        </div>
+      </section>
 
       {/* ------------------------------------------------------------------ */}
-      <h2>Resize Images Without Changing Aspect Ratio</h2>
-      <p>
-        An image's aspect ratio is the proportional relationship between its width and
-        height. Keeping the aspect ratio locked guarantees that your subject does not appear
-        stretched, squashed, or distorted. When the aspect ratio lock is enabled in this
-        tool, adjusting the width automatically calculates the matching height (and vice
-        versa), preserving natural geometry. Unlocking the aspect ratio allows you to skew or
-        stretch the image to custom proportions when needed.
-      </p>
+      {/*  Features Grid                                                     */}
+      {/* ------------------------------------------------------------------ */}
+      <section className={styles.section} id="features" aria-labelledby="features-heading">
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <h2 id="features-heading" className={styles.sectionTitle}>Everything you need to resize images</h2>
+            <p className={styles.sectionLead}>
+              Resize by exact dimensions, percentage, or batch process multiple images with powerful controls built for everyday workflows.
+            </p>
+          </div>
+
+          <div className={styles.featureGrid}>
+            {[
+              {
+                title: 'Exact Dimensions',
+                desc: 'Set precise pixel width and height to match hero banners, thumbnails, or any fixed layout slot.',
+                icon: (
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <line x1="9" y1="3" x2="9" y2="21" />
+                    <line x1="3" y1="9" x2="21" y2="9" />
+                  </svg>
+                ),
+              },
+              {
+                title: 'Aspect Ratio Lock',
+                desc: 'Lock width and height proportions so images never stretch, squash, or distort during resizing.',
+                icon: (
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                ),
+              },
+              {
+                title: 'Percentage Resize',
+                desc: 'Quickly downscale or upscale images by percentage — perfect for reducing large camera captures for email or web.',
+                icon: (
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <polyline points="17 1 21 5 17 9" />
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                    <polyline points="7 23 3 19 7 15" />
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                  </svg>
+                ),
+              },
+              {
+                title: 'Batch Processing',
+                desc: 'Upload and resize multiple images at once. Download individually or grab all results as a ZIP.',
+                icon: (
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                    <line x1="12" y1="9" x2="12" y2="15" />
+                    <line x1="9" y1="12" x2="15" y2="12" />
+                  </svg>
+                ),
+              },
+            ].map((feature) => (
+              <div key={feature.title} className={styles.featureCard}>
+                <span className={styles.featureIcon} aria-hidden="true">{feature.icon}</span>
+                <h3 className={styles.featureTitle}>{feature.title}</h3>
+                <p className={styles.featureDesc}>{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ------------------------------------------------------------------ */}
-      <h2>Pixels vs. Percentage Resizing</h2>
-      <p>
-        Depending on your goal, one resizing method is often more convenient than the other:
-      </p>
-      <ul>
-        <li>
-          <strong>Exact Pixels (px):</strong> Best when targeting strict platform requirements,
-          such as social media header specifications, print layouts, or specific web layout
-          breakpoints.
-        </li>
-        <li>
-          <strong>Percentage (%):</strong> Ideal for quick, uniform downscaling—for example,
-          reducing a massive 24-megapixel camera capture to 50% or 25% of its original size
-          to send via email or message without worrying about exact pixel math.
-        </li>
-      </ul>
+      {/*  How It Works — Two Column                                         */}
+      {/* ------------------------------------------------------------------ */}
+      <section className={styles.sectionAlt} id="how-it-works" aria-labelledby="how-heading">
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <h2 id="how-heading" className={styles.sectionTitle}>How it works</h2>
+            <p className={styles.sectionLead}>
+              Resize your images in three simple steps. No account required.
+            </p>
+          </div>
+
+          <div className={styles.stepGrid}>
+            {[
+              {
+                step: '01',
+                title: 'Upload images',
+                desc: 'Drag and drop or browse to upload your images. We support JPG, PNG, WebP, AVIF, GIF and SVG.',
+              },
+              {
+                step: '02',
+                title: 'Choose dimensions',
+                desc: 'Enter exact pixel width and height or select a percentage scale. Lock aspect ratio to prevent distortion.',
+              },
+              {
+                step: '03',
+                title: 'Download resized',
+                desc: 'Resized images are ready instantly. Download individually or grab all results as a ZIP archive.',
+              },
+            ].map((item) => (
+              <div key={item.step} className={styles.stepCard}>
+                <span className={styles.stepNumber}>{item.step}</span>
+                <h3 className={styles.stepTitle}>{item.title}</h3>
+                <p className={styles.stepDesc}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ------------------------------------------------------------------ */}
-      <h2>When Should You Resize an Image?</h2>
-      <p>
-        Modern cameras and smartphones routinely capture photographs at resolutions of
-        4000 × 3000 pixels or higher. While ideal for large prints, displaying such images on a
-        phone or laptop screen wastes bandwidth and processing power. You should resize images:
-      </p>
-      <ul>
-        <li>Before publishing to a blog, portfolio, or ecommerce store.</li>
-        <li>To prepare responsive `srcset` image sizes (e.g., desktop, tablet, and mobile versions).</li>
-        <li>When uploading profile pictures or avatars that only display in small circles or squares.</li>
-        <li>To reduce memory consumption in mobile apps and digital presentations.</li>
-      </ul>
+      {/*  Use Cases                                                         */}
+      {/* ------------------------------------------------------------------ */}
+      <section className={styles.section} id="use-cases" aria-labelledby="usecases-heading">
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <h2 id="usecases-heading" className={styles.sectionTitle}>Common use cases</h2>
+            <p className={styles.sectionLead}>
+              From web performance to social media and print, resizing is essential for every image workflow.
+            </p>
+          </div>
+
+          <div className={styles.useCaseGrid}>
+            {[
+              {
+                title: 'Web',
+                desc: 'Resize hero banners, blog images, and card thumbnails to exact pixel widths for fast page loads and zero layout shift.',
+                color: '#345ef8',
+              },
+              {
+                title: 'Social Media',
+                desc: 'Crop and resize cover photos, posts, and story assets to match platform-specific dimensions for LinkedIn, Instagram, and X.',
+                color: '#8b5cf6',
+              },
+              {
+                title: 'Print',
+                desc: 'Prepare high-resolution images for posters, flyers, and marketing materials at the exact physical dimensions required.',
+                color: '#06b6d4',
+              },
+              {
+                title: 'Thumbnails',
+                desc: 'Generate consistent small previews for galleries, video players, ecommerce catalogs, and document management systems.',
+                color: '#f59e0b',
+              },
+            ].map((useCase) => (
+              <div key={useCase.title} className={styles.useCaseCard}>
+                <div className={styles.useCaseAccent} style={{ backgroundColor: useCase.color }} />
+                <h3 className={styles.useCaseTitle}>{useCase.title}</h3>
+                <p className={styles.useCaseDesc}>{useCase.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ------------------------------------------------------------------ */}
-      <h2>How Image Dimensions Affect File Size</h2>
-      <p>
-        File size scales quadratically with image dimensions. Reducing an image's width and
-        height by 50% (e.g., from 2000 × 2000 px to 1000 × 1000 px) does not just cut the file
-        size in half—it reduces the total pixel count from 4,000,000 to 1,000,000 pixels (a 75%
-        reduction in raw pixel data). Consequently, resizing is one of the most effective ways
-        to achieve dramatic file size savings before applying compression.
-      </p>
-
+      {/*  FAQ                                                               */}
       {/* ------------------------------------------------------------------ */}
-      <h2>Choosing the Right Image Dimensions for Websites</h2>
-      <p>
-        Standard web guidelines recommend sizing images to match the maximum resolution at
-        which they will be viewed:
-      </p>
-      <ul>
-        <li>
-          <strong>Full-width Hero Banners:</strong> 1920 to 2560 px wide (covers full HD and QHD desktop screens).
-        </li>
-        <li>
-          <strong>Standard Blog & Article Images:</strong> 1200 to 1400 px wide.
-        </li>
-        <li>
-          <strong>Card & Grid Thumbnails:</strong> 600 to 800 px wide.
-        </li>
-        <li>
-          <strong>Profile Photos & Icons:</strong> 200 to 400 px wide.
-        </li>
-      </ul>
+      <section className={styles.sectionAlt} id="faq" aria-labelledby="faq-heading">
+        <div className={styles.faqInner}>
+          <div className={styles.sectionHeader}>
+            <h2 id="faq-heading" className={styles.sectionTitle}>Frequently Asked Questions</h2>
+            <p className={styles.sectionLead}>
+              Answers to common questions about resizing images online.
+            </p>
+          </div>
 
-      {/* ------------------------------------------------------------------ */}
-      <h2>Image Quality After Resizing</h2>
-      <p>
-        This tool uses high-quality bicubic interpolation built into modern browser Canvas
-        engines (`imageSmoothingQuality: 'high'`). Downscaling maintains crisp edges and smooth
-        gradients. However, upscaling an image significantly beyond its native resolution
-        cannot invent missing detail and may result in softness or pixelation. For best
-        results, downscale from higher-resolution sources whenever possible.
-      </p>
-
-      {/* ------------------------------------------------------------------ */}
-      <h2>Why Browser-Based Resizing is Private</h2>
-      <p>
-        Unlike cloud services that upload your personal or business imagery to remote servers,
-        this tool performs every calculation entirely inside your local web browser:
-      </p>
-      <ul>
-        <li>Your files are never transmitted over the internet or stored on a remote server.</li>
-        <li>Processing is instantaneous because there is no upload or download queue.</li>
-        <li>The tool functions completely offline once the page is loaded.</li>
-      </ul>
-
-      {/* ------------------------------------------------------------------ */}
-      <h2>Frequently Asked Questions</h2>
-
-      <details className={styles.faq}>
-        <summary>Can I resize an image without losing quality?</summary>
-        <p>
-          When downscaling (making an image smaller), modern interpolation algorithms blend
-          pixels seamlessly, preserving sharp details and color balance. When upscaling (making
-          an image larger), the browser must extrapolate new pixels, which can cause slight
-          blurriness or softness.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>What happens when I lock the aspect ratio?</summary>
-        <p>
-          Locking the aspect ratio preserves the exact width-to-height proportion of your
-          original image. When you change the width, the height automatically updates to match,
-          preventing distortion or unnatural stretching.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>What is the difference between resizing and compressing?</summary>
-        <p>
-          Resizing changes the pixel dimensions (width × height) of the image. Compressing
-          optimizes how color and pixel data are mathematically stored without changing the
-          pixel count. Combining both techniques yields the smallest possible file sizes for
-          the web.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Can I make an image larger?</summary>
-        <p>
-          Yes. You can enter larger pixel dimensions or select percentages above 100% (such as
-          150% or 200%). Keep in mind that enlarging raster images cannot add original optical
-          detail, so slight softness is natural.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Can I resize JPG, PNG, and WebP images?</summary>
-        <p>
-          Yes. You can upload JPG, PNG, WebP, AVIF, GIF, or SVG images and output them as
-          JPG, PNG, WebP, or AVIF (where browser support allows), or simply keep the original
-          format.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Does resizing change the image file size?</summary>
-        <p>
-          Yes, dramatically. Because reducing image dimensions directly reduces the number of
-          pixels that need to be stored, downscaling typically results in significant file size
-          reductions.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Are my images uploaded to any server?</summary>
-        <p>
-          No. Everything executes client-side in your web browser via the Canvas API. Your
-          images never leave your device.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>What dimensions should I use for a website?</summary>
-        <p>
-          For full-screen background banners, 1920 × 1080 px is standard. For blog content and
-          social share cards, 1200 × 630 px is recommended. For product thumbnails, 600 × 600 px
-          or 800 × 800 px works best.
-        </p>
-      </details>
+          <div className={styles.faqList}>
+            {[
+              {
+                q: 'Can I resize an image without losing quality?',
+                a: 'When downscaling, modern interpolation algorithms blend pixels seamlessly, preserving sharp details. When upscaling, the browser must extrapolate new pixels, which can cause slight softness.',
+              },
+              {
+                q: 'What happens when I lock the aspect ratio?',
+                a: 'Locking the aspect ratio preserves the exact width-to-height proportion. Changing the width automatically updates the height to match, preventing distortion or stretching.',
+              },
+              {
+                q: 'What is the difference between resizing and compressing?',
+                a: 'Resizing changes pixel dimensions (width × height). Compressing optimizes how pixel data is stored without changing dimensions. Combining both yields the smallest file sizes.',
+              },
+              {
+                q: 'Can I make an image larger?',
+                a: 'Yes. Enter larger pixel dimensions or select percentages above 100%. Keep in mind that enlarging raster images cannot add original detail, so slight softness is natural.',
+              },
+              {
+                q: 'Does resizing change the image file size?',
+                a: 'Yes, dramatically. Reducing dimensions directly reduces the number of pixels stored, so downscaling typically results in significant file size reductions.',
+              },
+              {
+                q: 'Are my images uploaded to any server?',
+                a: 'No. Everything executes client-side in your browser via the Canvas API. Your images never leave your device.',
+              },
+            ].map((item) => (
+              <details key={item.q} className={styles.faqItem}>
+                <summary>
+                  <span className={styles.faqQuestion}>{item.q}</span>
+                  <span className={styles.faqIcon} aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                  </span>
+                </summary>
+                <p>{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

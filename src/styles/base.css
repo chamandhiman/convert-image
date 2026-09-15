@@ -21,6 +21,9 @@ body {
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-normal);
   letter-spacing: var(--letter-spacing-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   transition:
     background-color var(--duration-normal) var(--ease-standard),
     color var(--duration-normal) var(--ease-standard);

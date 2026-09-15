@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '@/routes/paths';
 import styles from './PhotoRestorerContent.module.css';
@@ -27,14 +26,26 @@ const FAQS = [
 ];
 
 function PhotoRestorerContent() {
-  const [openFaq, setOpenFaq] = useState(null);
-
-  const toggleFaq = (index) => {
-    setOpenFaq((prev) => (prev === index ? null : index));
-  };
-
   return (
-    <section className={styles.contentSection} aria-label="About AI Photo Restoration">
+    <div className={styles.page}>
+      {/* ------------------------------------------------------------------ */}
+      {/*  Hero Banner                                                       */}
+      {/* ------------------------------------------------------------------ */}
+      <section className={styles.heroBanner} aria-label="AI Photo Restorer banner">
+        <div className={`container ${styles.heroInner}`}>
+          <div className={styles.heroBadge}>AI Restoration</div>
+          <h2 className={styles.heroTitle}>AI Photo Restorer</h2>
+          <p className={styles.heroLead}>
+            Restore old, damaged, blurry, or faded photos directly in your browser. 100% private with WebGPU acceleration.
+          </p>
+          <div className={styles.heroCtas}>
+            <a href="#tool" className={styles.heroPrimary}>Start Restoring</a>
+            <a href="#how-it-works" className={styles.heroSecondary}>Learn More</a>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.contentSection} aria-label="About AI Photo Restoration">
       <article className={styles.article}>
         <h2 className={styles.headingPrimary}>What AI Photo Restoration Does</h2>
         <p className={styles.paragraph}>
@@ -147,20 +158,25 @@ function PhotoRestorerContent() {
 
         <h2 className={styles.headingSecondary}>Frequently Asked Questions</h2>
         <div className={styles.faqSection}>
-          {FAQS.map((faq, idx) => (
-            <div key={idx} className={styles.faqItem}>
-              <button
-                type="button"
-                className={styles.faqQuestion}
-                onClick={() => toggleFaq(idx)}
-                aria-expanded={openFaq === idx}
-              >
-                <span>{faq.q}</span>
-                <span aria-hidden="true">{openFaq === idx ? '−' : '+'}</span>
-              </button>
-              {openFaq === idx && <div className={styles.faqAnswer}>{faq.a}</div>}
-            </div>
-          ))}
+          <div className={styles.faqInner}>
+            {FAQS.map((faq, idx) => (
+              <div key={idx} className={styles.faqItem}>
+                <details>
+                  <summary>
+                    <span className={styles.faqQuestion}>{faq.q}</span>
+                    <span className={styles.faqIcon} aria-hidden="true">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <p>{faq.a}</p>
+                </details>
+              </div>
+            ))}
+          </div>
         </div>
 
         <h2 className={styles.headingSecondary}>Related Image Tools</h2>
@@ -184,6 +200,7 @@ function PhotoRestorerContent() {
         </div>
       </article>
     </section>
+    </div>
   );
 }
 

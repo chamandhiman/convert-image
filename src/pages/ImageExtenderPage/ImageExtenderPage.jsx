@@ -21,7 +21,6 @@ import {
   cancelExtension,
   buildExtendedFilename,
 } from '@/tools/imageExtender/imageExtender';
-
 import ImageExtenderCanvas from './ImageExtenderCanvas';
 import ImageExtenderContent from './ImageExtenderContent';
 import styles from './ImageExtenderPage.module.css';
@@ -34,7 +33,7 @@ const PHASE = {
   ERROR: 'error',
 };
 
-function ImageExtenderPage() {
+function ImageExtenderPage({ embedded }) {
   useDocumentTitle('AI Image Extender');
 
   const [phase, setPhase] = useState(PHASE.IDLE);
@@ -258,21 +257,18 @@ function ImageExtenderPage() {
     <ToolPageLayout
       title="AI Image Extender"
       description="Expand image borders into 16:9, 4:5, or custom aspect ratios with neural outpainting. 100% private in your browser."
+      embedded={embedded}
+      showHero={false}
     >
-      <div className={styles.pageWrap}>
-        {/* ================================================================ */}
-        {/*  IDLE PHASE — File Upload                                        */}
-        {/* ================================================================ */}
+      <div className={styles.converterSurface}>
         {phase === PHASE.IDLE && (
           <div>
-            <div className={styles.privacyBadge} role="note">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              <span>Your image is processed locally in your browser.</span>
+            <div className={styles.uploadHeader}>
+              <h2 className={styles.uploadTitle}>Extend your images</h2>
+              <p className={styles.uploadDesc}>
+                Expand image borders into 16:9, 4:5, or custom aspect ratios with AI.
+              </p>
             </div>
-
             <FileUploader
               onFileSelect={handleFileSelect}
               accept="image/jpeg,image/png,image/webp"

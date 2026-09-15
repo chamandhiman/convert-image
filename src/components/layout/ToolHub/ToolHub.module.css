@@ -1,0 +1,127 @@
+/* =============================================================================
+   ToolHub
+   In-page tool switcher bar used on the homepage.
+   ========================================================================== */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+}
+
+.inner {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 15px 0 0;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.categoryTabs {
+  display: inline-flex;
+  gap: 8px;
+  padding: 4px;
+  background: var(--color-bg-subtle);
+  border-radius: 12px;
+}
+
+.categoryTab {
+  border: none;
+  background: transparent;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.categoryTabActive {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.toolBar {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  padding: 0;
+  margin: 0;
+  scrollbar-width: thin;
+  border-bottom: var(--border-width) solid var(--color-line);
+}
+
+.toolBar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.toolBar::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 999px;
+}
+
+.toolTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  font-weight: 500;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+  margin-right: 2px;
+  color: var(--color-text-muted);
+}
+
+.toolTabActive {
+  background: var(--color-accent);
+  color: var(--color-text-on-brand);
+  border-color: var(--color-accent);
+}
+
+.workspace {
+  margin-top: 0;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 0;
+  box-shadow: var(--shadow-card);
+}
+
+.placeholder {
+  padding: 24px;
+  color: var(--color-text-muted);
+}

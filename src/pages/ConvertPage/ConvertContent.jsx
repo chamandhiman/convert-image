@@ -1,244 +1,185 @@
+import React, { useState } from 'react';
+
 import styles from './ConvertContent.module.css';
 
-/**
- * Educational / SEO content for the Image Converter page.
- *
- * Provides genuine, practical advice on image formats, trade-offs, rasterization,
- * browser-based privacy, and common questions.
- */
-function ConvertContent() {
+const convertFormats = [
+  { name: 'JPG / JPEG', color: '#3b82f6', description: 'Best for photos and realistic images with millions of colors.' },
+  { name: 'PNG', color: '#10b981', description: 'Ideal for graphics, logos, and images requiring transparency.' },
+  { name: 'WebP', color: '#8b5cf6', description: 'Modern format with excellent compression and quality balance.' },
+  { name: 'GIF', color: '#f59e0b', description: 'Supports animations and is widely compatible across platforms.' },
+  { name: 'SVG', color: '#ec4899', description: 'Scalable vector format perfect for logos and illustrations.' },
+  { name: 'AVIF', color: '#ef4444', description: 'Next-generation format with superior compression efficiency.' },
+  { name: 'ICO', color: '#6366f1', description: 'Windows icon format for favicons and desktop shortcuts.' },
+  { name: 'BMP', color: '#14b8a6', description: 'Uncompressed bitmap format with simple, wide compatibility.' },
+];
+
+const features = [
+  { title: '100% Private', description: 'All conversions happen in your browser. Your images never leave your device.', icon: '🔒' },
+  { title: 'Lightning Fast', description: 'Convert images in milliseconds using optimized browser APIs with no server uploads.', icon: '⚡' },
+  { title: 'Batch Support', description: 'Upload multiple images and convert them all at once with consistent settings.', icon: '📦' },
+  { title: 'Free Forever', description: 'No hidden charges, watermarks, or account required. Unlimited conversions.', icon: '💸' },
+];
+
+const steps = [
+  { number: '01', title: 'Upload', description: 'Drag and drop your images or click to browse. We support JPG, PNG, WebP, GIF, SVG, and more.' },
+  { number: '02', title: 'Convert', description: 'Choose your target format and settings. Adjust quality, resize, or apply basic edits if needed.' },
+  { number: '03', title: 'Download', description: 'Get your converted images instantly. Download individually or as a ZIP archive.' },
+];
+
+const faqs = [
+  { question: 'Is this image converter really free?', answer: 'Yes, absolutely. There are no hidden fees, subscription tiers, or usage limits. All conversions are processed locally in your browser, so we don\'t incur server costs that we\'d need to pass on to you.' },
+  { question: 'Are my images private and secure?', answer: 'Completely. All image processing happens in your browser using client-side JavaScript. Your files are never uploaded to any server, ensuring complete privacy and security.' },
+  { question: 'What image formats are supported?', answer: 'We support JPG, PNG, WebP, GIF, SVG, AVIF, ICO, and BMP. You can convert between any of these formats, though some conversions may have limitations based on format capabilities (e.g., vector formats like SVG can\'t be converted to raster formats).' },
+  { question: 'How can I convert multiple images at once?', answer: 'Simply select or drag multiple files into the upload area. The converter will process all images with the same settings and allow you to download them individually or as a ZIP archive.' },
+  { question: 'Does converting affect image quality?', answer: 'Lossless conversions (like PNG to PNG or WebP to WebP) maintain original quality. Lossy conversions (like JPG to WebP) allow quality adjustment. We use optimized algorithms to preserve as much quality as possible.' },
+  { question: 'Can I use this on mobile devices?', answer: 'Yes, the converter works on all modern mobile browsers. The interface is responsive and optimized for touch interaction, so you can convert images on your phone or tablet.' },
+];
+
+const relatedTools = [
+  { name: 'Resize Images', description: 'Resize and crop images while maintaining aspect ratio and quality.', href: '/resize' },
+  { name: 'Compress Images', description: 'Reduce file size without noticeable quality loss for faster loading.', href: '/compress' },
+  { name: 'Image Editor', description: 'Basic editing tools including filters, adjustments, and annotations.', href: '/edit' },
+];
+
+export default function ConvertContent() {
+  const [openIndex, setOpenIndex] = useState(null);
+
   return (
-    <div className={styles.prose}>
-      {/* ------------------------------------------------------------------ */}
-      <h2>What is an Image Converter?</h2>
-      <p>
-        An image converter transforms a digital picture from one file encoding into
-        another. Different file formats use different mathematical methods to store
-        pixels, palettes, compression tables, and transparency. Converting an image
-        allows you to adapt your files to specific platform requirements, optimize
-        loading speeds on web pages, reduce storage footprints, or ensure compatibility
-        with older software.
-      </p>
-
-      {/* ------------------------------------------------------------------ */}
-      <h2>Convert JPG, PNG, WebP and More</h2>
-      <p>
-        Modern digital imaging relies on a diverse set of standard formats. This tool
-        allows you to interchange between universal raster formats (JPEG and PNG),
-        modern web formats (WebP and AVIF), animated GIF frames, and scalable vector
-        graphics (SVG).
-      </p>
-      <dl className={styles.formatList}>
-        <div className={styles.formatEntry}>
-          <dt>JPG / JPEG</dt>
-          <dd>
-            The world standard for photographic imagery since 1992. It uses discrete
-            cosine transform (DCT) lossy compression to discard subtle color variations
-            that human vision rarely notices. It does not support transparency.
-          </dd>
+    <div className={styles.page}>
+      <section className={styles.heroBanner} aria-labelledby="convert-heading">
+        <div className="container">
+          <div className={styles.heroInner}>
+            <span className={styles.heroBadge}>Free · In-Browser</span>
+            <h1 id="convert-heading" className={styles.heroTitle}>Convert Images Online</h1>
+            <p className={styles.heroLead}>
+              Convert JPG, PNG, WebP, GIF and SVG images locally in your browser. Fast, free and completely private.
+            </p>
+            <div className={styles.heroCtas}>
+              <a href="#top" className={styles.heroPrimary}>Start Converting</a>
+              <a href="#how-it-works" className={styles.heroSecondary}>See How It Works</a>
+            </div>
+          </div>
         </div>
-        <div className={styles.formatEntry}>
-          <dt>PNG</dt>
-          <dd>
-            Portable Network Graphics is a lossless format featuring 8-bit alpha
-            transparency. It preserves sharp contrast and exact pixel values, making it
-            the benchmark for user interfaces, typography, logos, and technical diagrams.
-          </dd>
+      </section>
+
+      <section className={styles.section} aria-labelledby="formats-heading">
+        <div className="container">
+          <header className={styles.sectionHeader}>
+            <h2 id="formats-heading" className={styles.sectionTitle}>Supported Formats</h2>
+            <p className={styles.sectionLead}>Convert between all popular image formats with support for transparency, animation, and vector graphics.</p>
+          </header>
+          <div className={styles.formatGrid}>
+            {convertFormats.map((format) => (
+              <div key={format.name} className={styles.formatCard}>
+                <div className={styles.formatAccent} style={{ backgroundColor: format.color }} />
+                <h3 className={styles.formatTitle}>{format.name}</h3>
+                <p className={styles.formatDesc}>{format.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className={styles.formatEntry}>
-          <dt>WebP</dt>
-          <dd>
-            Created specifically for the modern web, WebP supports both lossy and lossless
-            compression, transparent alpha channels, and animation. WebP images typically
-            weigh 25% to 35% less than equivalent JPEGs without visible loss in quality.
-          </dd>
+      </section>
+
+      <section className={styles.sectionAlt} aria-labelledby="features-heading">
+        <div className="container">
+          <header className={styles.sectionHeader}>
+            <h2 id="features-heading" className={styles.sectionTitle}>Why Choose Our Converter</h2>
+            <p className={styles.sectionLead}>Built for speed, privacy, and simplicity. No uploads, no waiting, no compromises.</p>
+          </header>
+          <div className={styles.featureGrid}>
+            {features.map((feature) => (
+              <div key={feature.title} className={styles.featureCard}>
+                <div className={styles.featureIcon} aria-hidden="true">{feature.icon}</div>
+                <h3 className={styles.featureTitle}>{feature.title}</h3>
+                <p className={styles.featureDesc}>{feature.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className={styles.formatEntry}>
-          <dt>AVIF</dt>
-          <dd>
-            An advanced open-source format derived from the AV1 video codec. It provides
-            industry-leading compression efficiency, especially at low bitrates. Encoding
-            support depends on browser capabilities.
-          </dd>
+      </section>
+
+      <section className={styles.section} id="how-it-works" aria-labelledby="how-heading">
+        <div className="container">
+          <header className={styles.sectionHeader}>
+            <h2 id="how-heading" className={styles.sectionTitle}>How It Works</h2>
+            <p className={styles.sectionLead}>Convert your images in three simple steps. No registration or software installation required.</p>
+          </header>
+          <div className={styles.stepGrid}>
+            {steps.map((step) => (
+              <div key={step.number} className={styles.stepCard}>
+                <span className={styles.stepNumber}>{step.number}</span>
+                <h3 className={styles.stepTitle}>{step.title}</h3>
+                <p className={styles.stepDesc}>{step.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className={styles.formatEntry}>
-          <dt>SVG (Vector Input)</dt>
-          <dd>
-            Scalable Vector Graphics use XML coordinates instead of pixel matrices.
-            Converting an SVG to JPG, PNG, or WebP renders the vector artwork into fixed
-            pixel dimensions (rasterization).
-          </dd>
+      </section>
+
+      <section className={styles.faqSection} aria-labelledby="faq-heading">
+        <div className="container">
+          <div className={styles.faqInner}>
+            <header className={styles.sectionHeader}>
+              <h2 id="faq-heading" className={styles.sectionTitle}>Frequently Asked Questions</h2>
+              <p className={styles.sectionLead}>Everything you need to know about converting images online.</p>
+            </header>
+            <div className={styles.faqList}>
+              {faqs.map((faq, index) => (
+                <details
+                  key={faq.question}
+                  className={styles.faqItem}
+                  open={openIndex === index}
+                  onToggle={(e) => setOpenIndex(e.currentTarget.open ? index : null)}
+                >
+                  <summary>
+                    <span className={styles.faqQuestion}>{faq.question}</span>
+                    <span className={styles.faqIcon} aria-hidden="true">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <p>{faq.answer}</p>
+                </details>
+              ))}
+            </div>
+          </div>
         </div>
-      </dl>
+      </section>
 
-      {/* ------------------------------------------------------------------ */}
-      <h2>JPG vs PNG vs WebP</h2>
-      <p>
-        Comparing these formats comes down to three factors: compression method,
-        transparency support, and browser adoption.
-      </p>
-      <ul>
-        <li>
-          <strong>Compression:</strong> JPG is lossy; PNG is lossless; WebP supports both.
-        </li>
-        <li>
-          <strong>Transparency:</strong> PNG and WebP support full alpha transparency; JPG
-          replaces transparent areas with a solid background color (white in this tool).
-        </li>
-        <li>
-          <strong>File Size:</strong> For complex photos, WebP is smallest, followed by JPG,
-          with PNG typically being largest. For simple illustrations or icons, PNG and
-          lossless WebP are often smaller and sharper than JPG.
-        </li>
-      </ul>
-
-      {/* ------------------------------------------------------------------ */}
-      <h2>When Should You Use WebP?</h2>
-      <p>
-        Use WebP whenever you are publishing pictures to the web, mobile applications,
-        or email newsletters. All modern browsers (Chrome, Safari, Firefox, Edge) now
-        fully support WebP decoding. Switching from JPG or PNG to WebP is one of the
-        easiest ways to improve Core Web Vitals and page load times.
-      </p>
-
-      {/* ------------------------------------------------------------------ */}
-      <h2>When Should You Use PNG?</h2>
-      <p>
-        Use PNG when you require transparency or when your image contains fine lines,
-        geometric icons, typography, or UI screenshots. Because PNG is lossless, text
-        remains sharp and colors stay true across repeated saves.
-      </p>
-
-      {/* ------------------------------------------------------------------ */}
-      <h2>When Should You Use JPG?</h2>
-      <p>
-        Use JPG when maximum backwards compatibility is necessary. Legacy software,
-        older embedded systems, specialized photo printing services, and office
-        productivity suites often work most reliably with standard JPEG files.
-      </p>
-
-      {/* ------------------------------------------------------------------ */}
-      <h2>What Happens When an Image is Converted?</h2>
-      <p>
-        When you convert an image, your browser decodes the source file into raw pixel
-        data (RGB/RGBA channels). Next, the target encoder rebuilds that pixel grid into
-        the requested container format. If the source had transparent areas and the target
-        is JPG, a white background is automatically applied beneath the artwork to
-        prevent dark artifacts. If the target is WebP or JPG, the selected quality factor
-        governs how much detail is preserved during mathematical quantization.
-      </p>
-
-      {/* ------------------------------------------------------------------ */}
-      <h2>Image Quality and Compression</h2>
-      <p>
-        When selecting a quality level for lossy conversions (JPG, WebP, or AVIF), keep
-        the intended destination in mind:
-      </p>
-      <ul>
-        <li>
-          <strong>80% to 90%:</strong> The sweet spot for high-resolution web banners and
-          hero graphics. Virtually indistinguishable from original source photos.
-        </li>
-        <li>
-          <strong>70% to 80%:</strong> Excellent for blog illustrations, ecommerce catalogs,
-          and content feeds where saving bandwidth is important.
-        </li>
-        <li>
-          <strong>PNG (Lossless):</strong> Quality sliders do not apply to PNG because PNG
-          stores every pixel losslessly. The file size is determined entirely by the image's
-          dimensions and color entropy.
-        </li>
-      </ul>
-
-      {/* ------------------------------------------------------------------ */}
-      <h2>Why Browser-Based Conversion is Private</h2>
-      <p>
-        Traditional online converters transmit your files across the internet to a remote
-        cloud server, convert them in a container, and send them back. This introduces
-        several risks:
-      </p>
-      <ul>
-        <li>
-          <strong>Zero Cloud Exposure:</strong> Your photos, documents, and sensitive
-          designs never travel over the network. They never touch a remote hard drive.
-        </li>
-        <li>
-          <strong>Instant Speed:</strong> Because there is zero upload and zero download
-          latency, processing completes in milliseconds using your local device CPU.
-        </li>
-        <li>
-          <strong>No Third-Party Tracking:</strong> No metadata, location tags, or file
-          contents are cataloged, analyzed, or shared.
-        </li>
-      </ul>
-
-      {/* ------------------------------------------------------------------ */}
-      <h2>Frequently Asked Questions</h2>
-
-      <details className={styles.faq}>
-        <summary>Is my image uploaded to any server?</summary>
-        <p>
-          No. All conversion and rendering happens directly in your browser using the
-          HTML5 Canvas API. Your files never leave your computer or phone.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Which formats can I convert?</summary>
-        <p>
-          You can upload JPG, JPEG, PNG, WebP, AVIF, GIF, and SVG files. You can convert
-          them into JPG, PNG, WebP, and AVIF (on supported browsers).
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Does converting an image reduce quality?</summary>
-        <p>
-          Converting to PNG is 100% lossless and retains all pixel details. Converting to
-          JPG or WebP uses lossy compression, but at default settings (80%–85%), visual
-          degradation is virtually invisible to the human eye while producing substantially
-          smaller files.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Can I convert PNG to JPG?</summary>
-        <p>
-          Yes. When converting a transparent PNG to JPG, the transparent areas are
-          automatically rendered with a crisp white background, as JPG does not support
-          transparency.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Can I convert JPG to WebP?</summary>
-        <p>
-          Yes. Converting JPG to WebP is one of the most popular conversions for web
-          developers, often yielding a 25% to 35% file size reduction with no perceptible
-          drop in image clarity.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Why is AVIF unavailable in my browser?</summary>
-        <p>
-          While most modern browsers can display (decode) AVIF images, client-side
-          encoding through the Canvas API is only implemented in certain browsers and
-          operating system builds. If your browser does not yet support canvas AVIF
-          encoding, the option is clearly marked and disabled, allowing you to choose WebP
-          or JPG instead.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Can I convert SVG to PNG?</summary>
-        <p>
-          Yes. Uploading an SVG allows you to rasterize your vector artwork into a high-quality
-          PNG, JPG, or WebP pixel graphic at its native resolution.
-        </p>
-      </details>
+      <section className={styles.relatedSection} aria-labelledby="related-heading">
+        <div className="container">
+          <header className={styles.sectionHeader}>
+            <h2 id="related-heading" className={styles.sectionTitle}>Related Tools</h2>
+            <p className={styles.sectionLead}>More free image tools to enhance your workflow.</p>
+          </header>
+          <div className={styles.relatedGrid}>
+            {relatedTools.map((tool) => (
+              <a key={tool.name} href={tool.href} className={styles.relatedCard}>
+                <div className={styles.relatedIcon} aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 3v12" />
+                    <path d="m8 11 4 4 4-4" />
+                    <path d="M8 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4" />
+                  </svg>
+                </div>
+                <div className={styles.relatedBody}>
+                  <span className={styles.relatedName}>{tool.name}</span>
+                  <span className={styles.relatedDesc}>{tool.description}</span>
+                </div>
+                <span className={styles.relatedArrow} aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
-
-export default ConvertContent;

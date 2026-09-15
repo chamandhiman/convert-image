@@ -121,6 +121,18 @@ const GenerativeFillCanvas = forwardRef(function GenerativeFillCanvas(
         }
         return false;
       },
+      getFullImageMask: () => {
+        if (!maskCanvasRef.current) return null;
+        const w = maskCanvasRef.current.width;
+        const h = maskCanvasRef.current.height;
+        const full = document.createElement('canvas');
+        full.width = w;
+        full.height = h;
+        const ctx = full.getContext('2d');
+        ctx.fillStyle = 'rgba(255,255,255,1)';
+        ctx.fillRect(0, 0, w, h);
+        return full;
+      },
       clearMask: () => {
         handleClearSelection();
       },

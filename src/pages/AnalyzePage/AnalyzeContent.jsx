@@ -1,247 +1,356 @@
 import styles from './AnalyzeContent.module.css';
 
-/**
- * Educational / SEO content for the Image Quality Analyzer tool.
- *
- * Explains technical image properties, resolution vs. file size, format selection,
- * suitability guidelines for web and print, and includes an accessible FAQ accordion.
- */
 function AnalyzeContent() {
+  const features = [
+    {
+      title: 'Dimension Check',
+      desc: 'Inspect exact pixel width, height, aspect ratio, and total megapixels to ensure your image fits its intended display context.',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <line x1="9" y1="3" x2="9" y2="21" />
+          <line x1="3" y1="9" x2="21" y2="9" />
+        </svg>
+      ),
+    },
+    {
+      title: 'Format Analysis',
+      desc: 'Detect MIME type, compression profile, and container efficiency. Know whether your image is saved in the optimal format.',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+          <polyline points="14 2 14 8 20 8" />
+        </svg>
+      ),
+    },
+    {
+      title: 'Quality Metrics',
+      desc: 'Evaluate file size, alpha transparency, lossless vs lossy encoding, and color space to judge practical quality at a glance.',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor" opacity="0.3" />
+        </svg>
+      ),
+    },
+    {
+      title: 'Smart Recommendations',
+      desc: 'Get actionable next steps — optimize, compress, resize, or convert — with direct links to the right tool for your image.',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        </svg>
+      ),
+    },
+  ];
+
+  const steps = [
+    {
+      step: '01',
+      title: 'Upload image',
+      desc: 'Drag and drop or browse to upload any image. We accept JPG, PNG, WebP, AVIF, GIF, and SVG up to 50 MB.',
+    },
+    {
+      step: '02',
+      title: 'Analyze quality',
+      desc: 'The tool inspects dimensions, file size, format, transparency, and compression profile in milliseconds.',
+    },
+    {
+      step: '03',
+      title: 'Get recommendations',
+      desc: 'Receive a readiness score and suggested next steps — optimize, compress, resize, or convert — with one click.',
+    },
+  ];
+
+  const whatWeAnalyze = [
+    { title: 'Dimensions & Resolution', desc: 'Width, height, aspect ratio, and total megapixels to confirm the image matches its display or print requirements.' },
+    { title: 'File Size', desc: 'Exact byte count and formatted size to evaluate load-time impact and bandwidth consumption.' },
+    { title: 'Format & MIME Type', desc: 'Container format detection (JPG, PNG, WebP, AVIF, GIF, SVG) with guidance on format suitability.' },
+    { title: 'Compression Profile', desc: 'Whether the image uses lossless or lossy encoding, and how efficiently the data is packed.' },
+    { title: 'Color & Transparency', desc: 'Alpha channel presence, color space, and whether transparency is preserved or wasted.' },
+    { title: 'Use-Case Readiness', desc: 'A practical score for websites, email, social media, or print with specific thresholds and recommendations.' },
+  ];
+
   return (
-    <div className={styles.prose}>
+    <div className={styles.page}>
       {/* ------------------------------------------------------------------ */}
-      <h2>What Does Image Quality Actually Mean?</h2>
-      <p>
-        In digital media, "quality" is frequently conflated with sheer file weight or massive pixel
-        counts. In technical terms, true image quality is a composite of three distinct
-        characteristics: resolution (the raw pixel grid width and height), fidelity (the
-        preservation of subtle gradients and high-contrast edges without compression artifacts),
-        and efficiency (how compactly that visual data is encoded). An image that is sharp,
-        appropriately scaled for its container, and encoded in a modern format delivers far higher
-        practical quality than a bloated 25 MB camera raw file that takes ten seconds to load.
-      </p>
-
+      {/*  Hero Banner                                                       */}
       {/* ------------------------------------------------------------------ */}
-      <h2>Resolution vs. File Size</h2>
-      <p>
-        Resolution refers to the total number of pixels that make up an image (for example, 4000
-        horizontal pixels by 3000 vertical pixels equals 12 megapixels). File size refers to the
-        volume of digital storage the file consumes (such as 4.5 megabytes). While higher
-        resolutions naturally require more data, file size is heavily dictated by encoding methods:
-      </p>
-      <ul>
-        <li>
-          A 4K uncompressed image can consume over 24 megabytes of disk space.
-        </li>
-        <li>
-          The exact same 4K photo encoded with modern WebP or JPEG compression can look visually
-          indistinguishable at just 1.2 megabytes—a 95% reduction with zero noticeable difference
-          on screen.
-        </li>
-      </ul>
+      <section className={styles.heroBanner} aria-label="Image Quality Analyzer banner">
+        <div className={`container ${styles.heroInner}`}>
+          <div className={styles.heroBadge}>Technical Diagnostics</div>
+          <h2 className={styles.heroTitle}>Image Quality Analyzer</h2>
+          <p className={styles.heroLead}>
+            Inspect image dimensions, resolution, file weight, and format efficiency.
+            Get practical, honest recommendations without automated guesswork.
+          </p>
+          <div className={styles.heroCtas}>
+            <a href="#tool" className={styles.heroPrimary}>Analyze an Image</a>
+            <a href="#features" className={styles.heroSecondary}>Learn More</a>
+          </div>
+        </div>
+      </section>
 
       {/* ------------------------------------------------------------------ */}
-      <h2>How Image Dimensions Affect Quality</h2>
-      <p>
-        Displaying an image larger than its native pixel dimensions forces the browser to stretch
-        and interpolate pixels, causing blurriness and pixelation. Conversely, feeding a massive
-        5000-pixel-wide photo into a 600-pixel blog column wastes user bandwidth, degrades mobile
-        battery life, and slows down browser rendering engines. Matching image dimensions closely
-        to real-world display requirements is the single most impactful optimization step.
-      </p>
+      {/*  Features Grid                                                     */}
+      {/* ------------------------------------------------------------------ */}
+      <section className={styles.section} id="features" aria-labelledby="features-heading">
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <h2 id="features-heading" className={styles.sectionTitle}>Everything you need to diagnose your images</h2>
+            <p className={styles.sectionLead}>
+              Accurate measurements, format insights, and practical recommendations built for everyday image workflows.
+            </p>
+          </div>
+
+          <div className={styles.featureGrid}>
+            {features.map((feature) => (
+              <div key={feature.title} className={styles.featureCard}>
+                <span className={styles.featureIcon} aria-hidden="true">{feature.icon}</span>
+                <h3 className={styles.featureTitle}>{feature.title}</h3>
+                <p className={styles.featureDesc}>{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ------------------------------------------------------------------ */}
-      <h2>Why a Large File Isn't Always a Better Image</h2>
-      <p>
-        Many users assume that a bigger file size guarantees superior quality. In reality, large
-        files often indicate inefficient legacy containers (such as uncompressed 24-bit PNGs used
-        for photographs) or redundant hidden metadata headers (such as camera manufacturer logs
-        and embedded preview thumbnails). Removing redundant headers and switching to modern
-        lossy codecs preserves the visual picture while cutting the byte footprint drastically.
-      </p>
+      {/*  What We Analyze                                                   */}
+      {/* ------------------------------------------------------------------ */}
+      <section className={styles.sectionAlt} id="what-we-analyze" aria-labelledby="analyze-heading">
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <h2 id="analyze-heading" className={styles.sectionTitle}>What we analyze</h2>
+            <p className={styles.sectionLead}>
+              A complete technical inspection of every image you upload.
+            </p>
+          </div>
+
+          <div className={styles.formatGrid}>
+            {whatWeAnalyze.map((item) => (
+              <div key={item.title} className={styles.formatCard}>
+                <div className={styles.formatAccent} />
+                <h3 className={styles.formatTitle}>{item.title}</h3>
+                <p className={styles.formatDesc}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ------------------------------------------------------------------ */}
-      <h2>Choosing Image Formats</h2>
-      <p>
-        Selecting the right container format is critical for balancing clarity and performance:
-      </p>
-      <ul>
-        <li>
-          <strong>WebP:</strong> The optimal default for modern websites and web applications,
-          supporting both rich photography and transparency at 25%–35% lower weight than JPEG.
-        </li>
-        <li>
-          <strong>JPEG / JPG:</strong> The universal standard for newsletters, legacy email
-          software, and archival compatibility.
-        </li>
-        <li>
-          <strong>PNG:</strong> Reserved for lossless graphics, screenshots with fine text, and
-          digital logos requiring sharp, uncompressed edges.
-        </li>
-        <li>
-          <strong>AVIF:</strong> An advanced next-generation codec providing outstanding data
-          density for supported modern browser environments.
-        </li>
-      </ul>
+      {/*  How It Works                                                      */}
+      {/* ------------------------------------------------------------------ */}
+      <section className={styles.section} id="how-it-works" aria-labelledby="how-heading">
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <h2 id="how-heading" className={styles.sectionTitle}>How it works</h2>
+            <p className={styles.sectionLead}>
+              Diagnose your images in three simple steps. No account required.
+            </p>
+          </div>
+
+          <div className={styles.stepGrid}>
+            {steps.map((item) => (
+              <div key={item.step} className={styles.stepCard}>
+                <span className={styles.stepNumber}>{item.step}</span>
+                <h3 className={styles.stepTitle}>{item.title}</h3>
+                <p className={styles.stepDesc}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ------------------------------------------------------------------ */}
-      <h2>What Makes an Image Suitable for a Website?</h2>
-      <p>
-        To achieve high Google Lighthouse and Core Web Vitals scores:
-      </p>
-      <ul>
-        <li>Hero banners should rarely exceed 1600 to 1920 pixels in width.</li>
-        <li>Inline content and article images should generally be kept under 1200 pixels wide.</li>
-        <li>Individual file weight should ideally remain under 350 KB, and never exceed 1 MB.</li>
-        <li>Images should be served in modern WebP format whenever possible.</li>
-      </ul>
-
+      {/*  FAQ                                                               */}
       {/* ------------------------------------------------------------------ */}
-      <h2>What Makes an Image Suitable for Print?</h2>
-      <p>
-        Physical paper printing relies on dots per inch (DPI) rather than screen pixels. Quality
-        commercial print requires 300 DPI:
-      </p>
-      <ul>
-        <li>A standard 4 × 6 inch snapshot requires 1200 × 1800 pixels (roughly 2.2 MP).</li>
-        <li>An 8 × 10 inch photo requires 2400 × 3000 pixels (roughly 7.2 MP).</li>
-        <li>
-          For physical print, preserve full camera dimensions, avoid heavy compression, and keep
-          uncompressed PNG or high-quality JPEG masters.
-        </li>
-      </ul>
+      <section className={styles.sectionAlt} id="faq" aria-labelledby="faq-heading">
+        <div className={styles.faqInner}>
+          <div className={styles.sectionHeader}>
+            <h2 id="faq-heading" className={styles.sectionTitle}>Frequently Asked Questions</h2>
+            <p className={styles.sectionLead}>
+              Everything you need to know about technical image analysis.
+            </p>
+          </div>
 
-      {/* ------------------------------------------------------------------ */}
-      <h2>When Should You Compress, Resize, or Convert?</h2>
-      <ul>
-        <li>
-          <strong>Resize:</strong> When the pixel dimensions exceed your display container (e.g.
-          a 4000px camera photo intended for a website column).
-        </li>
-        <li>
-          <strong>Compress:</strong> When dimensions are correct, but the byte size is too heavy
-          for fast loading or email attachments.
-        </li>
-        <li>
-          <strong>Convert:</strong> When the container is inefficient (e.g. converting a large
-          photographic PNG to WebP).
-        </li>
-      </ul>
+          <div className={styles.faqList}>
+            <details className={styles.faqItem}>
+              <summary>
+                <span className={styles.faqQuestion}>What does the Image Quality Analyzer check?</span>
+                <span className={styles.faqIcon} aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </span>
+              </summary>
+              <p>
+                It measures exact pixel dimensions, aspect ratio, total megapixels, file byte weight,
+                MIME format, alpha transparency presence, and evaluates readiness for specific uses like
+                websites, email, social media, and print.
+              </p>
+            </details>
 
-      {/* ------------------------------------------------------------------ */}
-      <h2>Why Browser-Based Analysis is Private</h2>
-      <p>
-        Traditional image analysis tools upload your pictures to remote cloud servers to run
-        automated scripts. Client-side browser analysis offers complete confidentiality:
-      </p>
-      <ul>
-        <li>
-          <strong>Zero Server Uploads:</strong> Your files never travel across the internet.
-        </li>
-        <li>
-          <strong>Instant Hardware Inspection:</strong> Dimensions, pixel channels, and metadata
-          are read directly from local system memory in milliseconds.
-        </li>
-        <li>
-          <strong>Complete Offline Availability:</strong> The analyzer functions perfectly even
-          without an active network connection.
-        </li>
-      </ul>
+            <details className={styles.faqItem}>
+              <summary>
+                <span className={styles.faqQuestion}>Can it tell whether an image looks good?</span>
+                <span className={styles.faqIcon} aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </span>
+              </summary>
+              <p>
+                No automated tool can judge artistic merit. Instead, this analyzer provides honest
+                technical metrics—telling you whether the resolution is high enough, whether the file is
+                too heavy, and what practical steps will optimize it.
+              </p>
+            </details>
 
-      {/* ------------------------------------------------------------------ */}
-      <h2>Limitations of Technical Image Analysis</h2>
-      <p>
-        This tool measures objective, deterministic data: byte count, width, height, aspect ratio,
-        megapixels, alpha transparency, and format efficiency. It deliberately does not make
-        unsubstantiated claims about subjective artistic beauty or composition. Technical readiness
-        scores represent practical guidelines for real-world delivery, not rigid scientific rules.
-      </p>
+            <details className={styles.faqItem}>
+              <summary>
+                <span className={styles.faqQuestion}>What is image resolution?</span>
+                <span className={styles.faqIcon} aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </span>
+              </summary>
+              <p>
+                Resolution describes the total number of pixels in the image matrix (width multiplied by
+                height). More pixels allow an image to be displayed larger or printed clearer without
+                looking fuzzy.
+              </p>
+            </details>
 
-      {/* ------------------------------------------------------------------ */}
-      <h2>Frequently Asked Questions</h2>
+            <details className={styles.faqItem}>
+              <summary>
+                <span className={styles.faqQuestion}>Is a larger image always better?</span>
+                <span className={styles.faqIcon} aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </span>
+              </summary>
+              <p>
+                No. Having more pixels than your destination requires wastes device memory, slows page
+                loading, and burns mobile data without providing any visual benefit on screen.
+              </p>
+            </details>
 
-      <details className={styles.faq}>
-        <summary>What does the Image Quality Analyzer check?</summary>
-        <p>
-          It measures exact pixel dimensions, aspect ratio, total megapixels, file byte weight,
-          MIME format, alpha transparency presence, and evaluates readiness for specific uses like
-          websites, email, social media, and print.
-        </p>
-      </details>
+            <details className={styles.faqItem}>
+              <summary>
+                <span className={styles.faqQuestion}>What file size is good for a website?</span>
+                <span className={styles.faqIcon} aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </span>
+              </summary>
+              <p>
+                As a general rule, aim for under 350 KB for large hero images, and under 150 KB for
+                standard content photos and thumbnails.
+              </p>
+            </details>
 
-      <details className={styles.faq}>
-        <summary>Can it tell whether an image looks good?</summary>
-        <p>
-          No automated tool can judge artistic merit. Instead, this analyzer provides honest
-          technical metrics—telling you whether the resolution is high enough, whether the file is
-          too heavy, and what practical steps will optimize it.
-        </p>
-      </details>
+            <details className={styles.faqItem}>
+              <summary>
+                <span className={styles.faqQuestion}>Should I use JPG or WebP?</span>
+                <span className={styles.faqIcon} aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </span>
+              </summary>
+              <p>
+                WebP is superior for websites and web apps, delivering 25%–35% smaller files with built-in
+                transparency support. JPEG remains best for email templates and legacy software.
+              </p>
+            </details>
 
-      <details className={styles.faq}>
-        <summary>What is image resolution?</summary>
-        <p>
-          Resolution describes the total number of pixels in the image matrix (width multiplied by
-          height). More pixels allow an image to be displayed larger or printed clearer without
-          looking fuzzy.
-        </p>
-      </details>
+            <details className={styles.faqItem}>
+              <summary>
+                <span className={styles.faqQuestion}>Does analyzing an image upload it?</span>
+                <span className={styles.faqIcon} aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </span>
+              </summary>
+              <p>
+                Never. All processing and measurements occur 100% locally on your computer or phone using
+                standard client-side browser APIs.
+              </p>
+            </details>
 
-      <details className={styles.faq}>
-        <summary>Is a larger image always better?</summary>
-        <p>
-          No. Having more pixels than your destination requires wastes device memory, slows page
-          loading, and burns mobile data without providing any visual benefit on screen.
-        </p>
-      </details>
+            <details className={styles.faqItem}>
+              <summary>
+                <span className={styles.faqQuestion}>Can the analyzer fix my image?</span>
+                <span className={styles.faqIcon} aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </span>
+              </summary>
+              <p>
+                The analyzer diagnoses your image and provides direct 1-click action buttons that carry
+                your image into our specialized Optimizer, Compressor, Resizer, or Converter tools.
+              </p>
+            </details>
 
-      <details className={styles.faq}>
-        <summary>What file size is good for a website?</summary>
-        <p>
-          As a general rule, aim for under 350 KB for large hero images, and under 150 KB for
-          standard content photos and thumbnails.
-        </p>
-      </details>
+            <details className={styles.faqItem}>
+              <summary>
+                <span className={styles.faqQuestion}>What should I do if my image is too large?</span>
+                <span className={styles.faqIcon} aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </span>
+              </summary>
+              <p>
+                Click the &quot;Optimize for Website&quot; or &quot;Compress Image&quot; button. Our tools will downscale the
+                dimensions and apply modern lossy encoding to reduce the file size.
+              </p>
+            </details>
 
-      <details className={styles.faq}>
-        <summary>Should I use JPG or WebP?</summary>
-        <p>
-          WebP is superior for websites and web apps, delivering 25%–35% smaller files with built-in
-          transparency support. JPEG remains best for email templates and legacy software.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Does analyzing an image upload it?</summary>
-        <p>
-          Never. All processing and measurements occur 100% locally on your computer or phone using
-          standard client-side browser APIs.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Can the analyzer fix my image?</summary>
-        <p>
-          The analyzer diagnoses your image and provides direct 1-click action buttons that carry
-          your image into our specialized Optimizer, Compressor, Resizer, or Converter tools.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>What should I do if my image is too large?</summary>
-        <p>
-          Click the "Optimize for Website" or "Compress Image" button. Our tools will downscale the
-          dimensions and apply modern lossy encoding to reduce the file size.
-        </p>
-      </details>
-
-      <details className={styles.faq}>
-        <summary>Can I optimize the image after analyzing it?</summary>
-        <p>
-          Yes. Clicking any of the recommended action buttons transfers your active image into the
-          corresponding tool in browser memory without requiring you to re-upload.
-        </p>
-      </details>
+            <details className={styles.faqItem}>
+              <summary>
+                <span className={styles.faqQuestion}>Can I optimize the image after analyzing it?</span>
+                <span className={styles.faqIcon} aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </span>
+              </summary>
+              <p>
+                Yes. Clicking any of the recommended action buttons transfers your active image into the
+                corresponding tool in browser memory without requiring you to re-upload.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

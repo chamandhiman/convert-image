@@ -3,6 +3,17 @@
    ========================================================================== */
 
 /* ---------------------------------------------------------------------------
+   Converter Surface — unified container
+   ------------------------------------------------------------------------ */
+.converterSurface {
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-xs);
+  overflow: clip;
+  padding: var(--space-8);
+}
+
+/* ---------------------------------------------------------------------------
    Privacy Banner
    ------------------------------------------------------------------------ */
 .privacyBanner {
@@ -32,8 +43,28 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  max-width: var(--container-narrow);
-  margin-inline: auto;
+}
+
+.uploadHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.uploadTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  line-height: var(--line-height-snug);
+}
+
+.uploadDesc {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 52ch;
 }
 
 /* ---------------------------------------------------------------------------
@@ -44,8 +75,6 @@
   flex-direction: column;
   align-items: stretch;
   gap: var(--space-4);
-  max-width: 62rem;
-  margin-inline: auto;
   width: 100%;
 }
 
@@ -57,9 +86,15 @@
   gap: var(--space-2);
   width: 100%;
   padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xs);
   background-color: var(--color-bg-subtle);
   border: var(--border-width) solid var(--color-border);
+  transition: transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-standard);
+}
+
+.editorTopBar:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
 }
 
 .metaInfo {
@@ -108,10 +143,15 @@
   justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-xs);
   border: var(--border-width) solid var(--color-border);
   background-color: var(--color-surface);
-  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-standard);
+}
+
+.toolbar:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
 }
 
 .toolGroupRow {
@@ -229,10 +269,8 @@
 /* Outer container holds the dimmed editor + floating card */
 .processingEditorWrap {
   position: relative;
-  max-width: 62rem;
-  margin-inline: auto;
   width: 100%;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-xs);
   overflow: hidden;
 }
 
@@ -402,12 +440,10 @@
   align-items: center;
   gap: var(--space-5);
   padding: var(--space-10) var(--space-8);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-xs);
   border: var(--border-width) solid var(--color-border);
   background-color: var(--color-surface);
   text-align: center;
-  max-width: 36rem;
-  margin-inline: auto;
 }
 
 .errorIconWrap {
@@ -455,8 +491,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  max-width: 64rem;
-  margin-inline: auto;
   width: 100%;
 }
 
@@ -582,15 +616,19 @@
 .splitViewer {
   position: relative;
   width: 100%;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-xs);
   overflow: hidden;
   border: var(--border-width) solid var(--color-border);
   background-color: #0b0f19;
   cursor: col-resize;
   user-select: none;
-  box-shadow: var(--shadow-md);
   min-height: 200px;
   touch-action: none;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.splitViewer:hover {
+  border-color: var(--color-primary);
 }
 
 .enhancedLayer {
@@ -688,7 +726,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-3);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-xs);
   overflow: hidden;
 }
 
@@ -700,7 +738,7 @@
 
 .sideBySidePanel {
   position: relative;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-xs);
   overflow: hidden;
   border: var(--border-width) solid var(--color-border);
   background-color: #0b0f19;
@@ -736,7 +774,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-4);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-xs);
   overflow: hidden;
   border: var(--border-width) solid var(--color-border);
 }

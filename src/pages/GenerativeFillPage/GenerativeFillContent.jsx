@@ -34,7 +34,25 @@ function GenerativeFillContent() {
   };
 
   return (
-    <section className={styles.contentSection} aria-label="About AI Generative Fill">
+    <div className={styles.page}>
+      {/* ------------------------------------------------------------------ */}
+      {/*  Hero Banner                                                       */}
+      {/* ------------------------------------------------------------------ */}
+      <section className={styles.heroBanner} aria-label="AI Generative Fill banner">
+        <div className={`container ${styles.heroInner}`}>
+          <div className={styles.heroBadge}>AI Creative Tool</div>
+          <h2 className={styles.heroTitle}>AI Generative Fill</h2>
+          <p className={styles.heroLead}>
+            Describe what you&apos;d like to change — then let AI create it. 100% private, runs in your browser.
+          </p>
+          <div className={styles.heroCtas}>
+            <a href="#tool" className={styles.heroPrimary}>Start Creating</a>
+            <a href="#how-it-works" className={styles.heroSecondary}>Learn More</a>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.contentSection} aria-label="About AI Generative Fill">
       <article className={styles.article}>
         <h2 className={styles.headingPrimary}>What Is AI Generative Fill?</h2>
         <p className={styles.paragraph}>
@@ -144,6 +162,7 @@ function GenerativeFillContent() {
         </div>
       </article>
     </section>
+    </div>
   );
 }
 

@@ -1,31 +1,26 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import ToolPageLayout from '@/components/layout/ToolPageLayout';
-import FileUploader from '@/components/ui/FileUploader';
-import ImagePreview from '@/components/ui/ImagePreview';
+import MultiImageUploader from '@/components/ui/MultiImageUploader';
 import { Button } from '@/components/ui/Button';
-import { IconDownload, IconImagePlus } from '@/components/ui/Icons/Icons';
+import { IconDownload, IconImagePlus, IconUpload, IconTrash } from '@/components/ui/Icons/Icons';
 import { formatFileSize } from '@/utils/formatFileSize';
 import {
-  CONVERT_INPUT_TYPES,
-  CONVERT_ACCEPT_STRING,
+  ALL_OUTPUT_FORMATS,
   getSupportedOutputFormats,
-  getFormatLabel,
   loadImage,
   getImageMeta,
   convertImage,
   buildConvertedFilename,
   downloadBlob,
 } from '@/utils/imageProcessor';
+import { createZipBlob } from '@/utils/zip';
 import { consumePendingToolInput } from '@/utils/toolStateBridge';
 
-import ConvertContent from './ConvertContent';
+import ConvertContent from '@/pages/ConvertPage/ConvertContent';
 import styles from './ConvertPage.module.css';
 
-/* ---------------------------------------------------------------------- */
-/*  State machine phases                                                  */
-/* ---------------------------------------------------------------------- */
 const PHASE = {
   IDLE: 'idle',
   LOADED: 'loaded',
@@ -34,481 +29,619 @@ const PHASE = {
   ERROR: 'error',
 };
 
-function ConvertPage() {
+const SOURCE_FORMATS = [
+  { value: 'image/jpeg', label: 'JPG', accept: '.jpg,.jpeg', mimeTypes: ['image/jpeg'] },
+  { value: 'image/png', label: 'PNG', accept: '.png', mimeTypes: ['image/png'] },
+  { value: 'image/webp', label: 'WebP', accept: '.webp', mimeTypes: ['image/webp'] },
+  { value: 'image/gif', label: 'GIF', accept: '.gif', mimeTypes: ['image/gif'] },
+  { value: 'image/svg+xml', label: 'SVG', accept: '.svg', mimeTypes: ['image/svg+xml'] },
+];
+
+function ConvertPage({ embedded, embeddedOnly }) {
   useDocumentTitle('Convert Images Online — JPG, PNG, WebP & More');
 
+  const [sourceFormat, setSourceFormat] = useState('image/jpeg');
+  const [outputFormat, setOutputFormat] = useState('image/png');
   const [phase, setPhase] = useState(PHASE.IDLE);
-  const [file, setFile] = useState(null);
-  const [img, setImg] = useState(null);
-  const [originalMeta, setOriginalMeta] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
-
-  /* Supported output formats detected from browser */
-  const outputFormats = useMemo(() => getSupportedOutputFormats(), []);
-
-  /* Conversion settings */
-  const [outputFormat, setOutputFormat] = useState('image/webp');
+  const [queueItems, setQueueItems] = useState([]);
   const [quality, setQuality] = useState(85);
-
-  /* Result */
-  const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [convertingIndex, setConvertingIndex] = useState(0);
 
-  /* -------------------------------------------------------------------- */
-  /*  Cleanup helper                                                      */
-  /* -------------------------------------------------------------------- */
-  const cleanup = () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    if (result?.url) URL.revokeObjectURL(result.url);
-    setFile(null);
-    setImg(null);
-    setOriginalMeta(null);
-    setPreviewUrl('');
-    setResult(null);
+  const outputFormats = useMemo(() => getSupportedOutputFormats(), []);
+  const hasImages = queueItems.length > 0;
+
+  const sourceFormatObj = useMemo(
+    () => SOURCE_FORMATS.find((f) => f.value === sourceFormat) || SOURCE_FORMATS[0],
+    [sourceFormat],
+  );
+
+  const selectedFormatObj = outputFormats.find((f) => f.value === outputFormat);
+  const isLossy = selectedFormatObj ? selectedFormatObj.lossy : outputFormat !== 'image/png';
+  const isSameFormat = sourceFormat === outputFormat;
+
+  const totalSize = useMemo(
+    () => queueItems.reduce((sum, item) => sum + (item.file?.size || 0), 0),
+    [queueItems],
+  );
+
+  const cleanup = useCallback(() => {
+    queueItems.forEach((item) => {
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+      if (item.result?.url) URL.revokeObjectURL(item.result.url);
+    });
+    setQueueItems([]);
     setError('');
     setPhase(PHASE.IDLE);
-  };
+    setConvertingIndex(0);
+  }, [queueItems]);
 
-  /* -------------------------------------------------------------------- */
-  /*  File selection                                                      */
-  /* -------------------------------------------------------------------- */
-  const handleFileSelect = async (f) => {
+  const validateFile = useCallback(
+    (file) => {
+      if (!file || !(file instanceof File)) return false;
+      const mime = file.type || '';
+      const name = file.name || '';
+      const ext = name.split('.').pop()?.toLowerCase() || '';
+      const acceptedMimes = sourceFormatObj?.mimeTypes || [];
+      const acceptedExts = (sourceFormatObj?.accept || '').split(',').map((s) => s.trim().replace('.', ''));
+
+      const mimeOk = acceptedMimes.length === 0 || acceptedMimes.includes(mime);
+      const extOk = acceptedExts.length === 0 || acceptedExts.includes(ext);
+
+      return mimeOk || extOk;
+    },
+    [sourceFormatObj],
+  );
+
+  const handleFilesChange = useCallback(
+    (files) => {
+      if (!files || files.length === 0) return;
+
+      const accepted = [];
+      let skipped = 0;
+
+      Array.from(files).forEach((file) => {
+        if (validateFile(file)) {
+          const previewUrl = URL.createObjectURL(file);
+          accepted.push({
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+            file,
+            previewUrl,
+            status: 'ready',
+            error: '',
+            img: null,
+            meta: null,
+            result: null,
+          });
+        } else {
+          skipped += 1;
+        }
+      });
+
+      if (accepted.length > 0) {
+        setQueueItems((prev) => [...prev, ...accepted]);
+        setPhase(PHASE.LOADED);
+      }
+
+      if (skipped > 0) {
+        setError(`${skipped} file${skipped > 1 ? 's' : ''} skipped because they aren't ${sourceFormatObj?.label || ''} images.`);
+      } else {
+        setError('');
+      }
+    },
+    [validateFile, sourceFormatObj],
+  );
+
+  const handleFileSelect = useCallback(
+    async (file) => {
+      setError('');
+      if (!validateFile(file)) {
+        setError(`Only ${sourceFormatObj?.label || ''} files can be added for this conversion.`);
+        return;
+      }
+
+      try {
+        const image = await loadImage(file);
+        const meta = getImageMeta(image, file);
+
+        setQueueItems((prev) =>
+          prev.map((item) =>
+            item.file === file ? { ...item, img: image, meta, status: 'ready' } : item,
+          ),
+        );
+      } catch (err) {
+        setError(err?.message || 'Could not load the image file.');
+      }
+    },
+    [validateFile, sourceFormatObj],
+  );
+
+  const handleRemoveItem = useCallback((id) => {
+    setQueueItems((prev) => {
+      const item = prev.find((i) => i.id === id);
+      if (item) {
+        if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+        if (item.result?.url) URL.revokeObjectURL(item.result.url);
+      }
+      return prev.filter((i) => i.id !== id);
+    });
+  }, []);
+
+  const handleClear = useCallback(() => {
     cleanup();
-    setFile(f);
+  }, [cleanup]);
+
+  const handleResetWorkspace = useCallback(() => {
+    cleanup();
+    setSourceFormat('image/jpeg');
+    setOutputFormat('image/png');
+    setQuality(85);
+  }, [cleanup]);
+
+  const handleSourceFormatChange = useCallback(
+    (e) => {
+      const newSource = e.target.value;
+      setSourceFormat(newSource);
+      setOutputFormat((prev) => {
+        if (prev === newSource) {
+          const nextTarget = ALL_OUTPUT_FORMATS.find((f) => f.value !== newSource);
+          return nextTarget ? nextTarget.value : prev;
+        }
+        return prev;
+      });
+
+      setQueueItems((prev) => {
+        const incompatible = prev.filter((item) => !validateFile(item.file));
+        if (incompatible.length > 0) {
+          setError(`Your selected files don't match the new source format. Please upload ${SOURCE_FORMATS.find((f) => f.value === newSource)?.label || ''} images.`);
+        } else {
+          setError('');
+        }
+        return prev.filter((item) => validateFile(item.file));
+      });
+    },
+    [validateFile],
+  );
+
+  const handleTargetFormatChange = useCallback((e) => {
+    setOutputFormat(e.target.value);
+  }, []);
+
+  const handleConvert = useCallback(async () => {
+    const readyItems = queueItems.filter((item) => item.img && item.meta);
+    if (readyItems.length === 0) return;
+
+    if (isSameFormat) {
+      setError('Choose a different output format.');
+      return;
+    }
+
+    setPhase(PHASE.CONVERTING);
     setError('');
+    setConvertingIndex(0);
+
+    for (let i = 0; i < readyItems.length; i++) {
+      const item = readyItems[i];
+      setConvertingIndex(i);
+
+      try {
+        const output = await convertImage(item.img, {
+          outputType: outputFormat,
+          quality: quality / 100,
+        });
+
+        setQueueItems((prev) =>
+          prev.map((qItem) =>
+            qItem.id === item.id ? { ...qItem, result: output, status: 'complete' } : qItem,
+          ),
+        );
+      } catch (err) {
+        const errMsg = err?.message || 'Failed to convert this image.';
+        setQueueItems((prev) =>
+          prev.map((qItem) =>
+            qItem.id === item.id ? { ...qItem, status: 'failed', error: errMsg } : qItem,
+          ),
+        );
+      }
+    }
+
+    setPhase(PHASE.DONE);
+  }, [queueItems, outputFormat, quality, isSameFormat]);
+
+  const handleDownload = useCallback((item) => {
+    if (!item.result?.blob || !item.meta) return;
+    const filename = buildConvertedFilename(item.meta.name, outputFormat);
+    downloadBlob(item.result.blob, filename);
+  }, [outputFormat]);
+
+  const handleDownloadAll = useCallback(async () => {
+    const completedItems = queueItems.filter((item) => item.status === 'complete' && item.result);
+    if (completedItems.length === 0) return;
+
+    for (const item of completedItems) {
+      const filename = buildConvertedFilename(item.meta.name, outputFormat);
+      downloadBlob(item.result.blob, filename);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+  }, [queueItems, outputFormat]);
+
+  const handleDownloadZip = useCallback(async () => {
+    const completedItems = queueItems.filter((item) => item.status === 'complete' && item.result);
+    if (completedItems.length === 0) return;
 
     try {
-      const image = await loadImage(f);
-      const meta = getImageMeta(image, f);
-      setImg(image);
-      setOriginalMeta(meta);
-      setPreviewUrl(image.src);
-
-      // Default target format: if source is already WebP, suggest JPG; otherwise WebP
-      const isSourceWebp = f.type === 'image/webp' || f.name.toLowerCase().endsWith('.webp');
-      setOutputFormat(isSourceWebp ? 'image/jpeg' : 'image/webp');
-
-      setPhase(PHASE.LOADED);
-    } catch (err) {
-      setError(err?.message || 'Could not load the image file.');
-      setPhase(PHASE.ERROR);
+      const files = completedItems.map((item) => ({
+        name: buildConvertedFilename(item.meta.name, outputFormat),
+        blob: item.result.blob,
+      }));
+      const zipBlob = await createZipBlob(files, 'converted-images.zip');
+      downloadBlob(zipBlob, 'converted-images.zip');
+    } catch {
+      setError('Could not create ZIP file. Please download individually.');
     }
-  };
+  }, [queueItems, outputFormat]);
 
-  const handleClear = () => {
-    cleanup();
-  };
-
-  /* Consume staged tool input on mount if navigated from Analyzer */
+  /* Consume staged tool input on mount */
   useEffect(() => {
     const { file: stagedFile } = consumePendingToolInput();
     if (stagedFile) {
       Promise.resolve().then(() => {
-        handleFileSelect(stagedFile);
+        handleFilesChange([stagedFile]);
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [handleFilesChange]);
 
-  /* -------------------------------------------------------------------- */
-  /*  Convert action                                                      */
-  /* -------------------------------------------------------------------- */
-  const handleConvert = async () => {
-    if (!img) return;
+  const completedCount = queueItems.filter((i) => i.status === 'complete').length;
 
-    setPhase(PHASE.CONVERTING);
-    setError('');
+  const renderEmptyState = () => (
+    <div className={styles.uploadSurface}>
+      <div className={styles.uploadHeader}>
+        <div>
+          <h2 className={styles.uploadTitle}>Convert your images</h2>
+          <p className={styles.uploadDesc}>
+            Select images and choose the format you want to convert to.
+          </p>
+        </div>
+      </div>
 
-    try {
-      const output = await convertImage(img, {
-        outputType: outputFormat,
-        quality: quality / 100,
-      });
-      setResult(output);
-      setPhase(PHASE.DONE);
-    } catch (err) {
-      setError(err?.message || 'Failed to convert the image.');
-      setPhase(PHASE.ERROR);
+      <div className={`${styles.uploadControls}`}>
+        <div className={`control_convert ${styles.controlGroup} ${styles.sourceGroup}`}>
+          <label className={styles.controlLabel} htmlFor="convert-source-empty">
+            Convert from
+          </label>
+          <select
+            id="convert-source-empty"
+            className={styles.select}
+            value={sourceFormat}
+            onChange={handleSourceFormatChange}
+          >
+            {SOURCE_FORMATS.map((f) => (
+              <option key={f.value} value={f.value}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className={`control_convert ${styles.controlGroup}`}>
+          <label className={styles.controlLabel} htmlFor="convert-target-empty">
+            Convert to
+          </label>
+          <select
+            id="convert-target-empty"
+            className={styles.select}
+            value={outputFormat}
+            onChange={handleTargetFormatChange}
+          >
+            {outputFormats.map((f) => (
+              <option key={f.value} value={f.value} disabled={!f.isSupported}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <MultiImageUploader
+        onFilesChange={handleFilesChange}
+        onFileSelect={handleFileSelect}
+        accept={sourceFormatObj.accept}
+        acceptedTypes={sourceFormatObj.mimeTypes}
+        hint={`Upload ${sourceFormatObj.label} images only. Up to 50 MB.`}
+      />
+
+      {error && (
+        <p className={styles.emptyError} role="status">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+
+  const renderWorkspace = () => {
+    const isConverted = phase === PHASE.DONE;
+
+    if (isConverted) {
+      return (
+        <div className={`p-3 ${styles.resultsSection}`}>
+          <div className={styles.resultsHeader}>
+            <div>
+              <h3 className={styles.resultsTitle}>
+                {completedCount} of {queueItems.length} converted
+              </h3>
+              <p className={styles.resultsMeta}>
+                Total size: {formatFileSize(totalSize)}
+              </p>
+            </div>
+            <div className={`p-2 ${styles.resultsActions}`}>
+              {completedCount > 0 && (
+                <>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    icon={<IconDownload />}
+                    onClick={handleDownloadAll}
+                  >
+                    Download All ({completedCount})
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    icon={<IconDownload />}
+                    onClick={handleDownloadZip}
+                  >
+                    Download All as ZIP
+                  </Button>
+                </>
+              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                icon={<IconImagePlus />}
+                onClick={handleResetWorkspace}
+              >
+                Convert Again
+              </Button>
+            </div>
+          </div>
+
+          <div className={styles.resultsGrid}>
+            {queueItems.map((item) => (
+              <div key={item.id} className={`${styles.resultCard} ${item.status === 'complete' ? styles.resultCardSuccess : ''} ${item.status === 'failed' ? styles.resultCardFailed : ''}`}>
+                <div className={styles.resultThumbWrap}>
+                  <img 
+                    src={item.status === 'complete' && item.result ? item.result.url : item.previewUrl} 
+                    alt={item.file.name} 
+                    className={styles.resultThumb} 
+                  />
+                  {item.status === 'complete' && (
+                    <div className={styles.resultOverlay}>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        icon={<IconDownload />}
+                        onClick={() => handleDownload(item)}
+                      >
+                        Download
+                      </Button>
+                    </div>
+                  )}
+                  {item.status === 'complete' && (
+                    <div className={styles.resultBadge}>Done</div>
+                  )}
+                  {item.status === 'failed' && (
+                    <div className={`${styles.resultBadge} ${styles.resultBadgeError}`}>Failed</div>
+                  )}
+                </div>
+                <div className={styles.resultInfo}>
+                  <span className={styles.resultName} title={item.file.name}>
+                    {item.file.name}
+                  </span>
+                  <span className={styles.resultSize}>
+                    {item.meta ? formatFileSize(item.meta.size) : ''}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     }
+
+    return (
+      <>
+        <div className={`p-3 radius-0 ${styles.topBar}`}>
+          <div className={styles.topBarLeft}>
+            <span className={styles.topBarIcon} aria-hidden="true">
+              <IconUpload size={18} />
+            </span>
+            <div>
+              <div className={styles.topBarTitle}>
+                {queueItems.length} image{queueItems.length > 1 ? 's' : ''} selected
+              </div>
+              <div className={styles.topBarMeta}>
+                Total size: {formatFileSize(totalSize)}
+              </div>
+            </div>
+          </div>
+          <div className={styles.topBarRight}>
+            {isLossy && (
+              <div className={styles.topBarQuality}>
+                <div className={styles.sliderHeader}>
+                  <label className={styles.controlLabel} htmlFor="convert-quality-top">Quality</label>
+                  <output className={styles.qualityValue}>{quality}%</output>
+                </div>
+                <input
+                  id="convert-quality-top"
+                  type="range"
+                  min="10"
+                  max="100"
+                  step="1"
+                  value={quality}
+                  onChange={(e) => setQuality(Number(e.target.value))}
+                  className={styles.slider}
+                />
+              </div>
+            )}
+            <Button
+              variant="primary"
+              size="sm"
+              icon={<IconDownload />}
+              onClick={handleConvert}
+              disabled={phase === PHASE.CONVERTING || isSameFormat}
+            >
+              {phase === PHASE.CONVERTING ? 'Converting…' : 'Convert Images'}
+            </Button>
+            <input
+              id="add-more-input"
+              type="file"
+              accept={sourceFormatObj.accept}
+              multiple
+              onChange={(e) => {
+                const selected = e.target.files;
+                if (selected && selected.length > 0) {
+                  handleFilesChange(selected);
+                }
+                e.target.value = '';
+              }}
+              className={styles.hiddenInput}
+              tabIndex={-1}
+              aria-hidden="true"
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              icon={<IconImagePlus />}
+              onClick={() => document.getElementById('add-more-input')?.click()}
+            >
+              + Add New
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              icon={<IconTrash />}
+              onClick={handleClear}
+              className={styles.clearAllBtn}
+            >
+              Clear All
+            </Button>
+          </div>
+        </div>
+
+        {!hasImages && (
+          <div className={`p-3 radius-0 ${styles.controlBar}`}>
+            <div className={styles.controlBarLeft}>
+              <div className={`control_convert ${styles.controlGroup}`}>
+                <label className={styles.controlLabel} htmlFor="convert-source">
+                  Convert from
+                </label>
+                <div className={styles.selectWrap}>
+                  <span className={styles.selectIcon} aria-hidden="true">
+                    <IconUpload size={16} />
+                  </span>
+                  <select
+                    id="convert-source"
+                    className={styles.select}
+                    value={sourceFormat}
+                    onChange={handleSourceFormatChange}
+                  >
+                    {SOURCE_FORMATS.map((f) => (
+                      <option key={f.value} value={f.value}>
+                        {f.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <span className={styles.arrowIcon} aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </span>
+
+              <div className={`control_convert ${styles.controlGroup}`}>
+                <label className={styles.controlLabel} htmlFor="convert-target">
+                  Convert to
+                </label>
+                <div className={styles.selectWrap}>
+                  <span className={styles.selectIcon} aria-hidden="true">
+                    <IconDownload size={16} />
+                  </span>
+                  <select
+                    id="convert-target"
+                    className={styles.select}
+                    value={outputFormat}
+                    onChange={handleTargetFormatChange}
+                  >
+                    {outputFormats.map((f) => (
+                      <option key={f.value} value={f.value} disabled={!f.isSupported}>
+                        {f.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {isSameFormat && (
+                <div className={styles.formatWarning}>Choose a different output format.</div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className={`p-3 ${styles.imageGrid}`}>
+          {queueItems.map((item) => (
+            <div key={item.id} className={styles.imageCard}>
+              <div className={styles.imageThumbWrap}>
+                <img src={item.previewUrl} alt={item.file.name} className={styles.imageThumb} />
+                <button
+                  type="button"
+                  className={styles.imageRemoveBtn}
+                  onClick={() => handleRemoveItem(item.id)}
+                  aria-label={`Remove ${item.file.name}`}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+                <div className={`${styles.imageStatus} ${styles[item.status]}`}>
+                  {item.status === 'complete' && 'Done'}
+                  {item.status === 'failed' && 'Failed'}
+                  {item.status === 'ready' && convertingIndex > 0 && convertingIndex <= queueItems.indexOf(item) && 'Converting'}
+                  {item.status === 'ready' && (convertingIndex === 0 || convertingIndex > queueItems.indexOf(item)) && 'Ready'}
+                </div>
+              </div>
+              <div className={styles.imageInfo}>
+                <span className={styles.imageName} title={item.file.name}>
+                  {item.file.name}
+                </span>
+                <span className={styles.imageSize}>
+                  {(item.file.size / (1024 * 1024)).toFixed(1)} MB
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
+    );
   };
-
-  /* -------------------------------------------------------------------- */
-  /*  Download action                                                     */
-  /* -------------------------------------------------------------------- */
-  const handleDownload = () => {
-    if (!result?.blob || !originalMeta) return;
-    const filename = buildConvertedFilename(originalMeta.name, outputFormat);
-    downloadBlob(result.blob, filename);
-  };
-
-  /* -------------------------------------------------------------------- */
-  /*  Computed properties                                                 */
-  /* -------------------------------------------------------------------- */
-  const selectedFormatObj = outputFormats.find((f) => f.value === outputFormat);
-  const isLossy = selectedFormatObj ? selectedFormatObj.lossy : outputFormat !== 'image/png';
-
-  /* Comparison stats */
-  let sizeComparison = null;
-  if (result && originalMeta) {
-    const diff = result.blob.size - originalMeta.size;
-    const isSmaller = diff < 0;
-    const absDiff = Math.abs(diff);
-    const percentage = Math.abs(Math.round((diff / originalMeta.size) * 100));
-
-    sizeComparison = {
-      isSmaller,
-      isEqual: diff === 0,
-      percentage,
-      diffFormatted: formatFileSize(absDiff),
-      label:
-        diff === 0
-          ? 'Same size'
-          : isSmaller
-            ? `${percentage}% smaller (-${formatFileSize(absDiff)})`
-            : `${percentage}% larger (+${formatFileSize(absDiff)})`,
-    };
-  }
 
   return (
     <ToolPageLayout
       badge="Free · In-Browser"
       title="Convert Images Online"
-      subtitle="Convert JPG, PNG, WebP, AVIF, GIF and SVG images locally in your browser. Fast, free and completely private."
-      content={<ConvertContent />}
+      subtitle="Convert JPG, PNG, WebP, GIF and SVG images locally in your browser. Fast, free and completely private."
+      embedded={embedded}
+      embeddedOnly={embeddedOnly}
+      contentFullWidth
+      showHero={false}
     >
-      {/* ================================================================ */}
-      {/*  Privacy banner                                                  */}
-      {/* ================================================================ */}
-      <div className={styles.privacyBanner} role="note">
-        <svg
-          className={styles.privacyIcon}
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-        <span>Your image stays on your device. Conversion happens in your browser.</span>
+      <div className={styles.converterSurface}>
+        {!hasImages ? renderEmptyState() : renderWorkspace()}
       </div>
-
-      {/* ================================================================ */}
-      {/*  IDLE — file uploader                                            */}
-      {/* ================================================================ */}
-      {phase === PHASE.IDLE && (
-        <FileUploader
-          onFileSelect={handleFileSelect}
-          file={file}
-          onClear={handleClear}
-          accept={CONVERT_ACCEPT_STRING}
-          acceptedTypes={CONVERT_INPUT_TYPES}
-          hint="JPG, PNG, WebP, AVIF, GIF, SVG — up to 50 MB"
-        />
-      )}
-
-      {/* ================================================================ */}
-      {/*  ERROR — show message + retry                                    */}
-      {/* ================================================================ */}
-      {phase === PHASE.ERROR && (
-        <div className={styles.errorBlock} role="alert">
-          <p className={styles.errorTitle}>Conversion Error</p>
-          <p className={styles.errorText}>{error}</p>
-          <button type="button" className={styles.btnSecondary} onClick={handleClear}>
-            Try another image
-          </button>
-        </div>
-      )}
-
-      {/* ================================================================ */}
-      {/*  LOADED — workspace                                              */}
-      {/* ================================================================ */}
-      {phase === PHASE.LOADED && originalMeta && (
-        <div className={styles.workspace}>
-          {/* Original Preview & Details */}
-          <div className={styles.panel}>
-            <div className={styles.panelHeader}>
-              <h2 className={styles.panelTitle}>Original Image</h2>
-              <button
-                type="button"
-                className={styles.replaceBtn}
-                onClick={handleClear}
-                aria-label="Remove and replace image"
-              >
-                Change image
-              </button>
-            </div>
-
-            <div className={styles.previewBox}>
-              <ImagePreview
-                src={previewUrl}
-                alt={originalMeta.name}
-                className={styles.sourcePreview}
-              />
-            </div>
-
-            <dl className={styles.metaList}>
-              <div className={styles.metaItem}>
-                <dt>File name</dt>
-                <dd className={styles.truncateText} title={originalMeta.name}>
-                  {originalMeta.name}
-                </dd>
-              </div>
-              <div className={styles.metaItem}>
-                <dt>Input format</dt>
-                <dd>
-                  <span className={styles.formatBadge}>
-                    {getFormatLabel(originalMeta.type, originalMeta.name)}
-                  </span>
-                </dd>
-              </div>
-              <div className={styles.metaItem}>
-                <dt>File size</dt>
-                <dd>{formatFileSize(originalMeta.size)}</dd>
-              </div>
-              <div className={styles.metaItem}>
-                <dt>Dimensions</dt>
-                <dd>
-                  {originalMeta.width} × {originalMeta.height} px
-                </dd>
-              </div>
-            </dl>
-
-            {/* SVG Notice */}
-            {originalMeta.isSvg && (
-              <div className={styles.svgNotice}>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="16" x2="12" y2="12" />
-                  <line x1="12" y1="8" x2="12.01" y2="8" />
-                </svg>
-                <span>
-                  Converting SVG to a raster format (JPG, PNG, WebP) will render the vector artwork
-                  into fixed pixels.
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Conversion Settings */}
-          <div className={styles.panel}>
-            <div className={styles.panelHeader}>
-              <h2 className={styles.panelTitle}>Conversion Settings</h2>
-            </div>
-
-            <div className={styles.controlGroup}>
-              <label className={styles.controlLabel} htmlFor="target-format">
-                Target Format
-              </label>
-              <select
-                id="target-format"
-                className={styles.select}
-                value={outputFormat}
-                onChange={(e) => setOutputFormat(e.target.value)}
-              >
-                {outputFormats.map((f) => (
-                  <option key={f.value} value={f.value} disabled={!f.isSupported}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Quality Slider (Lossy formats) */}
-            <div className={styles.controlGroup}>
-              <div className={styles.sliderHeader}>
-                <label className={styles.controlLabel} htmlFor="convert-quality-slider">
-                  Quality
-                </label>
-                <output className={styles.qualityValue} htmlFor="convert-quality-slider">
-                  {isLossy ? `${quality}%` : 'Lossless'}
-                </output>
-              </div>
-
-              <input
-                id="convert-quality-slider"
-                type="range"
-                min="10"
-                max="100"
-                step="1"
-                value={quality}
-                onChange={(e) => setQuality(Number(e.target.value))}
-                className={styles.slider}
-                disabled={!isLossy}
-                aria-describedby={!isLossy ? 'png-quality-note' : undefined}
-              />
-
-              {!isLossy && (
-                <p id="png-quality-note" className={styles.controlHint}>
-                  PNG uses lossless compression — quality setting does not apply.
-                </p>
-              )}
-            </div>
-
-            {/* Format Info Note */}
-            <div className={styles.formatSummary}>
-              <p className={styles.formatSummaryText}>
-                Converting <strong>{getFormatLabel(originalMeta.type, originalMeta.name)}</strong> to{' '}
-                <strong>{getFormatLabel(outputFormat)}</strong>
-                {outputFormat === 'image/jpeg' &&
-                  originalMeta.type !== 'image/jpeg' &&
-                  ' (transparent backgrounds will be filled with white).'}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              className={styles.btnPrimary}
-              onClick={handleConvert}
-              aria-label={`Convert image to ${getFormatLabel(outputFormat)}`}
-            >
-              Convert Image
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ================================================================ */}
-      {/*  CONVERTING — progress indicator                                 */}
-      {/* ================================================================ */}
-      {phase === PHASE.CONVERTING && (
-        <div className={styles.convertingState} role="status" aria-live="polite">
-          <div className={styles.spinner}>
-            <span className={styles.spinnerDot} />
-            <span className={styles.spinnerDot} />
-            <span className={styles.spinnerDot} />
-          </div>
-          <p className={styles.convertingText}>
-            Converting image to {getFormatLabel(outputFormat)}…
-          </p>
-        </div>
-      )}
-
-      {/* ================================================================ */}
-      {/*  DONE — before / after comparison results                        */}
-      {/* ================================================================ */}
-      {phase === PHASE.DONE && result && originalMeta && (
-        <div className={styles.resultsWrapper} aria-label="Conversion results">
-          {/* Summary Card */}
-          {sizeComparison && (
-            <div className={styles.summaryBar}>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Original</span>
-                <span className={styles.summaryValue}>
-                  {formatFileSize(originalMeta.size)} ({getFormatLabel(originalMeta.type, originalMeta.name)})
-                </span>
-              </div>
-              <span className={styles.summaryArrow} aria-hidden="true">
-                →
-              </span>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Converted</span>
-                <span className={styles.summaryValue}>
-                  {formatFileSize(result.blob.size)} ({getFormatLabel(outputFormat)})
-                </span>
-              </div>
-              <div
-                className={`${styles.reductionBadge} ${
-                  sizeComparison.isSmaller ? styles.badgeSuccess : styles.badgeWarn
-                }`}
-              >
-                {sizeComparison.label}
-              </div>
-            </div>
-          )}
-
-          {/* Before & After Comparison Grid */}
-          <div className={styles.comparisonGrid}>
-            {/* Before Card */}
-            {/* Original Card */}
-            <div className={styles.card}>
-              <h3 className={styles.cardTitle}>Original</h3>
-              <ImagePreview
-                src={previewUrl}
-                alt={`Original: ${originalMeta.name}`}
-                caption={originalMeta.name}
-              />
-              <dl className={styles.cardMeta}>
-                <div className={styles.metaItem}>
-                  <dt>Format</dt>
-                  <dd>{getFormatLabel(originalMeta.type, originalMeta.name)}</dd>
-                </div>
-                <div className={styles.metaItem}>
-                  <dt>Size</dt>
-                  <dd>{formatFileSize(originalMeta.size)}</dd>
-                </div>
-                <div className={styles.metaItem}>
-                  <dt>Dimensions</dt>
-                  <dd>
-                    {originalMeta.width} × {originalMeta.height} px
-                  </dd>
-                </div>
-              </dl>
-            </div>
-
-            {/* Converted Card */}
-            <div className={styles.card}>
-              <h3 className={styles.cardTitle}>Converted</h3>
-              <ImagePreview
-                src={result.url}
-                alt={`Converted: ${buildConvertedFilename(originalMeta.name, outputFormat)}`}
-                caption={buildConvertedFilename(originalMeta.name, outputFormat)}
-              />
-              <dl className={styles.cardMeta}>
-                <div className={styles.metaItem}>
-                  <dt>Format</dt>
-                  <dd>{getFormatLabel(outputFormat)}</dd>
-                </div>
-                <div className={styles.metaItem}>
-                  <dt>Size</dt>
-                  <dd>{formatFileSize(result.blob.size)}</dd>
-                </div>
-                <div className={styles.metaItem}>
-                  <dt>Dimensions</dt>
-                  <dd>
-                    {result.width} × {result.height} px
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className={styles.actions}>
-            <Button
-              variant="secondary"
-              icon={<IconImagePlus />}
-              onClick={handleClear}
-              aria-label="Convert another image"
-            >
-              Convert Another Image
-            </Button>
-            <Button
-              variant="primary"
-              size="lg"
-              icon={<IconDownload />}
-              onClick={handleDownload}
-              aria-label={`Download ${buildConvertedFilename(originalMeta.name, outputFormat)}`}
-            >
-              Download Image
-            </Button>
-          </div>
-        </div>
-      )}
+      {!embeddedOnly && <ConvertContent />}
     </ToolPageLayout>
   );
 }

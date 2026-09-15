@@ -1,0 +1,43 @@
+/* =============================================================================
+   ErrorState — Centralised error display
+   ========================================================================== */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-10) var(--space-8);
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid color-mix(in srgb, var(--color-danger) 28%, transparent);
+  background-color: color-mix(in srgb, var(--color-danger) 5%, transparent);
+  text-align: center;
+  max-width: 36rem;
+  margin-inline: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Icon
+   ------------------------------------------------------------------------ */
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  background-color: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  color: var(--color-danger);
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Message
+   ------------------------------------------------------------------------ */
+.message {
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  max-width: 44ch;
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}

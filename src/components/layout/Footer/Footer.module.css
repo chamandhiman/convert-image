@@ -1,26 +1,31 @@
 /* =============================================================================
    Footer
-   Three-column responsive layout with brand, nav links, and a copyright bar.
+   Matte black background with white text.
    ========================================================================== */
 
 .footer {
-  margin-top: auto;
-  border-top: var(--border-width) solid var(--color-border);
-  background-color: var(--color-bg-subtle);
-  transition: background-color var(--duration-normal) var(--ease-standard);
+  background-color: var(--color-matte-black, #1A1A1A);
+  color: #A1A1A1;
+  border-top: none;
 }
 
 .inner {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-8);
-  padding-block: var(--space-12) var(--space-8);
+  gap: var(--space-10);
+  padding-block: var(--space-16) var(--space-10);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .inner {
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: var(--space-10);
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    grid-template-columns: 2fr repeat(4, 1fr);
+    gap: var(--space-12);
   }
 }
 
@@ -30,7 +35,19 @@
 .brandCol {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .brandCol {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .brandCol {
+    grid-column: 1;
+  }
 }
 
 .brandLink {
@@ -38,73 +55,80 @@
   align-items: center;
   gap: var(--space-2);
   text-decoration: none;
-  color: var(--color-text);
+  color: #FFFFFF;
   width: fit-content;
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .brandLink:hover {
-  opacity: 0.75;
+  opacity: 0.7;
 }
 
 .logo {
-  color: var(--color-primary);
   flex-shrink: 0;
 }
 
 .brandName {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-tight);
+  color: #FFFFFF;
 }
 
 .tagline {
   font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  color: #A1A1A1;
   max-width: 32ch;
   line-height: var(--line-height-relaxed);
+  margin: 0;
 }
 
 /* ---------------------------------------------------------------------------
    Link groups
    ------------------------------------------------------------------------ */
+
 .linkGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .linkGroupTitle {
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-wide);
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: #FFFFFF;
+  margin: 0;
 }
 
 .linkList {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .link {
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  color: #A1A1A1;
   text-decoration: none;
   width: fit-content;
   transition: color var(--duration-fast) var(--ease-standard);
+  cursor: pointer;
 }
 
 .link:hover {
-  color: var(--color-text);
+  color: var(--color-accent);
 }
 
 /* ---------------------------------------------------------------------------
    Bottom bar
    ------------------------------------------------------------------------ */
 .bottom {
-  border-top: var(--border-width) solid var(--color-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .bottomInner {
@@ -118,18 +142,34 @@
 
 .copyright {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: #A1A1A1;
   margin: 0;
 }
 
-.licensesLink {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-standard);
+.bottomRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
 }
 
-.licensesLink:hover {
-  color: var(--color-text);
-  text-decoration: underline;
+.langButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: none;
+  color: #A1A1A1;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.langButton:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }

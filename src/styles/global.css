@@ -12,3 +12,12 @@
 @import './reset.css';
 @import './base.css';
 @import './utilities.css';
+
+.p-3 {padding:15px;}
+.radius-0 {border-radius:0;}
+.control_convert {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.mt-2 {margin-top:15px;}

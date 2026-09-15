@@ -78,7 +78,7 @@ function trimFilename(name, maxLen = 36) {
 /* ---------------------------------------------------------------------- */
 /*  Component                                                              */
 /* ---------------------------------------------------------------------- */
-function ObjectRemoverPage() {
+function ObjectRemoverPage({ embedded, embeddedOnly }) {
   useDocumentTitle('AI Object Remover \u2014 Remove Objects From Photos Free | Convert Image');
 
   const [phase, setPhase] = useState(PHASE.IDLE);
@@ -406,22 +406,20 @@ function ObjectRemoverPage() {
       title="AI Object Remover"
       subtitle="Erase unwanted objects, people, or clutter from photos naturally — all in your browser."
       content={<ObjectRemoverContent />}
+      embedded={embedded}
+      embeddedOnly={embeddedOnly}
+      showHero={false}
     >
-      {/* Privacy Banner */}
-      <div className={styles.privacyBanner} role="note" aria-label="Privacy notice">
-        <svg className={styles.privacyIcon} width="16" height="16" viewBox="0 0 24 24"
-          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-        <span>Runs locally in your browser &middot; Your image is never uploaded.</span>
-      </div>
-
-      {/* ============================================================== */}
-      {/*  IDLE — file upload                                             */}
-      {/* ============================================================== */}
-      {phase === PHASE.IDLE && (
-        <div className={`${styles.idleWrap} ${styles.phaseIn}`}>
-          <FileUploader
+      <div className={styles.converterSurface}>
+        {phase === PHASE.IDLE && (
+          <div className={`${styles.idleWrap} ${styles.phaseIn}`}>
+            <div className={styles.uploadHeader}>
+              <h2 className={styles.uploadTitle}>Remove object from your image</h2>
+              <p className={styles.uploadDesc}>
+                Upload an image and paint over the object you want to remove. AI will erase it naturally.
+              </p>
+            </div>
+            <FileUploader
             onFileSelect={handleFileSelect}
             file={file}
             onClear={cleanup}
@@ -836,6 +834,7 @@ function ObjectRemoverPage() {
           </div>
         </div>
       )}
+      </div>
     </ToolPageLayout>
   );
 }

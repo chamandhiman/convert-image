@@ -131,3 +131,23 @@
   line-clamp: var(--line-clamp, 2);
   overflow: hidden;
 }
+
+/* ---------------------------------------------------------------------------
+   Badge helpers — semantic status labels.
+   ------------------------------------------------------------------------ */
+
+/* AI-powered feature badge — warm amber tint */
+.badge-ai {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent-subtle);
+  color: var(--color-accent);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  white-space: nowrap;
+}

@@ -2,14 +2,39 @@
    ToolPageLayout
    ========================================================================== */
 
+/* ---------------------------------------------------------------------------
+   Hero — each tool page starts here. A gentle gradient distinguishes it from
+   the plain background and creates visual hierarchy above the workspace.
+   ------------------------------------------------------------------------ */
 .hero {
+  position: relative;
+  overflow: hidden;
   padding-block: clamp(var(--space-10), 5vw, var(--space-16))
     clamp(var(--space-6), 3vw, var(--space-10));
-  background-color: var(--color-bg-subtle);
+  background: linear-gradient(
+    160deg,
+    var(--color-bg-subtle) 0%,
+    var(--color-bg) 60%
+  );
   border-bottom: var(--border-width) solid var(--color-border);
 }
 
+/* Decorative radial glow behind the title */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 120% at 50% -20%,
+    color-mix(in srgb, var(--color-accent) 10%, transparent),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
 .heroInner {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -20,13 +45,13 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: var(--space-1) var(--space-4);
+  padding: 0.2rem var(--space-3);
   border-radius: var(--radius-full);
-  border: var(--border-width) solid var(--color-border-strong);
-  background-color: var(--color-bg-muted);
+  border: var(--border-width) solid var(--color-primary);
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-wide);
   text-transform: uppercase;
 }
@@ -35,14 +60,18 @@
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-tight);
-  max-width: 20ch;
+  max-width: 22ch;
+  animation: slideUp var(--duration-normal) var(--ease-out) both;
 }
 
 .subtitle {
   font-size: var(--font-size-lg);
   color: var(--color-text-secondary);
-  max-width: 48ch;
+  max-width: 52ch;
   line-height: var(--line-height-relaxed);
+  margin: 0;
+  animation: slideUp var(--duration-slow) var(--ease-out) both;
+  animation-delay: 60ms;
 }
 
 /* ---------------------------------------------------------------------------
@@ -58,4 +87,24 @@
 .content {
   padding-block: var(--space-12) var(--space-16);
   border-top: var(--border-width) solid var(--color-border);
+}
+
+.contentFullWidth {
+  padding-block: var(--space-12) var(--space-16);
+  border-top: var(--border-width) solid var(--color-border);
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   Keyframes
+   ------------------------------------------------------------------------ */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

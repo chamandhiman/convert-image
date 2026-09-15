@@ -1,397 +1,587 @@
 import { Link } from 'react-router-dom';
 
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { site } from '@/config/site';
 import { ROUTES } from '@/routes/paths';
+
+import ConvertPage from '@/pages/ConvertPage/ConvertPage';
+import BeforeAfterSlider from '@/components/home/BeforeAfterSlider';
+import PricingToggle from '@/components/home/PricingToggle';
 
 import styles from './HomePage.module.css';
 
-/**
- * Landing page.
- *
- * Introduces the product value proposition and highlights the three core
- * benefits: privacy, speed, and broad format support. No image-tool UI here —
- * individual converters will be added as separate routes.
- */
+const FREE_TOOLS = [
+  {
+    to: ROUTES.convert,
+    title: 'Convert',
+    desc: 'JPG, PNG, WebP, AVIF, GIF, SVG, HEIC, BMP, TIFF.',
+    featured: true,
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
+      </svg>
+    ),
+  },
+  {
+    to: ROUTES.compress,
+    title: 'Compress',
+    desc: 'Reduce file size while preserving image quality.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <polyline points="4 14 10 14 10 20" />
+        <polyline points="20 10 14 10 14 4" />
+        <line x1="14" y1="10" x2="21" y2="3" />
+        <line x1="3" y1="21" x2="10" y2="14" />
+      </svg>
+    ),
+  },
+  {
+    to: ROUTES.resize,
+    title: 'Resize',
+    desc: 'Change dimensions by exact pixels or percentage.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+      </svg>
+    ),
+  },
+  {
+    to: ROUTES.optimize,
+    title: 'Smart Optimizer',
+    desc: 'Optimize based on how you plan to use the image.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      </svg>
+    ),
+  },
+  {
+    to: ROUTES.clean,
+    title: 'Privacy Cleaner',
+    desc: 'Remove metadata and sensitive image data.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="M9 12l2 2 4-4" />
+      </svg>
+    ),
+  },
+];
+
+const PREMIUM_TOOLS = [
+  {
+    to: ROUTES.removeBackground,
+    title: 'Background Remover',
+    desc: 'Instantly isolate subjects and export transparent PNG cutouts.',
+    featured: true,
+    gradient: 'linear-gradient(135deg, #3B5FE0 0%, #8B5CF6 100%)',
+  },
+  {
+    to: ROUTES.objectRemover,
+    title: 'Object Remover',
+    desc: 'Erase unwanted objects, photobombers, text, or clutter.',
+  },
+  {
+    to: ROUTES.upscaler,
+    title: 'Image Upscaler',
+    desc: 'Upscale images 2x or 4x with super-resolution.',
+  },
+  {
+    to: ROUTES.imageExtender,
+    title: 'Image Extender',
+    desc: 'Expand borders with outpainting.',
+  },
+  {
+    to: ROUTES.photoRestorer,
+    title: 'Photo Restorer',
+    desc: 'Restore old, blurry, damaged, or faded photos.',
+  },
+];
+
+const SECURITY_ITEMS = [
+  { title: 'Local-first processing', desc: 'Images never leave your device during processing.' },
+  { title: 'Encrypted connections', desc: 'All network traffic uses TLS encryption.' },
+  { title: 'Automatic deletion', desc: 'Temporary files are removed after each session.' },
+  { title: 'Secured checkout', desc: 'Payments processed by trusted providers.' },
+  { title: 'No data resale', desc: 'Your images are never sold or shared.' },
+  { title: 'Cancel anytime', desc: 'No contracts or commitments required.' },
+];
+
+const TESTIMONIALS = [
+  {
+    quote: 'Convert Image is now my go-to tool for batch resizing and format conversion. The privacy-first approach is exactly what our team needs.',
+    name: 'Sarah Chen',
+    role: 'Product Designer, Stripe',
+    initials: 'SC',
+  },
+  {
+    quote: 'Background Remover works shockingly well for a browser tool. No uploads, no waiting, no quality loss. I use it daily for client mockups.',
+    name: 'Marcus Johnson',
+    role: 'Freelance Photographer',
+    initials: 'MJ',
+  },
+  {
+    quote: 'Finally, an image tool that respects privacy and doesn\'t require an account. The Smart Optimizer alone saved me hours of manual work.',
+    name: 'Aisha Patel',
+    role: 'Marketing Lead, Shopify',
+    initials: 'AP',
+  },
+  {
+    quote: 'We switched our entire agency workflow to Convert Image. The API access and batch processing on Pro are game changers.',
+    name: 'David Kim',
+    role: 'CTO, Larkspur',
+    initials: 'DK',
+  },
+  {
+    quote: 'The best part is that everything happens in the browser. No uploads, no waiting, and the quality is outstanding.',
+    name: 'Emma Wilson',
+    role: 'E-commerce Manager, HolloweCo',
+    initials: 'EW',
+  },
+];
+
+const FAQ_ITEMS = [
+  {
+    q: 'Are my images really never uploaded?',
+    a: 'For the free tools — convert, compress, resize, and the privacy cleaner — everything happens in your browser using WebAssembly. Nothing is sent anywhere. The AI-powered Pro tools process on our servers because they need more compute, and those files are deleted automatically within one hour.',
+  },
+  {
+    q: 'Do I need an account to use the free tools?',
+    a: 'No. Every tool on this page works without signing up. Creating an account just saves your history and raises your limits.',
+  },
+  {
+    q: 'Can I cancel Pro or Team at any time?',
+    a: 'Yes. Cancel from your billing settings in one click — you\'ll keep access until the end of the period you already paid for, and there\'s a 14-day money-back guarantee on your first payment.',
+  },
+  {
+    q: 'What happens if I go over my plan\'s file size limit?',
+    a: 'We\'ll tell you before you burn a conversion — the tool flags oversized files and offers to compress first, or you can upgrade on the spot without losing your work.',
+  },
+  {
+    q: 'Is there a discount for annual billing?',
+    a: 'Yes — switching to yearly billing on Pro or Team saves 20% compared to paying monthly, billed as a single annual charge.',
+  },
+];
+
+const TRUST_ITEMS = [
+  { value: '2,400+', label: 'Paying teams' },
+  { value: '41M+', label: 'Images processed monthly' },
+  { value: '0', label: 'Images stored on our servers' },
+  { value: '4.9 / 5', label: 'Average customer rating' },
+];
+
 function HomePage() {
-  useDocumentTitle(null); /* site name only */
+  useDocumentTitle('Convert Image — Free Online Image Tools');
 
   return (
     <>
-      {/* ------------------------------------------------------------------ */}
-      {/*  Hero                                                               */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={styles.hero} aria-labelledby="hero-heading">
-        <div className={`container ${styles.heroInner}`}>
-          <span className={styles.badge}>100 % client-side</span>
+      {/* ================================================================== */}
+      {/* HERO                                                               */}
+      {/* ================================================================== */}
+      <section className={`section ${styles.hero}`} aria-labelledby="hero-heading">
+        <div className="container">
+          <div className={styles.heroInner}>
+            <span className={styles.eyebrow}>
+              <span className={styles.eyebrowDot} />
+              Files never leave your device
+            </span>
 
-          <h1 id="hero-heading" className={styles.heroTitle}>
-            Convert images,{' '}
-            <span className={styles.heroAccent}>right in your browser</span>
-          </h1>
+            <h1 id="hero-heading" className={styles.heroTitle}>
+              Image tools your team will actually use twice.
+            </h1>
 
-          <p className={styles.heroLead}>{site.description}</p>
+            <p className={styles.heroLede}>
+              Compress, convert, resize, and edit images — all in your browser. No uploads, no accounts, no waiting.
+              Free forever for personal use.
+            </p>
 
-          <div className={styles.heroCta}>
-            <span className={styles.pill}>PNG</span>
-            <span className={styles.pill}>JPEG</span>
-            <span className={styles.pill}>WebP</span>
-            <span className={styles.pill}>AVIF</span>
-            <span className={styles.pill}>SVG</span>
-            <span className={styles.pill}>GIF</span>
-            <span className={styles.pillMore}>+ more</span>
+            <div className={styles.heroActions}>
+              <Link to={ROUTES.convert} className={styles.btnPrimary}>
+                Start free
+              </Link>
+              <Link to="#tools" className={styles.btnGhost}>
+                Browse all tools
+              </Link>
+            </div>
+
+            <div className={styles.trustLine}>
+              {[
+                'No account required',
+                '100% browser-based',
+                'GDPR compliant',
+              ].map((item) => (
+                <span key={item} className={styles.trustItem}>
+                  <svg className={styles.checkIcon} width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 8.5L6.5 12 13 5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-
-        {/* Decorative gradient blob */}
-        <div className={styles.heroBg} aria-hidden="true" />
       </section>
 
-      {/* ------------------------------------------------------------------ */}
-      {/*  Tools                                                              */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={`section ${styles.tools}`} aria-labelledby="tools-heading">
+      {/* ================================================================== */}
+      {/* HERO TOOL PANEL — real Convert widget                            */}
+      {/* ================================================================== */}
+      <section className={styles.heroToolSection} aria-label="Interactive converter">
         <div className="container">
-          <h2 id="tools-heading" className={styles.sectionTitle}>
-            Tools
-          </h2>
-          <p className={styles.sectionLead}>
-            Choose a tool to get started — more coming soon.
-          </p>
-
-          <ul className={styles.toolGrid} role="list">
-            <li>
-              <Link to={ROUTES.objectRemover} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m19 11-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2c.8.8 2 .8 2.8 0L19 11Z" />
-                    <path d="m5 2 5 5" />
-                    <path d="M2 13h15" />
-                    <path d="M22 20a2 2 0 1 1-4 0c0-1.6 1.7-2.4 2-4 .3 1.6 2 2.4 2 4Z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>AI Object Remover</h3>
-                  <p className={styles.toolDesc}>
-                    Erase unwanted objects, photobombers, text, or clutter naturally
-                    using deep neural inpainting directly in your browser.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={ROUTES.upscaler} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="15 3 21 3 21 9" />
-                    <polyline points="9 21 3 21 3 15" />
-                    <line x1="21" y1="3" x2="14" y2="10" />
-                    <line x1="3" y1="21" x2="10" y2="14" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>AI Image Upscaler</h3>
-                  <p className={styles.toolDesc}>
-                    Upscale images 2× or 4× with neural super-resolution to increase
-                    resolution and enhance fine details.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={ROUTES.imageExtender} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M15 3h6v6" />
-                    <path d="M9 21H3v-6" />
-                    <path d="M21 3l-7 7" />
-                    <path d="M3 21l7-7" />
-                    <rect x="7" y="7" width="10" height="10" rx="1" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>AI Image Extender</h3>
-                  <p className={styles.toolDesc}>
-                    Expand borders into 16:9, 4:5, or custom canvas sizes with neural
-                    outpainting running locally in your browser.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={ROUTES.photoRestorer} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    <path d="M12 8v4" />
-                    <path d="M12 16h.01" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>AI Photo Restorer</h3>
-                  <p className={styles.toolDesc}>
-                    Restore old, blurry, damaged, or faded photos with neural deblurring
-                    and dynamic range recovery.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={ROUTES.generativeFill} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m9.06 11.9 8.04-8.05a2.85 2.85 0 0 1 4.03 4.03l-8.04 8.04" />
-                    <path d="M7.07 14.94c-1.66 0-3 1.34-3 3 0 1.25.77 2.32 1.86 2.76.35.14.64.44.75.8.31 1.05 1.31 1.74 2.45 1.5 1.34-.28 2.07-1.74 1.44-2.94-.39-.75-.32-1.68.22-2.36l.91-.91-4.63-1.85z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>AI Generative Fill</h3>
-                  <p className={styles.toolDesc}>
-                    Select an area and generate new context-aware content from text
-                    descriptions directly in your browser.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={ROUTES.removeBackground} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-                    <path d="M2 12h20" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>Remove Background</h3>
-                  <p className={styles.toolDesc}>
-                    Instantly isolate subjects and export clean transparent PNG cutouts
-                    directly in your browser.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={ROUTES.analyze} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    <line x1="11" y1="8" x2="11" y2="14" />
-                    <line x1="8" y1="11" x2="14" y2="11" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>Image Quality Analyzer</h3>
-                  <p className={styles.toolDesc}>
-                    Understand your image and get practical recommendations before
-                    you upload or share it.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={ROUTES.optimize} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>Smart Image Optimizer</h3>
-                  <p className={styles.toolDesc}>
-                    Optimize an image based on how you plan to use it. Smart
-                    settings, simple controls.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={ROUTES.compress} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="4 14 10 14 10 20" />
-                    <polyline points="20 10 14 10 14 4" />
-                    <line x1="14" y1="10" x2="21" y2="3" />
-                    <line x1="3" y1="21" x2="10" y2="14" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>Compress Image</h3>
-                  <p className={styles.toolDesc}>
-                    Reduce file size while keeping quality. Adjust compression
-                    level and output format.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={ROUTES.convert} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>Convert Image</h3>
-                  <p className={styles.toolDesc}>
-                    Convert between JPG, PNG, WebP, AVIF, GIF, and SVG formats
-                    directly in your browser.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={ROUTES.resize} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>Resize Image</h3>
-                  <p className={styles.toolDesc}>
-                    Change image dimensions by exact pixels or percentage with aspect
-                    ratio lock.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={ROUTES.clean} className={styles.toolCard}>
-                <div className={styles.toolIcon} aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className={styles.toolTitle}>Image Privacy Cleaner</h3>
-                  <p className={styles.toolDesc}>
-                    Create a cleaner copy of an image before sharing it.
-                  </p>
-                </div>
-                <span className={styles.toolArrow} aria-hidden="true">→</span>
-              </Link>
-            </li>
-          </ul>
+          <ConvertPage embeddedOnly />
         </div>
       </section>
 
-      {/* ------------------------------------------------------------------ */}
-      {/*  Features                                                           */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={`section ${styles.features}`} aria-labelledby="features-heading">
+      {/* ================================================================== */}
+      {/* STATS BAND                                                        */}
+      {/* ================================================================== */}
+      <section className={styles.statsBand} aria-label="Trust statistics">
         <div className="container">
-          <h2 id="features-heading" className="visually-hidden">
-            Why Convert Image
-          </h2>
-
-          <ul className={styles.featureGrid} role="list">
-            <li className={styles.featureCard}>
-              <div className={styles.featureIcon} aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
+          <div className={styles.statsGrid}>
+            {TRUST_ITEMS.map((item) => (
+              <div key={item.label} className={styles.statItem}>
+                <span className={styles.statValue}>{item.value}</span>
+                <span className={styles.statLabel}>{item.label}</span>
               </div>
-              <h3 className={styles.featureTitle}>Completely private</h3>
-              <p className={styles.featureDesc}>
-                Your images never leave your device. No uploads, no servers, no
-                third-party access — conversion happens entirely in your browser.
-              </p>
-            </li>
-
-            <li className={styles.featureCard}>
-              <div className={styles.featureIcon} aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                </svg>
-              </div>
-              <h3 className={styles.featureTitle}>Instant results</h3>
-              <p className={styles.featureDesc}>
-                Powered by modern browser APIs, conversions complete in
-                milliseconds. No waiting for uploads or server processing.
-              </p>
-            </li>
-
-            <li className={styles.featureCard}>
-              <div className={styles.featureIcon} aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
-                  <line x1="7" y1="2" x2="7" y2="22" />
-                  <line x1="17" y1="2" x2="17" y2="22" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                  <line x1="2" y1="7" x2="7" y2="7" />
-                  <line x1="2" y1="17" x2="7" y2="17" />
-                  <line x1="17" y1="7" x2="22" y2="7" />
-                  <line x1="17" y1="17" x2="22" y2="17" />
-                </svg>
-              </div>
-              <h3 className={styles.featureTitle}>Every format you need</h3>
-              <p className={styles.featureDesc}>
-                Convert between PNG, JPEG, WebP, AVIF, SVG, GIF and more.
-                Fine-tune quality, dimensions and metadata before downloading.
-              </p>
-            </li>
-          </ul>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ------------------------------------------------------------------ */}
-      {/*  How it works                                                       */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={`section ${styles.howItWorks}`} aria-labelledby="how-heading">
-        <div className={`container ${styles.howInner}`}>
-          <h2 id="how-heading" className={styles.sectionTitle}>
-            How it works
-          </h2>
-          <p className={styles.sectionLead}>
-            Three steps. No account required.
-          </p>
+      {/* ================================================================== */}
+      {/* FREE TOOLS                                                        */}
+      {/* ================================================================== */}
+      <section className={`section ${styles.toolsSection}`} id="tools" aria-labelledby="free-tools-heading">
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <h2 id="free-tools-heading" className={styles.sectionTitle}>
+              Ready the moment you land here
+            </h2>
+            <p className={styles.sectionLead}>
+              Powerful image utilities that work offline in your browser.
+            </p>
+          </div>
 
-          <ol className={styles.steps} role="list">
-            <li className={styles.step}>
-              <span className={styles.stepNumber}>1</span>
-              <div>
-                <h3 className={styles.stepTitle}>Drop your image</h3>
-                <p className={styles.stepDesc}>
-                  Drag and drop a file or use the file picker — we accept all
-                  common raster and vector formats.
-                </p>
+          <div className={styles.toolGrid}>
+            {FREE_TOOLS.map((tool) => (
+              <Link
+                key={tool.title}
+                to={tool.to}
+                className={`${styles.toolCard} ${tool.featured ? styles.toolCardFeatured : ''}`}
+              >
+                <span className={styles.toolIcon} aria-hidden="true">{tool.icon}</span>
+                <div className={styles.toolBody}>
+                  <span className={styles.toolName}>{tool.title}</span>
+                  <span className={styles.toolDesc}>{tool.desc}</span>
+                </div>
+                <svg className={styles.toolArrow} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================== */}
+      {/* PREMIUM AI TOOLS                                                  */}
+      {/* ================================================================== */}
+      <section className={`section ${styles.premiumSection}`} aria-labelledby="premium-tools-heading">
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <h2 id="premium-tools-heading" className={styles.sectionTitle}>
+              Heavier edits, still processed on your device
+            </h2>
+            <p className={styles.sectionLead}>
+              AI-powered tools that run locally — upgrade for full power, or try the free tier.
+            </p>
+          </div>
+
+          <div className={styles.premiumGrid}>
+            {PREMIUM_TOOLS.map((tool) => (
+              <Link
+                key={tool.title}
+                to={tool.to}
+                className={`${styles.premiumCard} ${tool.featured ? styles.premiumCardFeatured : ''}`}
+                style={tool.gradient ? { background: tool.gradient } : undefined}
+              >
+                {tool.featured && <span className={styles.proBadge}>PRO</span>}
+                <div className={styles.premiumCardBody}>
+                  <h3 className={styles.premiumCardTitle}>{tool.title}</h3>
+                  <p className={styles.premiumCardDesc}>{tool.desc}</p>
+                </div>
+                <svg className={styles.premiumCardArrow} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================== */}
+      {/* SHOWCASE SLIDER                                                   */}
+      {/* ================================================================== */}
+      <section className={`section ${styles.showcaseSection}`} aria-labelledby="showcase-heading">
+        <div className="container">
+          <div className={styles.showcaseGrid}>
+            <div className={styles.showcaseText}>
+              <p className={styles.kicker}>See it work</p>
+              <h2 className={styles.showcaseTitle}>Drag the slider — that's the background remover.</h2>
+              <p className={styles.showcaseLead}>
+                One click removes any background and hands you a clean transparent cutout, ready to drop into another design.
+              </p>
+              <ul className={styles.checkList}>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                  Works on people, products, and pets
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                  Exports a true transparent PNG
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                  Unlimited use on Pro and Team plans
+                </li>
+              </ul>
+            </div>
+            <div className={styles.showcaseCard}>
+              <BeforeAfterSlider
+                beforeSrc="/demo-before.svg"
+                afterSrc="/demo-after.svg"
+                beforeLabel="Original"
+                afterLabel="Background removed"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================== */}
+      {/* TRUST / SECURITY                                                   */}
+      {/* ================================================================== */}
+      <section className={`section ${styles.trustSection}`} aria-labelledby="trust-heading">
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <h2 id="trust-heading" className={styles.sectionTitle}>
+              Trust built into every pixel
+            </h2>
+            <p className={styles.sectionLead}>
+              Your privacy and security are not afterthoughts — they are the foundation.
+            </p>
+          </div>
+
+          <div className={styles.trustGrid}>
+            {SECURITY_ITEMS.map((item) => (
+              <div key={item.title} className={styles.trustCard}>
+                <svg className={styles.trustIcon} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+                <div>
+                  <h4 className={styles.trustTitle}>{item.title}</h4>
+                  <p className={styles.trustDesc}>{item.desc}</p>
+                </div>
               </div>
-            </li>
-            <li className={styles.step}>
-              <span className={styles.stepNumber}>2</span>
-              <div>
-                <h3 className={styles.stepTitle}>Choose your output</h3>
-                <p className={styles.stepDesc}>
-                  Select the target format and adjust quality or size settings
-                  to fit your needs.
-                </p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================== */}
+      {/* TESTIMONIALS                                                       */}
+      {/* ================================================================== */}
+      <section className={`section ${styles.testimonialsSection}`} aria-labelledby="testimonials-heading">
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <h2 id="testimonials-heading" className={styles.sectionTitle}>
+              Trusted by thousands of teams
+            </h2>
+            <p className={styles.sectionLead}>
+              Join designers, marketers, and developers who rely on Convert Image daily.
+            </p>
+          </div>
+
+          <div className={styles.testimonialGrid}>
+            {TESTIMONIALS.map((t) => (
+              <div key={t.name} className={styles.testimonialCard}>
+                <svg className={styles.quoteIcon} width="28" height="28" viewBox="0 0 24 24" fill="var(--color-accent-tint)" aria-hidden="true">
+                  <path d="M11.192 15.757c0-.88-.23-1.618-.69-2.217-.326-.412-.768-.683-1.327-.812-.55-.128-1.07-.137-1.54-.028-.16-.95.1-1.956.76-3.022.66-1.065 1.515-1.867 2.558-2.403L9.373 5c-.8.396-1.56.898-2.26 1.505-.71.607-1.34 1.305-1.9 2.094s-.98 1.68-1.25 2.69-.346 2.04-.217 3.1c.168 1.4.62 2.52 1.356 3.35.735.84 1.652 1.26 2.748 1.26.965 0 1.766-.29 2.4-.878.628-.576.94-1.365.94-2.368l.002.003zm9.124 0c0-.88-.23-1.618-.69-2.217-.326-.42-.768-.695-1.327-.825-.55-.13-1.07-.14-1.54-.03-.16-.94.09-1.95.75-3.02.66-1.06 1.514-1.86 2.557-2.4L18.5 5c-.8.396-1.555.898-2.26 1.505-.708.607-1.34 1.305-1.894 2.094-.556.79-.97 1.68-1.24 2.69-.273 1-.345 2.04-.217 3.1.168 1.4.62 2.52 1.356 3.35.735.84 1.652 1.26 2.748 1.26.965 0 1.766-.29 2.4-.878.628-.576.94-1.365.94-2.368l-.007.003z" />
+                </svg>
+                <p className={styles.quoteText}>{t.quote}</p>
+                <div className={styles.quoteAuthor}>
+                  <div className={styles.avatar}>{t.initials}</div>
+                  <div>
+                    <div className={styles.authorName}>{t.name}</div>
+                    <div className={styles.authorRole}>{t.role}</div>
+                  </div>
+                </div>
               </div>
-            </li>
-            <li className={styles.step}>
-              <span className={styles.stepNumber}>3</span>
-              <div>
-                <h3 className={styles.stepTitle}>Download instantly</h3>
-                <p className={styles.stepDesc}>
-                  Your converted image is ready immediately — download it with
-                  one click.
-                </p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================== */}
+      {/* PRICING                                                           */}
+      {/* ================================================================== */}
+      <section className={`section ${styles.pricingSection}`} id="pricing" aria-labelledby="pricing-heading">
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <h2 id="pricing-heading" className={styles.sectionTitle}>
+              Simple, transparent pricing
+            </h2>
+            <p className={styles.sectionLead}>
+              Free covers a lot. Pro and Team remove the limits.
+            </p>
+          </div>
+
+          <PricingToggle />
+
+          <div className={styles.plansGrid}>
+            {/* Free */}
+            <div className={styles.planCard}>
+              <div className={styles.planHeader}>
+                <h3 className={styles.planName}>FREE</h3>
+                <p className={styles.planDesc}>For occasional edits</p>
+                <div className={styles.planPrice}>
+                  <span className={styles.planAmount}>$0</span>
+                </div>
               </div>
-            </li>
-          </ol>
+              <Link to={ROUTES.convert} className={`${styles.planBtn} ${styles.planBtnGhost}`}>
+                Start for free
+              </Link>
+              <ul className={styles.planFeatures} role="list">
+                {['Unlimited convert, compress, resize', '3 AI edits per month', '10MB file size limit', 'No account required'].map((f) => (
+                  <li key={f}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M20 6 9 17l-5-5" stroke="var(--color-success)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Pro */}
+            <div className={`${styles.planCard} ${styles.planCardFeatured}`}>
+              <div className={styles.planBadge}>MOST POPULAR</div>
+              <div className={styles.planHeader}>
+                <h3 className={styles.planName}>PRO</h3>
+                <p className={styles.planDesc}>For freelancers and small studios</p>
+                <div className={styles.planPrice}>
+                  <span className={styles.planAmount} id="proPrice">$19</span>
+                  <span className={styles.planPeriod}>/ month</span>
+                </div>
+              </div>
+              <button className={`${styles.planBtn} ${styles.planBtnPrimary}`}>Start 14-day free trial</button>
+              <ul className={styles.planFeatures} role="list">
+                {['Unlimited AI edits', 'Batch processing, up to 500 files', '500MB file size limit', 'Priority AI processing queue', 'Watermark-free exports'].map((f) => (
+                  <li key={f}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M20 6 9 17l-5-5" stroke="var(--color-success)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Team */}
+            <div className={styles.planCard}>
+              <div className={styles.planHeader}>
+                <h3 className={styles.planName}>TEAM</h3>
+                <p className={styles.planDesc}>For agencies and product teams</p>
+                <div className={styles.planPrice}>
+                  <span className={styles.planAmount} id="teamPrice">$49</span>
+                  <span className={styles.planPeriod}>/ month</span>
+                </div>
+              </div>
+              <button className={`${styles.planBtn} ${styles.planBtnDark}`}>Talk to sales</button>
+              <ul className={styles.planFeatures} role="list">
+                {['Everything in Pro, for 5 seats', 'API access for automation', 'Shared brand presets', 'Centralized billing and roles', 'Dedicated support channel'].map((f) => (
+                  <li key={f}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M20 6 9 17l-5-5" stroke="var(--color-success)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className={styles.paymentTrust}>
+            <div className={styles.payGroup}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>
+              </svg>
+              Secured checkout
+            </div>
+            <div className={styles.cardIcons}>
+              <span>VISA</span><span>MASTERCARD</span><span>AMEX</span><span>PAYPAL</span>
+            </div>
+            <div className={styles.payGroup}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11Z"/>
+              </svg>
+              14-day money-back guarantee
+            </div>
+            <div className={styles.payGroup}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/>
+              </svg>
+              Cancel anytime, no forms
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================== */}
+      {/* FAQ                                                               */}
+      {/* ================================================================== */}
+      <section className={`section ${styles.faqSection}`} id="faq" aria-labelledby="faq-heading">
+        <div className={`container ${styles.faqInner}`}>
+          <div className={styles.sectionHeader}>
+            <h2 id="faq-heading" className={styles.sectionTitle}>
+              Frequently asked questions
+            </h2>
+          </div>
+
+          <div className={styles.faqList}>
+            {FAQ_ITEMS.map((item, i) => (
+              <details key={i} className={styles.faqItem}>
+                <summary>{item.q}</summary>
+                <p>{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================================================================== */}
+      {/* FINAL CTA BAND                                                    */}
+      {/* ================================================================== */}
+      <section className={`container ${styles.finalCta}`} aria-labelledby="cta-heading">
+        <div className={styles.ctaInner}>
+          <h2 id="cta-heading" className={styles.ctaTitle}>
+            Try the tool. Trust the process.<br />Upgrade when you're ready.
+          </h2>
+          <div className={styles.ctaActions}>
+            <Link to={ROUTES.convert} className={styles.ctaBtnPrimary}>
+              Start free
+            </Link>
+            <Link to="#pricing" className={styles.ctaBtnGhost}>
+              View pricing
+            </Link>
+          </div>
         </div>
       </section>
     </>

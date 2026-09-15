@@ -11,7 +11,6 @@ export const ALL_OUTPUT_FORMATS = [
   { value: 'image/jpeg', label: 'JPG', extension: '.jpg', lossy: true },
   { value: 'image/png', label: 'PNG', extension: '.png', lossy: false },
   { value: 'image/webp', label: 'WebP', extension: '.webp', lossy: true },
-  { value: 'image/avif', label: 'AVIF', extension: '.avif', lossy: true },
 ];
 
 /** Default output formats for compression (JPG, PNG, WebP). */
@@ -22,22 +21,20 @@ export const CONVERT_INPUT_TYPES = [
   'image/jpeg',
   'image/png',
   'image/webp',
-  'image/avif',
   'image/gif',
   'image/svg+xml',
 ];
 
-export const CONVERT_ACCEPT_STRING = '.jpg,.jpeg,.png,.webp,.avif,.gif,.svg';
+export const CONVERT_ACCEPT_STRING = '.jpg,.jpeg,.png,.webp,.gif,.svg';
 
 /** Input formats supported by the compressor tool. */
 export const ACCEPTED_INPUT_TYPES = [
   'image/jpeg',
   'image/png',
   'image/webp',
-  'image/avif',
 ];
 
-export const ACCEPT_STRING = '.jpg,.jpeg,.png,.webp,.avif';
+export const ACCEPT_STRING = '.jpg,.jpeg,.png,.webp';
 
 /** Maximum file size we will attempt to process (50 MB). */
 export const MAX_FILE_SIZE = 50 * 1024 * 1024;

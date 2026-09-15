@@ -10,36 +10,44 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
-  padding: var(--space-10) var(--space-6);
-  border: var(--border-width-thick) dashed var(--color-border);
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-6);
+  border: 2px dashed var(--color-border-strong);
   border-radius: var(--radius-xl);
   background-color: var(--color-bg-subtle);
   cursor: pointer;
   transition:
     border-color var(--duration-fast) var(--ease-standard),
-    background-color var(--duration-fast) var(--ease-standard);
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 .dropZone:hover,
 .dropZone:focus-visible {
   border-color: var(--color-primary);
   background-color: var(--color-primary-subtle);
+  box-shadow: var(--shadow-glow-primary);
+  outline: none;
 }
 
 .dropZoneActive {
   border-color: var(--color-primary);
   background-color: var(--color-primary-subtle);
+  box-shadow: var(--shadow-glow-primary);
+  animation: dashedPulse 0.8s ease-in-out infinite alternate;
 }
 
 .uploadIcon {
   color: var(--color-text-muted);
-  transition: color var(--duration-fast) var(--ease-standard);
+  width: 40px;
+  height: 40px;
+  transition: color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-out);
 }
 
 .dropZone:hover .uploadIcon,
 .dropZoneActive .uploadIcon {
   color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
 .dropText {
@@ -47,11 +55,12 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
+  text-align: center;
 }
 
 .dropTextPrimary {
   font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text);
 }
 
@@ -63,6 +72,7 @@
 .hint {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+  margin: 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -131,9 +141,6 @@
   background-color: color-mix(in srgb, var(--color-danger) 10%, transparent);
 }
 
-/* ---------------------------------------------------------------------------
-   Error
-   ------------------------------------------------------------------------ */
 .error {
   margin-top: var(--space-2);
   padding: var(--space-2) var(--space-3);
@@ -142,3 +149,12 @@
   color: var(--color-danger);
   font-size: var(--font-size-sm);
 }
+
+/* ---------------------------------------------------------------------------
+   Keyframes
+   ------------------------------------------------------------------------ */
+@keyframes dashedPulse {
+  from { border-color: var(--color-primary); }
+  to   { border-color: color-mix(in srgb, var(--color-primary) 55%, transparent); }
+}
+

@@ -43,7 +43,7 @@ const PHASE = {
   ERROR: 'error',
 };
 
-function ImageUpscalerPage() {
+function ImageUpscalerPage({ embedded, embeddedOnly }) {
   useDocumentTitle('AI Image Upscaler — Upscale Images 2× & 4× Free | Convert Image');
 
   const [phase, setPhase] = useState(PHASE.IDLE);
@@ -288,36 +288,20 @@ function ImageUpscalerPage() {
       title="AI Image Upscaler"
       subtitle="Increase image resolution and recover sharper detail directly in your browser. 100% private, executed locally."
       content={<ImageUpscalerContent />}
+      embedded={embedded}
+      embeddedOnly={embeddedOnly}
+      showHero={false}
     >
-      {/* ================================================================ */}
-      {/*  Privacy Banner                                                  */}
-      {/* ================================================================ */}
-      <div className={styles.privacyBanner} role="note">
-        <svg
-          className={styles.privacyIcon}
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-        <span>
-          Your image is processed in your browser. Your image is not uploaded to our server.
-        </span>
-      </div>
-
-      {/* ================================================================ */}
-      {/*  IDLE — Upload Area & Factor Pre-Selector                        */}
-      {/* ================================================================ */}
-      {phase === PHASE.IDLE && (
-        <div className={styles.idleWrap}>
-          <div className={styles.scaleSelectorBar}>
+      <div className={styles.converterSurface}>
+        {phase === PHASE.IDLE && (
+          <div className={styles.idleWrap}>
+            <div className={styles.uploadHeader}>
+              <h2 className={styles.uploadTitle}>Upscale your images</h2>
+              <p className={styles.uploadDesc}>
+                Increase image resolution and recover sharper detail directly in your browser.
+              </p>
+            </div>
+            <div className={styles.scaleSelectorBar}>
             <span className={styles.scaleSelectorLabel}>Upscale Factor:</span>
             <div className={styles.scaleButtonGroup} role="radiogroup" aria-label="Upscale factor">
               <button
@@ -401,11 +385,14 @@ function ImageUpscalerPage() {
       {(phase === PHASE.PREPARING || phase === PHASE.PROCESSING) && originalMeta && (
         <div className={styles.processingWorkspace}>
           <div className={styles.sourceThumbnailWrap}>
-            <ImagePreview
-              src={previewUrl}
-              alt={originalMeta.name}
-              className={styles.sourceThumbnail}
-            />
+            <span className={styles.previewLabel}>Original Image</span>
+            <div className={styles.previewImageWrap}>
+              <ImagePreview
+                src={previewUrl}
+                alt={originalMeta.name}
+                className={styles.previewImage}
+              />
+            </div>
           </div>
 
           <div className={styles.statusCard} role="status" aria-live="polite">
@@ -605,6 +592,7 @@ function ImageUpscalerPage() {
           </div>
         </div>
       )}
+      </div>
     </ToolPageLayout>
   );
 }

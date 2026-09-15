@@ -2,10 +2,14 @@ import { useState, useMemo, useEffect } from 'react';
 
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import ToolPageLayout from '@/components/layout/ToolPageLayout';
-import FileUploader from '@/components/ui/FileUploader';
+import MultiImageUploader from '@/components/ui/MultiImageUploader';
 import ImagePreview from '@/components/ui/ImagePreview';
 import { Button } from '@/components/ui/Button';
-import { IconDownload, IconImagePlus } from '@/components/ui/Icons/Icons';
+import {
+  IconDownload,
+  IconImagePlus,
+  IconSelection,
+} from '@/components/ui/Icons/Icons';
 import { formatFileSize } from '@/utils/formatFileSize';
 import {
   loadImage,
@@ -40,7 +44,7 @@ const PHASE = {
   ERROR: 'error',
 };
 
-function RemoveBackgroundPage() {
+function RemoveBackgroundPage({ embedded, embeddedOnly }) {
   useDocumentTitle('Remove Image Background Online Free | Convert Image');
 
   const [phase, setPhase] = useState(PHASE.IDLE);
@@ -48,20 +52,18 @@ function RemoveBackgroundPage() {
   const [originalMeta, setOriginalMeta] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
 
-  /* Progress status */
   const [progressPercent, setProgressPercent] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
 
-  /* Background removal results */
   const [transparentBlob, setTransparentBlob] = useState(null);
   const [transparentUrl, setTransparentUrl] = useState('');
 
-  /* Background color selection: 'transparent' | 'white' | 'black' */
   const [bgChoice, setBgChoice] = useState('transparent');
   const [displayedBlob, setDisplayedBlob] = useState(null);
   const [displayedUrl, setDisplayedUrl] = useState('');
 
   const [error, setError] = useState('');
+  const [compareMode, setCompareMode] = useState('side-by-side');
 
   /* -------------------------------------------------------------------- */
   /*  Cleanup helper                                                      */
@@ -105,7 +107,6 @@ function RemoveBackgroundPage() {
       setProgressPercent(0);
       setProgressMessage('Initializing local AI model in your browser…');
 
-      // Start client-side background removal
       const resultBlob = await removeImageBackground(f, {
         onProgress: ({ stage, percent, message }) => {
           if (stage === 'loading-model') {
@@ -142,6 +143,17 @@ function RemoveBackgroundPage() {
     }
   };
 
+  /* -------------------------------------------------------------------- */
+  /*  MultiImageUploader file-change handler — accept first file only     */
+  /* -------------------------------------------------------------------- */
+  const handleFilesChange = (files) => {
+    if (!files || files.length === 0) return;
+    const first = files[0];
+    if (first) {
+      handleFileSelect(first);
+    }
+  };
+
   const handleClear = () => {
     cleanup();
   };
@@ -160,7 +172,7 @@ function RemoveBackgroundPage() {
   }, []);
 
   /* -------------------------------------------------------------------- */
-  /*  Handle background color selection (Transparent, White, Black)       */
+  /*  Handle background color selection                                   */
   /* -------------------------------------------------------------------- */
   const handleBgColorChange = async (color) => {
     if (!transparentBlob) return;
@@ -185,7 +197,6 @@ function RemoveBackgroundPage() {
       setDisplayedBlob(coloredBlob);
       setDisplayedUrl(newUrl);
     } catch {
-      // Fall back to transparent on composite error
       setBgChoice('transparent');
     }
   };
@@ -213,269 +224,276 @@ function RemoveBackgroundPage() {
     };
   }, [displayedBlob, originalMeta]);
 
-  return (
-    <ToolPageLayout
-      badge="Flagship AI Utility"
-      title="Remove Image Background"
-      subtitle="Instantly isolate your subject and export a crisp, transparent PNG cutout. 100% private, executed locally in your browser."
-      content={<RemoveBackgroundContent />}
-    >
-      {/* ================================================================ */}
-      {/*  Privacy Banner                                                  */}
-      {/* ================================================================ */}
-      <div className={styles.privacyBanner} role="note">
-        <svg
-          className={styles.privacyIcon}
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-        <span>
-          Your image is processed in your browser. Your image is not uploaded to our server.
-        </span>
+  /* -------------------------------------------------------------------- */
+  /*  Render: Empty upload state                                          */
+  /* -------------------------------------------------------------------- */
+  const renderEmptyState = () => (
+    <div className={styles.uploadSurface}>
+      <div className={styles.uploadHeader}>
+        <h2 className={styles.uploadTitle}>Remove background from your image</h2>
+        <p className={styles.uploadDesc}>
+          Upload an image and we&apos;ll automatically remove the background. Supports JPG, PNG, and WebP.
+        </p>
       </div>
 
-      {/* ================================================================ */}
-      {/*  IDLE — Upload Area                                              */}
-      {/* ================================================================ */}
-      {phase === PHASE.IDLE && (
-        <FileUploader
-          onFileSelect={handleFileSelect}
-          file={file}
-          onClear={handleClear}
-          accept={BG_ACCEPT_STRING}
-          acceptedTypes={BG_INPUT_TYPES}
-          hint="JPG, PNG, or WebP photo — up to 25 MB"
-        />
-      )}
+      <MultiImageUploader
+        onFilesChange={handleFilesChange}
+        onFileSelect={handleFileSelect}
+        accept={BG_ACCEPT_STRING}
+        acceptedTypes={BG_INPUT_TYPES}
+        hint="JPG, PNG, or WebP — up to 25 MB"
+      />
 
-      {/* ================================================================ */}
-      {/*  PREPARING & PROCESSING — Model loading and segmentation state   */}
-      {/* ================================================================ */}
-      {(phase === PHASE.PREPARING || phase === PHASE.PROCESSING) && originalMeta && (
-        <div className={styles.processingWorkspace}>
-          <div className={styles.sourceThumbnailWrap}>
-            <ImagePreview
-              src={previewUrl}
-              alt={originalMeta.name}
-              className={styles.sourceThumbnail}
+      {error && (
+        <p className={styles.emptyError} role="status">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+
+  /* -------------------------------------------------------------------- */
+  /*  Render: Two-column processing workspace                             */
+  /* -------------------------------------------------------------------- */
+  const renderProcessingWorkspace = () => (
+    <div className={styles.processingWorkspace}>
+      <div className={styles.previewPane}>
+        <span className={styles.previewLabel}>Original image</span>
+        <div className={styles.previewImageWrap}>
+          <ImagePreview
+            src={previewUrl}
+            alt={originalMeta?.name || 'Original image'}
+            className={styles.previewImage}
+          />
+        </div>
+      </div>
+
+      <div className={styles.processingPanel}>
+        <div className={styles.processingHeader}>
+          <h3 className={styles.processingTitle}>
+            {phase === PHASE.PREPARING ? 'Loading AI Model' : 'Removing the background'}
+          </h3>
+          <p className={styles.processingSubtitle}>
+            We're carefully separating the subject from the background. This may take a moment.
+          </p>
+        </div>
+
+        <div className={styles.progressArea}>
+          <div className={styles.progressRing} aria-hidden="true" />
+          <div className={styles.progressBarWrap} role="progressbar" aria-valuenow={progressPercent} aria-valuemin={0} aria-valuemax={100}>
+            <div
+              className={styles.progressBarFill}
+              style={{ width: `${Math.min(progressPercent, 100)}%` }}
             />
           </div>
+          <p className={styles.statusMessage}>
+            {progressMessage || 'Processing your image…'}
+          </p>
+        </div>
 
-          <div className={styles.statusCard} role="status" aria-live="polite">
-            <div className={styles.spinnerWrap}>
-              <div className={styles.spinner} />
-            </div>
+        <button
+          type="button"
+          className={styles.cancelBtn}
+          onClick={handleClear}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
 
-            <div className={styles.statusTextWrap}>
-              <h3 className={styles.statusTitle}>
-                {phase === PHASE.PREPARING ? 'Loading AI Model' : 'Removing Background'}
-              </h3>
-              <p className={styles.statusMessage}>
-                {progressMessage || 'Processing your image…'}
-              </p>
-              {phase === PHASE.PREPARING && (
-                <p className={styles.firstTimeNote}>
-                  The AI model assets are downloaded once and cached in your browser for fast future use.
-                </p>
-              )}
-            </div>
+  /* -------------------------------------------------------------------- */
+  /*  Render: Error state                                                 */
+  /* -------------------------------------------------------------------- */
+  const renderError = () => (
+    <div className={styles.errorBlock} role="alert">
+      <p className={styles.errorTitle}>Couldn&apos;t remove the background.</p>
+      <p className={styles.errorText}>{error}</p>
+      <div className={styles.errorActionsRow}>
+        {file && (
+          <button
+            type="button"
+            className={styles.btnPrimary}
+            onClick={() => handleFileSelect(file)}
+          >
+            Retry
+          </button>
+        )}
+        <button
+          type="button"
+          className={styles.btnSecondary}
+          onClick={handleClear}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
 
-            {/* Progress bar */}
-            {progressPercent > 0 && (
-              <div className={styles.progressBarWrap} aria-hidden="true">
-                <div
-                  className={styles.progressBarFill}
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-            )}
+  /* -------------------------------------------------------------------- */
+  /*  Render: Result workspace                                            */
+  /* -------------------------------------------------------------------- */
+  const renderResult = () => (
+    <div className={styles.resultWorkspace}>
+      <div className={styles.resultHeader}>
+        <div>
+          <span className={styles.successBadge}>✓ Background Removed</span>
+          <h2 className={styles.resultTitle}>{originalMeta?.name}</h2>
+        </div>
+        <button
+          type="button"
+          className={styles.changeImageBtn}
+          onClick={handleClear}
+        >
+          Remove another background
+        </button>
+      </div>
 
+      <div className={styles.backdropSelectorCard}>
+        <span className={styles.backdropLabel}>Backdrop:</span>
+        <div className={styles.backdropOptions} role="radiogroup" aria-label="Backdrop color">
+          {[
+            { value: 'transparent', label: 'Transparent (Default)', swatchClass: styles.swatchTransparent },
+            { value: 'white', label: 'White', swatchClass: styles.swatchWhite },
+            { value: 'black', label: 'Black', swatchClass: styles.swatchBlack },
+          ].map((opt) => (
             <button
+              key={opt.value}
               type="button"
-              className={styles.btnCancel}
-              onClick={handleClear}
+              role="radio"
+              aria-checked={bgChoice === opt.value}
+              className={`${styles.backdropBtn} ${bgChoice === opt.value ? styles.backdropBtnActive : ''}`}
+              onClick={() => handleBgColorChange(opt.value)}
             >
-              Cancel
+              <span className={`${styles.swatch} ${opt.swatchClass}`} />
+              <span>{opt.label}</span>
             </button>
+          ))}
+        </div>
+      </div>
+
+      {compareMode === 'side-by-side' ? (
+        <div className={styles.comparisonContainer}>
+          <div className={styles.comparisonCard}>
+            <div className={styles.cardTop}>
+              <span className={styles.cardTag}>Original</span>
+              <span className={styles.cardMetaPill}>
+                {originalMeta?.width} × {originalMeta?.height} px · {formatFileSize(originalMeta?.size)}
+              </span>
+            </div>
+            <div className={styles.imageStageOriginal}>
+              <ImagePreview
+                src={previewUrl}
+                alt={`Original: ${originalMeta?.name}`}
+                className={styles.stageImage}
+              />
+            </div>
+            <p className={styles.stageCaption}>
+              Format: {getFormatLabel(originalMeta?.type, originalMeta?.name)}
+            </p>
+          </div>
+
+          <div className={styles.comparisonCard}>
+            <div className={styles.cardTop}>
+              <span className={`${styles.cardTag} ${styles.cardTagActive}`}>Background Removed</span>
+              <span className={styles.cardMetaPill}>
+                {resultMeta?.width} × {resultMeta?.height} px · {resultMeta?.sizeFormatted}
+              </span>
+            </div>
+            <div
+              className={`${styles.imageStageCutout} ${
+                bgChoice === 'transparent'
+                  ? styles.checkerboard
+                  : bgChoice === 'white'
+                    ? styles.bgWhite
+                    : styles.bgBlack
+              }`}
+            >
+              <ImagePreview
+                src={displayedUrl}
+                alt={`Background removed: ${originalMeta?.name}`}
+                className={styles.stageImage}
+              />
+            </div>
+            <p className={styles.stageCaption}>
+              Format: PNG ({bgChoice === 'transparent' ? 'Alpha Transparency' : `${bgChoice} background`})
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className={styles.overlayComparison}>
+          <div className={styles.overlayStage}>
+            <ImagePreview
+              src={previewUrl}
+              alt={`Original: ${originalMeta?.name}`}
+              className={`${styles.stageImage} ${styles.overlayBase}`}
+            />
+            <ImagePreview
+              src={displayedUrl}
+              alt={`Background removed: ${originalMeta?.name}`}
+              className={`${styles.stageImage} ${styles.overlayTop}`}
+            />
+            <div className={styles.overlayLabel}>Original</div>
+            <div className={`${styles.overlayLabel} ${styles.overlayLabelRight}`}>Result</div>
           </div>
         </div>
       )}
 
-      {/* ================================================================ */}
-      {/*  ERROR — Error message, Retry & Cancel                           */}
-      {/* ================================================================ */}
-      {phase === PHASE.ERROR && (
-        <div className={styles.errorBlock} role="alert">
-          <p className={styles.errorTitle}>Couldn&apos;t load the background-removal model.</p>
-          <p className={styles.errorText}>{error}</p>
-          <div className={styles.errorActionsRow}>
-            {file && (
-              <button
-                type="button"
-                className={styles.btnPrimary}
-                onClick={() => handleFileSelect(file)}
-              >
-                Retry
-              </button>
-            )}
-            <button
-              type="button"
-              className={styles.btnSecondary}
-              onClick={handleClear}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+      <div className={styles.actionsRow}>
+        <Button
+          variant="secondary"
+          icon={<IconImagePlus />}
+          onClick={handleClear}
+          aria-label="Remove background from another image"
+        >
+          Edit Again
+        </Button>
+        <Button
+          variant="secondary"
+          icon={<IconSelection />}
+          onClick={() => setCompareMode((prev) => prev === 'side-by-side' ? 'overlay' : 'side-by-side')}
+          aria-label="Toggle comparison view"
+        >
+          {compareMode === 'side-by-side' ? 'Overlay' : 'Side by Side'}
+        </Button>
+        <Button
+          variant="primary"
+          size="lg"
+          icon={<IconDownload />}
+          onClick={handleDownload}
+          aria-label="Download PNG with background removed"
+        >
+          Download PNG
+        </Button>
+      </div>
+    </div>
+  );
 
-      {/* ================================================================ */}
-      {/*  DONE — Large Before/After Presentation & Background Options     */}
-      {/* ================================================================ */}
-      {phase === PHASE.DONE && displayedUrl && originalMeta && resultMeta && (
-        <div className={styles.resultWorkspace}>
-          {/* Header Action Row */}
-          <div className={styles.resultHeader}>
-            <div className={styles.resultHeadingWrap}>
-              <span className={styles.successBadge}>✓ Background Removed</span>
-              <h2 className={styles.resultTitle}>{originalMeta.name}</h2>
-            </div>
-            <button
-              type="button"
-              className={styles.changeImageBtn}
-              onClick={handleClear}
-            >
-              Remove another background
-            </button>
-          </div>
+  /* -------------------------------------------------------------------- */
+  /*  Main render                                                         */
+  /* -------------------------------------------------------------------- */
+  const isBusy = phase === PHASE.PREPARING || phase === PHASE.PROCESSING;
 
-          {/* Simple Background Selector */}
-          <div className={styles.backdropSelectorCard}>
-            <span className={styles.backdropLabel}>Backdrop:</span>
-            <div className={styles.backdropOptions} role="radiogroup" aria-label="Backdrop color">
-              <button
-                type="button"
-                role="radio"
-                aria-checked={bgChoice === 'transparent'}
-                className={`${styles.backdropBtn} ${
-                  bgChoice === 'transparent' ? styles.backdropBtnActive : ''
-                }`}
-                onClick={() => handleBgColorChange('transparent')}
-              >
-                <span className={`${styles.swatch} ${styles.swatchTransparent}`} />
-                <span>Transparent (Default)</span>
-              </button>
-              <button
-                type="button"
-                role="radio"
-                aria-checked={bgChoice === 'white'}
-                className={`${styles.backdropBtn} ${
-                  bgChoice === 'white' ? styles.backdropBtnActive : ''
-                }`}
-                onClick={() => handleBgColorChange('white')}
-              >
-                <span className={`${styles.swatch} ${styles.swatchWhite}`} />
-                <span>White</span>
-              </button>
-              <button
-                type="button"
-                role="radio"
-                aria-checked={bgChoice === 'black'}
-                className={`${styles.backdropBtn} ${
-                  bgChoice === 'black' ? styles.backdropBtnActive : ''
-                }`}
-                onClick={() => handleBgColorChange('black')}
-              >
-                <span className={`${styles.swatch} ${styles.swatchBlack}`} />
-                <span>Black</span>
-              </button>
-            </div>
-          </div>
+  return (
+    <ToolPageLayout
+      badge="Free · In-Browser"
+      title="Remove backgrounds from images"
+      subtitle="Automatically remove backgrounds from your images and create clean, transparent cutouts directly in your browser."
+      contentFullWidth
+      content={<RemoveBackgroundContent />}
+      embedded={embedded}
+      embeddedOnly={embeddedOnly}
+      showHero={false}
+    >
+      <div className={styles.converterSurface}>
+        {phase === PHASE.IDLE && renderEmptyState()}
 
-          {/* Large Before & After Comparison */}
-          <div className={styles.comparisonContainer}>
-            {/* Left: Original */}
-            <div className={styles.comparisonCard}>
-              <div className={styles.cardTop}>
-                <span className={styles.cardTag}>Original</span>
-                <span className={styles.cardMetaPill}>
-                  {originalMeta.width} × {originalMeta.height} px · {formatFileSize(originalMeta.size)}
-                </span>
-              </div>
-              <div className={styles.imageStageOriginal}>
-                <ImagePreview
-                  src={previewUrl}
-                  alt={`Original: ${originalMeta.name}`}
-                  className={styles.stageImage}
-                />
-              </div>
-              <p className={styles.stageCaption}>
-                Format: {getFormatLabel(originalMeta.type, originalMeta.name)}
-              </p>
-            </div>
+        {isBusy && originalMeta && renderProcessingWorkspace()}
 
-            {/* Right: Background Removed (with Checkerboard) */}
-            <div className={styles.comparisonCard}>
-              <div className={styles.cardTop}>
-                <span className={`${styles.cardTag} ${styles.cardTagActive}`}>
-                  Background Removed
-                </span>
-                <span className={styles.cardMetaPill}>
-                  {resultMeta.width} × {resultMeta.height} px · {resultMeta.sizeFormatted}
-                </span>
-              </div>
-              <div
-                className={`${styles.imageStageCutout} ${
-                  bgChoice === 'transparent'
-                    ? styles.checkerboard
-                    : bgChoice === 'white'
-                      ? styles.bgWhite
-                      : styles.bgBlack
-                }`}
-              >
-                <ImagePreview
-                  src={displayedUrl}
-                  alt={`Background removed: ${originalMeta.name}`}
-                  className={styles.stageImage}
-                />
-              </div>
-              <p className={styles.stageCaption}>
-                Format: PNG ({bgChoice === 'transparent' ? 'Alpha Transparency' : `${bgChoice} background`})
-              </p>
-            </div>
-          </div>
+        {phase === PHASE.ERROR && renderError()}
 
-          {/* Primary Action Buttons */}
-          <div className={styles.actionsRow}>
-            <Button
-              variant="secondary"
-              icon={<IconImagePlus />}
-              onClick={handleClear}
-              aria-label="Remove background from another image"
-            >
-              Remove Another Background
-            </Button>
-            <Button
-              variant="primary"
-              size="lg"
-              icon={<IconDownload />}
-              onClick={handleDownload}
-              aria-label="Download PNG with background removed"
-            >
-              Download PNG
-            </Button>
-          </div>
-        </div>
-      )}
+        {phase === PHASE.DONE && displayedUrl && originalMeta && resultMeta && renderResult()}
+      </div>
     </ToolPageLayout>
   );
 }

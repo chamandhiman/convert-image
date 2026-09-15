@@ -13,28 +13,59 @@ import styles from './ToolPageLayout.module.css';
  *  - children: node     — the tool workspace.
  *  - content?: node     — SEO / educational content rendered below the tool.
  */
-function ToolPageLayout({ title, subtitle, badge, children, content }) {
+function ToolPageLayout({ title, subtitle, badge, children, content, embedded, contentFullWidth, embeddedOnly, showHero = true }) {
+  if (embeddedOnly) {
+    return (
+      <section className={styles.workspace} aria-label="Tool workspace">
+        {children}
+      </section>
+    );
+  }
+
+  if (embedded) {
+    return (
+      <>
+        <section className={`container ${styles.workspace}`} aria-label="Tool workspace">
+          {children}
+        </section>
+        {content && (
+          <section className={`container ${styles.content}`} aria-label="About this tool">
+            {content}
+          </section>
+        )}
+      </>
+    );
+  }
+
   return (
     <>
-      {/* Hero */}
-      <section className={styles.hero} aria-labelledby="tool-heading">
-        <div className={`container ${styles.heroInner}`}>
-          {badge && <span className={styles.badge}>{badge}</span>}
-          <h1 id="tool-heading" className={styles.title}>
-            {title}
-          </h1>
-          <p className={styles.subtitle}>{subtitle}</p>
-        </div>
-      </section>
+      {showHero && (
+        <section className={styles.hero} aria-labelledby="tool-heading">
+          <div className={`container ${styles.heroInner}`}>
+            {badge && <span className={styles.badge}>{badge}</span>}
+            <h1 id="tool-heading" className={styles.title}>
+              {title}
+            </h1>
+            <p className={styles.subtitle}>{subtitle}</p>
+          </div>
+        </section>
+      )}
 
       {/* Tool workspace */}
-      <section className={`container ${styles.workspace}`} aria-label="Tool workspace">
+      <section className={`container p-3 ${styles.workspace}`} aria-label="Tool workspace">
         {children}
       </section>
 
       {/* Content / SEO */}
       {content && (
-        <section className={`container ${styles.content}`} aria-label="About this tool">
+        <section
+          className={
+            contentFullWidth
+              ? `${styles.contentFullWidth}`
+              : `container p-3 ${styles.content}`
+          }
+          aria-label="About this tool"
+        >
           {content}
         </section>
       )}

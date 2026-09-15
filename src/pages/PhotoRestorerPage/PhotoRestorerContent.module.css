@@ -2,6 +2,100 @@
    AI Photo Restorer Content Section (SEO & Editorial)
    ========================================================================== */
 
+.page {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------------------------------------------------------------------------
+   Hero Banner
+   ------------------------------------------------------------------------ */
+.heroBanner {
+  background: linear-gradient(180deg, var(--color-bg-subtle) 0%, var(--color-bg) 100%);
+  border-bottom: var(--border-width) solid var(--color-border);
+  padding: var(--space-12) 0;
+}
+
+.heroInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.heroTitle {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  line-height: var(--line-height-snug);
+}
+
+.heroLead {
+  max-width: 56ch;
+  margin: 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.heroCtas {
+  display: inline-flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.heroPrimary {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-xs);
+  background: var(--color-primary);
+  color: var(--color-text-on-brand);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  border: none;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.heroPrimary:hover {
+  background: var(--color-accent-ink);
+  color: var(--color-text-on-brand);
+}
+
+.heroSecondary {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-xs);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.heroSecondary:hover {
+  border-color: var(--color-primary);
+}
+
 .contentSection {
   margin-top: var(--space-12);
   padding-top: var(--space-8);
@@ -68,8 +162,14 @@
 .stepCard {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xs);
   padding: var(--space-5);
+  transition: transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-standard);
+}
+
+.stepCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
 }
 
 .stepNum {
@@ -105,7 +205,7 @@
   overflow-x: auto;
   margin: var(--space-6) 0 var(--space-8);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xs);
 }
 
 .comparisonTable {
@@ -133,15 +233,42 @@
 
 /* FAQ Accordion */
 .faqSection {
-  margin: var(--space-8) 0;
+  background: var(--color-bg);
+  padding: var(--space-10) 0;
+}
+
+.faqInner {
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .faqItem {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-xs);
+  background: var(--color-bg);
   overflow: hidden;
-  background: var(--color-surface);
+  transition: background-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.faqItem + .faqItem {
+  margin-top: calc(-1 * var(--border-width));
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.faqItem:has(+ .faqItem) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.faqItem[open] {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .faqQuestion {
@@ -149,21 +276,42 @@
   text-align: left;
   background: none;
   border: none;
-  padding: var(--space-4);
-  font-size: var(--font-size-base);
+  padding: 22px 24px;
+  font-size: 16px;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--color-ink);
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.faqIcon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
+}
+
+.faqItem[open] .faqIcon {
+  background: var(--color-primary);
+  color: var(--color-text-on-brand);
+  transform: rotate(45deg);
 }
 
 .faqAnswer {
-  padding: 0 var(--space-4) var(--space-4);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.7;
+  margin: 0 24px 24px;
+  font-size: 14.5px;
+  color: var(--color-ink-soft);
+  line-height: 1.6;
+  max-width: 60ch;
 }
 
 /* Related Tools Grid */
@@ -177,10 +325,10 @@
 .toolCard {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xs);
   padding: var(--space-4);
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-standard);
   display: flex;
   flex-direction: column;
 }
@@ -188,7 +336,7 @@
 .toolCard:hover {
   border-color: var(--color-primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  color: inherit;
 }
 
 .toolName {

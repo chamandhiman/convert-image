@@ -27,8 +27,8 @@
   letter-spacing: var(--letter-spacing-tight);
   background: linear-gradient(
     135deg,
-    var(--color-neutral-300),
-    var(--color-neutral-200)
+    var(--color-ink),
+    var(--color-ink-soft)
   );
   background-clip: text;
   -webkit-background-clip: text;
@@ -39,8 +39,8 @@
 :root[data-theme='dark'] .code {
   background: linear-gradient(
     135deg,
-    var(--color-neutral-700),
-    var(--color-neutral-800)
+    var(--color-text-inverse),
+    var(--color-ink-soft)
   );
   background-clip: text;
   -webkit-background-clip: text;
