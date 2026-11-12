@@ -81,7 +81,7 @@ export default defineConfig({
     },
   },
 
-  // Served from the domain root (https://convert-image.webtoolocean.com).
+  // Served from the domain root (https://image.webtoolocean.com).
   base: '/',
 
   server: {

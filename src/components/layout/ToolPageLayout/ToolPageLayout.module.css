@@ -79,6 +79,7 @@
    ------------------------------------------------------------------------ */
 .workspace {
   padding-block: var(--space-8) var(--space-12);
+  padding-top: clamp(1.75rem, 3vw, 2.5rem) !important;
 }
 
 /* ---------------------------------------------------------------------------
@@ -86,12 +87,10 @@
    ------------------------------------------------------------------------ */
 .content {
   padding-block: var(--space-12) var(--space-16);
-  border-top: var(--border-width) solid var(--color-border);
 }
 
 .contentFullWidth {
   padding-block: var(--space-12) var(--space-16);
-  border-top: var(--border-width) solid var(--color-border);
   width: 100%;
 }
 

@@ -24,10 +24,12 @@
   flex-shrink: 0;
 }
 
-.markSvg {
+.markSvg,
+.markImg {
   display: block;
   width: 32px;
   height: 32px;
+  object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(124, 58, 237, 0.15));
 }
 

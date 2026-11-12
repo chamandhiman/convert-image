@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Primary Landing Page -->
   <url>
-    <loc>https://convert-image.webtoolocean.com/</loc>
+    <loc>https://image.webtoolocean.com/</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -10,55 +10,55 @@
 
   <!-- Core Image Conversion & Editing Tools -->
   <url>
-    <loc>https://convert-image.webtoolocean.com/convert-image</loc>
+    <loc>https://image.webtoolocean.com/convert-image</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/resize-image</loc>
+    <loc>https://image.webtoolocean.com/resize-image</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/compress-image</loc>
+    <loc>https://image.webtoolocean.com/compress-image</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/crop-image</loc>
+    <loc>https://image.webtoolocean.com/crop-image</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/rotate-image</loc>
+    <loc>https://image.webtoolocean.com/rotate-image</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/jpg-to-png</loc>
+    <loc>https://image.webtoolocean.com/jpg-to-png</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/png-to-jpg</loc>
+    <loc>https://image.webtoolocean.com/png-to-jpg</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/image-to-webp</loc>
+    <loc>https://image.webtoolocean.com/image-to-webp</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/remove-background</loc>
+    <loc>https://image.webtoolocean.com/remove-background</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -66,31 +66,31 @@
 
   <!-- AI & Advanced Enhancement Tools -->
   <url>
-    <loc>https://convert-image.webtoolocean.com/photo-restorer</loc>
+    <loc>https://image.webtoolocean.com/photo-restorer</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/image-upscaler</loc>
+    <loc>https://image.webtoolocean.com/image-upscaler</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/object-remover</loc>
+    <loc>https://image.webtoolocean.com/object-remover</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/image-extender</loc>
+    <loc>https://image.webtoolocean.com/image-extender</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/generative-fill</loc>
+    <loc>https://image.webtoolocean.com/generative-fill</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -98,19 +98,19 @@
 
   <!-- Optimization & Privacy Tools -->
   <url>
-    <loc>https://convert-image.webtoolocean.com/optimize-image</loc>
+    <loc>https://image.webtoolocean.com/optimize-image</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/remove-image-metadata</loc>
+    <loc>https://image.webtoolocean.com/remove-image-metadata</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/analyze-image</loc>
+    <loc>https://image.webtoolocean.com/analyze-image</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -118,31 +118,31 @@
 
   <!-- Legal & Support Pages -->
   <url>
-    <loc>https://convert-image.webtoolocean.com/privacy</loc>
+    <loc>https://image.webtoolocean.com/privacy</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/terms</loc>
+    <loc>https://image.webtoolocean.com/terms</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/cookies</loc>
+    <loc>https://image.webtoolocean.com/cookies</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/contact</loc>
+    <loc>https://image.webtoolocean.com/contact</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://convert-image.webtoolocean.com/licenses</loc>
+    <loc>https://image.webtoolocean.com/licenses</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

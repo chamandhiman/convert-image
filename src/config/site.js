@@ -13,7 +13,7 @@ export const site = {
   tagline: 'Convert Images Online for Free',
   description:
     'Quickly convert, resize, compress, and optimize your images. Supports JPG, PNG, WebP, GIF, BMP and more — fast, secure, and 100% free.',
-  url: env.siteUrl || 'https://imageconvert.webtoolocean.com',
+  url: env.siteUrl || 'https://image.webtoolocean.com',
   locale: 'en',
   themeColor: '#7C3AED',
 };

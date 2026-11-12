@@ -52,7 +52,7 @@ function ToolPageLayout({ title, subtitle, badge, children, content, embedded, c
       )}
 
       {/* Tool workspace */}
-      <section className={`container p-3 ${styles.workspace}`} aria-label="Tool workspace">
+      <section className={`container ${styles.workspace}`} aria-label="Tool workspace">
         {children}
       </section>
 

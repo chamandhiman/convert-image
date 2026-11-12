@@ -7,7 +7,7 @@
 html {
   color-scheme: light;
   scroll-behavior: smooth;
-  overflow-x: hidden;
+  overflow-x: clip;
   width: 100%;
 }
 
@@ -26,7 +26,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  overflow-x: hidden;
+  overflow-x: clip;
   width: 100%;
   transition:
     background-color var(--duration-normal) var(--ease-standard),
@@ -149,7 +149,7 @@ ol:not([role='list']) {
   color: var(--color-text-secondary);
 }
 
-li + li {
+li+li {
   margin-top: var(--space-1);
 }
 

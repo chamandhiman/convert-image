@@ -409,15 +409,6 @@ export function Header() {
             <Search size={16} />
           </button>
 
-          <button
-            type="button"
-            className={styles.allToolsButton}
-            onClick={() => handleAnchorNav('image-tools')}
-          >
-            <Grid3x3 size={15} className={styles.gridIcon} />
-            <span>All Tools</span>
-          </button>
-
           {/* Mobile Menu Toggle */}
           <button
             type="button"

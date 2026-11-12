@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://convert-image.webtoolocean.com/sitemap.xml
-
+Sitemap: https://image.webtoolocean.com/sitemap.xml

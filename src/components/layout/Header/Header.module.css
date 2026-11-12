@@ -6,11 +6,12 @@
 .headerWrapper {
   position: sticky;
   top: 0.75rem;
-  z-index: 200;
+  z-index: 1000;
   width: 100%;
   display: flex;
   justify-content: center;
   padding: 0 1rem;
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
   pointer-events: none;
   transition: transform 0.2s ease;
 }
@@ -126,13 +127,14 @@
   top: calc(100% + 12px);
   left: 50%;
   transform: translateX(-50%);
-  width: 600px;
-  max-width: 90vw;
+  width: 680px;
+  max-width: min(680px, calc(100vw - 32px));
+  box-sizing: border-box;
   background-color: #ffffff;
   border: 1px solid #e2dfec;
   border-radius: 18px;
   box-shadow: 0 16px 36px -8px rgba(124, 58, 237, 0.14), 0 4px 14px rgba(0, 0, 0, 0.04);
-  padding: 1rem;
+  padding: 1rem 1.15rem;
   animation: dropdownFade 0.18s ease-out;
   z-index: 250;
 }
@@ -150,18 +152,22 @@
 
 .toolsGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 0.85rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .toolItem {
   display: flex;
   align-items: flex-start;
-  gap: 0.65rem;
-  padding: 0.6rem 0.75rem;
+  gap: 0.75rem;
+  padding: 0.65rem 0.8rem;
   border-radius: 10px;
   text-decoration: none;
   transition: all 0.15s ease;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .toolItem:hover {
@@ -193,21 +199,22 @@
   flex-direction: column;
   gap: 0.15rem;
   min-width: 0;
+  flex: 1;
 }
 
 .toolTitle {
-  font-size: 0.8125rem;
+  font-size: 0.84rem;
   font-weight: 600;
   color: #0f172a;
 }
 
 .toolDesc {
-  font-size: 0.71875rem;
+  font-size: 0.72rem;
   color: #64748b;
   line-height: 1.35;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .dropdownFooter {
@@ -246,7 +253,9 @@
   top: calc(100% + 12px);
   left: 50%;
   transform: translateX(-50%);
-  width: 340px;
+  width: 360px;
+  max-width: min(360px, calc(100vw - 32px));
+  box-sizing: border-box;
   background-color: #ffffff;
   border: 1px solid #e2dfec;
   border-radius: 18px;

@@ -37,7 +37,7 @@ export function PrivacyPolicyPage() {
             <p>
               This Privacy Policy explains how WebToolOcean ("we", "us", or "our") collects, uses, and safeguards information
               when you visit and use our web application, <strong>Image Convert</strong> (accessible at{' '}
-              <a href="https://imageconvert.webtoolocean.com">imageconvert.webtoolocean.com</a>).
+              <a href="https://image.webtoolocean.com">image.webtoolocean.com</a>).
             </p>
             <p>
               We respect your right to privacy and are committed to protecting it through our client-side technology architecture.
