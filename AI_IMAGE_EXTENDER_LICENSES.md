@@ -9,7 +9,7 @@ This document provides verified licensing, model provenance, and attribution det
 ### Model Identity
 - **Model Name:** LaMa (Resolution-robust Large Mask Inpainting with Fast Fourier Convolutions)
 - **Model Variant Used:** `lama_fp32.onnx` (512×512 FFC-based inpainting/outpainting engine)
-- **File Location:** `/public/models/lama_fp32.onnx`
+- **File Location:** Hosted on Cloudflare R2 / CDN (`models/lama_fp32.onnx`), streamed dynamically with client-side Cache Storage API caching (bypassing Cloudflare Workers 25 MiB asset limit)
 - **Model Size:** 208,044,816 bytes (~198.4 MB)
 
 ### Authors & Copyright

@@ -15,6 +15,11 @@ import { formatFileSize } from '@/utils/formatFileSize';
 import { loadImage, getImageMeta, downloadBlob } from '@/utils/imageProcessor';
 import { consumePendingToolInput } from '@/utils/toolStateBridge';
 import {
+  trackImageUpload,
+  trackImageConvert,
+  trackImageDownload,
+} from '@/utils/analytics';
+import {
   RESTORATION_STRENGTHS,
   restorePhoto,
   cancelRestoration,
@@ -103,6 +108,11 @@ function PhotoRestorerPage({ embedded }) {
       setPreviewUrl(url);
       setPhase(PHASE.LOADED);
       setError('');
+
+      trackImageUpload({
+        tool: 'photo-restorer',
+        format: selectedFile.type,
+      });
     } catch (err) {
       setError(err?.message || 'Failed to load photo.');
       setPhase(PHASE.ERROR);
@@ -143,6 +153,12 @@ function PhotoRestorerPage({ embedded }) {
       setResult(outResult);
       setViewMode('sidebyside');
       setPhase(PHASE.RESULT);
+
+      trackImageConvert({
+        tool: 'photo-restorer',
+        inputFormat: file?.type,
+        outputFormat: downloadFormat,
+      });
     } catch (err) {
       stopRotatingMessages();
       console.error('[PhotoRestorerPage] Restoration Error:', err);
@@ -209,9 +225,11 @@ function PhotoRestorerPage({ embedded }) {
       title="AI Photo Restorer"
       description="Restore old, damaged, blurry, or faded photos directly in your browser. 100% private with WebGPU acceleration."
       embedded={embedded}
+      contentFullWidth
+      content={<PhotoRestorerContent />}
       showHero={false}
     >
-      <div className={styles.converterSurface}>
+      <div id="tool" className={styles.converterSurface}>
         {phase === PHASE.IDLE && (
           <div>
             <div className={styles.uploadHeader}>
@@ -565,9 +583,6 @@ function PhotoRestorerPage({ embedded }) {
             </div>
           </div>
         )}
-
-        {/* Editorial & SEO Section Below Tool */}
-        <PhotoRestorerContent />
       </div>
     </ToolPageLayout>
   );

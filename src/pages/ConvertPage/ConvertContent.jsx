@@ -1,185 +1,249 @@
-import React, { useState } from 'react';
+import { Layers, ShieldCheck, Zap, FileImage, SlidersHorizontal, Scissors, Sparkles } from 'lucide-react';
+import { ROUTES } from '@/routes/paths';
+import ToolContentSection from '@/components/tool-content/ToolContentSection';
+import SeoHead from '@/components/seo/SeoHead';
 
-import styles from './ConvertContent.module.css';
-
-const convertFormats = [
-  { name: 'JPG / JPEG', color: '#3b82f6', description: 'Best for photos and realistic images with millions of colors.' },
-  { name: 'PNG', color: '#10b981', description: 'Ideal for graphics, logos, and images requiring transparency.' },
-  { name: 'WebP', color: '#8b5cf6', description: 'Modern format with excellent compression and quality balance.' },
-  { name: 'GIF', color: '#f59e0b', description: 'Supports animations and is widely compatible across platforms.' },
-  { name: 'SVG', color: '#ec4899', description: 'Scalable vector format perfect for logos and illustrations.' },
-  { name: 'AVIF', color: '#ef4444', description: 'Next-generation format with superior compression efficiency.' },
-  { name: 'ICO', color: '#6366f1', description: 'Windows icon format for favicons and desktop shortcuts.' },
-  { name: 'BMP', color: '#14b8a6', description: 'Uncompressed bitmap format with simple, wide compatibility.' },
+const steps = [
+  {
+    title: 'Upload Your Images',
+    desc: 'Drag & drop single or multiple JPG, PNG, WebP, GIF, or SVG files into the upload box. Batch upload is fully supported.',
+  },
+  {
+    title: 'Choose Output Format',
+    desc: 'Select your target format (PNG, JPG, WebP, GIF, BMP). If converting to lossy formats, customize the quality slider from 10% to 100%.',
+  },
+  {
+    title: 'Convert in Browser',
+    desc: 'Click "Convert Images" to transform your files instantly using client-side HTML5 Canvas and WebAssembly engines.',
+  },
+  {
+    title: 'Download Converted Files',
+    desc: 'Save individual converted images immediately or download your entire batch organized in a single ZIP archive.',
+  },
 ];
 
 const features = [
-  { title: '100% Private', description: 'All conversions happen in your browser. Your images never leave your device.', icon: '🔒' },
-  { title: 'Lightning Fast', description: 'Convert images in milliseconds using optimized browser APIs with no server uploads.', icon: '⚡' },
-  { title: 'Batch Support', description: 'Upload multiple images and convert them all at once with consistent settings.', icon: '📦' },
-  { title: 'Free Forever', description: 'No hidden charges, watermarks, or account required. Unlimited conversions.', icon: '💸' },
+  {
+    title: '100% Local Privacy',
+    desc: 'All conversion math occurs inside your web browser using HTML5 Canvas. Your photos never leave your device or upload to cloud servers.',
+    icon: <ShieldCheck size={24} />,
+  },
+  {
+    title: 'High-Speed Batch Mode',
+    desc: 'Convert tens of photos at once with unified format and quality settings. No server queue delays or bandwidth throttling.',
+    icon: <Zap size={24} />,
+  },
+  {
+    title: 'Universal Format Engine',
+    desc: 'Seamlessly convert between JPG, PNG, WebP, GIF, SVG, BMP, and TIFF with intelligent color profile and transparency retention.',
+    icon: <FileImage size={24} />,
+  },
+  {
+    title: 'Custom Quality Controls',
+    desc: 'Fine-tune output file sizes with real-time compression quality sliders, optimizing your pictures for web performance or print.',
+    icon: <Layers size={24} />,
+  },
 ];
 
-const steps = [
-  { number: '01', title: 'Upload', description: 'Drag and drop your images or click to browse. We support JPG, PNG, WebP, GIF, SVG, and more.' },
-  { number: '02', title: 'Convert', description: 'Choose your target format and settings. Adjust quality, resize, or apply basic edits if needed.' },
-  { number: '03', title: 'Download', description: 'Get your converted images instantly. Download individually or as a ZIP archive.' },
+const useCases = [
+  {
+    title: 'Website & SEO Optimization',
+    desc: 'Convert heavy PNGs and JPGs to lightweight modern WebP format to dramatically improve Google Core Web Vitals and page speed.',
+  },
+  {
+    title: 'Transparent Graphic Design',
+    desc: 'Convert JPG logos, illustrations, and icons to PNG with full alpha channel support for easy compositing in Figma, Canva, or Photoshop.',
+  },
+  {
+    title: 'Photography & Portfolio Sharing',
+    desc: 'Convert raw or large camera exports into universal JPEG format with customized compression for email attachments and portfolio sites.',
+  },
+  {
+    title: 'Archival & Print Prep',
+    desc: 'Convert compressed web graphics into uncompressed formats or uniform dimensions ready for high-resolution physical printing.',
+  },
 ];
 
 const faqs = [
-  { question: 'Is this image converter really free?', answer: 'Yes, absolutely. There are no hidden fees, subscription tiers, or usage limits. All conversions are processed locally in your browser, so we don\'t incur server costs that we\'d need to pass on to you.' },
-  { question: 'Are my images private and secure?', answer: 'Completely. All image processing happens in your browser using client-side JavaScript. Your files are never uploaded to any server, ensuring complete privacy and security.' },
-  { question: 'What image formats are supported?', answer: 'We support JPG, PNG, WebP, GIF, SVG, AVIF, ICO, and BMP. You can convert between any of these formats, though some conversions may have limitations based on format capabilities (e.g., vector formats like SVG can\'t be converted to raster formats).' },
-  { question: 'How can I convert multiple images at once?', answer: 'Simply select or drag multiple files into the upload area. The converter will process all images with the same settings and allow you to download them individually or as a ZIP archive.' },
-  { question: 'Does converting affect image quality?', answer: 'Lossless conversions (like PNG to PNG or WebP to WebP) maintain original quality. Lossy conversions (like JPG to WebP) allow quality adjustment. We use optimized algorithms to preserve as much quality as possible.' },
-  { question: 'Can I use this on mobile devices?', answer: 'Yes, the converter works on all modern mobile browsers. The interface is responsive and optimized for touch interaction, so you can convert images on your phone or tablet.' },
+  {
+    q: 'Is this image converter really 100% free with no limits?',
+    a: 'Yes! Image Convert by WebToolOcean is completely free. There are no daily conversion quotas, file count restrictions, paywalls, or watermarks. Because all processing executes on your device, we don\'t incur cloud server compute costs that need to be passed on.',
+  },
+  {
+    q: 'How are my files converted without being uploaded to a server?',
+    a: 'Our converter leverages modern HTML5 Canvas, the File API, and WebAssembly. When you drop an image onto the page, the browser decodes the source pixel data into local memory and encodes it into the target format right on your machine.',
+  },
+  {
+    q: 'What is the best format to convert my images to for the web?',
+    a: 'For modern websites and applications, WebP is strongly recommended. WebP offers 25%–35% smaller file sizes than comparable JPEGs and PNGs while retaining high visual fidelity, full alpha transparency, and wide support across all modern browsers.',
+  },
+  {
+    q: 'Will converting a JPG to a PNG create a transparent background?',
+    a: 'Converting a JPG to PNG will change the file structure to the PNG standard, but it will not automatically make the background transparent because the original JPG has no transparency channel. To remove the background, use our dedicated AI Background Remover tool.',
+  },
+  {
+    q: 'Can I convert multiple images simultaneously?',
+    a: 'Yes. You can select or drop dozens of photos at once. You can customize quality for the entire batch and download all converted images individually or packed cleanly into a single ZIP file.',
+  },
+  {
+    q: 'Does format conversion reduce image quality?',
+    a: 'Converting to lossless formats like PNG preserves pixel data without degradation. Converting to lossy formats like JPG or WebP allows you to choose your desired balance between file size and visual fidelity via the interactive quality slider.',
+  },
+  {
+    q: 'Can I convert images on my mobile phone or tablet?',
+    a: 'Yes. Our converter is fully responsive and optimized for mobile Safari, Chrome, and Firefox on iOS and Android devices without requiring app installations.',
+  },
 ];
 
 const relatedTools = [
-  { name: 'Resize Images', description: 'Resize and crop images while maintaining aspect ratio and quality.', href: '/resize' },
-  { name: 'Compress Images', description: 'Reduce file size without noticeable quality loss for faster loading.', href: '/compress' },
-  { name: 'Image Editor', description: 'Basic editing tools including filters, adjustments, and annotations.', href: '/edit' },
+  {
+    name: 'Compress Image',
+    description: 'Reduce file size up to 80% without noticeable quality loss.',
+    href: ROUTES.compress,
+    icon: <Zap size={20} />,
+  },
+  {
+    name: 'Resize Image',
+    description: 'Change pixel dimensions or percentage with aspect ratio lock.',
+    href: ROUTES.resize,
+    icon: <SlidersHorizontal size={20} />,
+  },
+  {
+    name: 'Remove Background',
+    description: 'Isolate subjects and create transparent cutouts instantly.',
+    href: ROUTES.removeBackground,
+    icon: <Scissors size={20} />,
+  },
+  {
+    name: 'AI Photo Restorer',
+    description: 'Sharpen blurry photos and repair faded vintage family prints.',
+    href: ROUTES.photoRestorer,
+    icon: <Sparkles size={20} />,
+  },
 ];
 
-export default function ConvertContent() {
-  const [openIndex, setOpenIndex] = useState(null);
-
+function ConvertVisual() {
   return (
-    <div className={styles.page}>
-      <section className={styles.heroBanner} aria-labelledby="convert-heading">
-        <div className="container">
-          <div className={styles.heroInner}>
-            <span className={styles.heroBadge}>Free · In-Browser</span>
-            <h1 id="convert-heading" className={styles.heroTitle}>Convert Images Online</h1>
-            <p className={styles.heroLead}>
-              Convert JPG, PNG, WebP, GIF and SVG images locally in your browser. Fast, free and completely private.
-            </p>
-            <div className={styles.heroCtas}>
-              <a href="#top" className={styles.heroPrimary}>Start Converting</a>
-              <a href="#how-it-works" className={styles.heroSecondary}>See How It Works</a>
-            </div>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px',
+          padding: '24px',
+          background: 'rgba(255, 255, 255, 0.92)',
+          backdropFilter: 'blur(8px)',
+          borderRadius: '16px',
+          border: '1px solid rgba(124, 58, 237, 0.2)',
+          boxShadow: '0 12px 32px rgba(124, 58, 237, 0.12)',
+          maxWidth: '300px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div
+            style={{
+              padding: '6px 14px',
+              borderRadius: '8px',
+              background: '#3b82f6',
+              color: '#ffffff',
+              fontWeight: 700,
+              fontSize: '13px',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+            }}
+          >
+            JPG
+          </div>
+          <span style={{ fontSize: '18px', color: '#7C3AED', fontWeight: 'bold' }}>➔</span>
+          <div
+            style={{
+              padding: '6px 14px',
+              borderRadius: '8px',
+              background: 'linear-gradient(135deg, #7C3AED 0%, #D946EF 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              fontSize: '13px',
+              boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
+            }}
+          >
+            WebP
           </div>
         </div>
-      </section>
 
-      <section className={styles.section} aria-labelledby="formats-heading">
-        <div className="container">
-          <header className={styles.sectionHeader}>
-            <h2 id="formats-heading" className={styles.sectionTitle}>Supported Formats</h2>
-            <p className={styles.sectionLead}>Convert between all popular image formats with support for transparency, animation, and vector graphics.</p>
-          </header>
-          <div className={styles.formatGrid}>
-            {convertFormats.map((format) => (
-              <div key={format.name} className={styles.formatCard}>
-                <div className={styles.formatAccent} style={{ backgroundColor: format.color }} />
-                <h3 className={styles.formatTitle}>{format.name}</h3>
-                <p className={styles.formatDesc}>{format.description}</p>
-              </div>
-            ))}
-          </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontWeight: 700, fontSize: '15px', color: '#1E1B4B' }}>Universal Multi-Format Engine</div>
+          <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>JPG · PNG · WebP · GIF · SVG · BMP</div>
         </div>
-      </section>
 
-      <section className={styles.sectionAlt} aria-labelledby="features-heading">
-        <div className="container">
-          <header className={styles.sectionHeader}>
-            <h2 id="features-heading" className={styles.sectionTitle}>Why Choose Our Converter</h2>
-            <p className={styles.sectionLead}>Built for speed, privacy, and simplicity. No uploads, no waiting, no compromises.</p>
-          </header>
-          <div className={styles.featureGrid}>
-            {features.map((feature) => (
-              <div key={feature.title} className={styles.featureCard}>
-                <div className={styles.featureIcon} aria-hidden="true">{feature.icon}</div>
-                <h3 className={styles.featureTitle}>{feature.title}</h3>
-                <p className={styles.featureDesc}>{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.section} id="how-it-works" aria-labelledby="how-heading">
-        <div className="container">
-          <header className={styles.sectionHeader}>
-            <h2 id="how-heading" className={styles.sectionTitle}>How It Works</h2>
-            <p className={styles.sectionLead}>Convert your images in three simple steps. No registration or software installation required.</p>
-          </header>
-          <div className={styles.stepGrid}>
-            {steps.map((step) => (
-              <div key={step.number} className={styles.stepCard}>
-                <span className={styles.stepNumber}>{step.number}</span>
-                <h3 className={styles.stepTitle}>{step.title}</h3>
-                <p className={styles.stepDesc}>{step.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.faqSection} aria-labelledby="faq-heading">
-        <div className="container">
-          <div className={styles.faqInner}>
-            <header className={styles.sectionHeader}>
-              <h2 id="faq-heading" className={styles.sectionTitle}>Frequently Asked Questions</h2>
-              <p className={styles.sectionLead}>Everything you need to know about converting images online.</p>
-            </header>
-            <div className={styles.faqList}>
-              {faqs.map((faq, index) => (
-                <details
-                  key={faq.question}
-                  className={styles.faqItem}
-                  open={openIndex === index}
-                  onToggle={(e) => setOpenIndex(e.currentTarget.open ? index : null)}
-                >
-                  <summary>
-                    <span className={styles.faqQuestion}>{faq.question}</span>
-                    <span className={styles.faqIcon} aria-hidden="true">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="16" x2="12" y2="12" />
-                        <line x1="12" y1="8" x2="12.01" y2="8" />
-                      </svg>
-                    </span>
-                  </summary>
-                  <p>{faq.answer}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.relatedSection} aria-labelledby="related-heading">
-        <div className="container">
-          <header className={styles.sectionHeader}>
-            <h2 id="related-heading" className={styles.sectionTitle}>Related Tools</h2>
-            <p className={styles.sectionLead}>More free image tools to enhance your workflow.</p>
-          </header>
-          <div className={styles.relatedGrid}>
-            {relatedTools.map((tool) => (
-              <a key={tool.name} href={tool.href} className={styles.relatedCard}>
-                <div className={styles.relatedIcon} aria-hidden="true">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 3v12" />
-                    <path d="m8 11 4 4 4-4" />
-                    <path d="M8 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4" />
-                  </svg>
-                </div>
-                <div className={styles.relatedBody}>
-                  <span className={styles.relatedName}>{tool.name}</span>
-                  <span className={styles.relatedDesc}>{tool.description}</span>
-                </div>
-                <span className={styles.relatedArrow} aria-hidden="true">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 10px',
+            borderRadius: '9999px',
+            background: 'rgba(16, 185, 129, 0.1)',
+            color: '#059669',
+            fontSize: '11px',
+            fontWeight: 600,
+          }}
+        >
+          ✓ In-Browser HTML5 Canvas
+        </span>
+      </div>
     </div>
   );
 }
+
+export function ConvertContent() {
+  return (
+    <>
+      <SeoHead
+        title="Convert Image Online — Free Multi-Format Converter by WebToolOcean"
+        description="Convert images online for free. Convert JPG to PNG, PNG to JPG, WebP, GIF, and more with 100% private in-browser processing. Fast, secure, batch support."
+        canonicalPath={ROUTES.convert}
+        keywords="image converter, convert image, convert image online, jpg to png, png to jpg, image to webp, convert photos online, batch image converter, free image converter"
+        toolName="Convert Image"
+        faqs={faqs}
+      />
+      <ToolContentSection
+        badge="Free · In-Browser Multi-Format"
+        title="Convert Image Online for Free"
+        lead="Quickly convert pictures between JPG, PNG, WebP, GIF, SVG, BMP, and TIFF right in your browser. Batch processing, customizable quality, zero uploads."
+        primaryCtaText="Convert Image Now"
+        primaryCtaHref="#tool"
+        secondaryCtaText="Supported Formats"
+        secondaryCtaHref="#what-is"
+        whatIsTitle="What is an Online Image Converter?"
+        whatIsLead="Learn how digital image containers differ and why modern formats like WebP deliver superior speed and fidelity."
+        whatIsContent={[
+          'An Image Converter changes an image\'s digital file encoding from one format to another. Different image formats use distinct mathematical algorithms to represent colors, compression, and transparency. For example, JPEG uses Discrete Cosine Transform (DCT) lossy compression ideal for real-world photographic scenes, whereas PNG utilizes lossless Deflate compression with 8-bit alpha transparency ideal for UI graphics and logos.',
+          'Modern formats like WebP and AVIF combine predictive coding and adaptive arithmetic compression to achieve significantly smaller file sizes without sacrificing perceptual clarity. Converting legacy formats to WebP can slash image bandwidth by 30% to 50%, accelerating website load times and improving mobile user experiences.',
+          'With Image Convert by WebToolOcean, the conversion process runs locally using your browser\'s HTML5 Canvas, WebAssembly, and native codecs. Your photos never upload to remote servers, giving you total confidentiality, instantaneous conversions, and no bandwidth caps.',
+        ]}
+        whatIsVisual={<ConvertVisual />}
+        stepsTitle="How to Convert Images in 4 Easy Steps"
+        stepsLead="Convert one or hundreds of photos in seconds with simple intuitive controls."
+        steps={steps}
+        featuresTitle="Why Choose Our Free Image Converter"
+        featuresLead="Fast, secure, batch-ready, and private by default."
+        features={features}
+        useCasesTitle="Common Image Conversion Use Cases"
+        useCasesLead="Optimize web assets, prepare graphic designs, and simplify file sharing."
+        useCases={useCases}
+        privacyTitle="100% Private In-Browser Image Conversion"
+        privacyText="Unlike cloud converters that store your images on remote servers, Image Convert processes all pixel operations locally inside your web browser. Your private photos, confidential designs, and personal media never leave your device."
+        faqsTitle="Frequently Asked Questions"
+        faqsLead="Answers to common questions about converting images online."
+        faqs={faqs}
+        relatedTitle="Explore More Free Image Tools"
+        relatedLead="Complete suite of browser-based utilities to edit, optimize, and enhance your photos."
+        relatedTools={relatedTools}
+      />
+    </>
+  );
+}
+
+export default ConvertContent;

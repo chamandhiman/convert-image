@@ -1,17 +1,21 @@
-import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import SeoHead from '@/components/seo/SeoHead';
+import { ROUTES } from '@/routes/paths';
 import styles from './LicensesPage.module.css';
 
 /**
  * AI Models & Licenses page.
  *
  * Provides proper attribution and licensing information for all open-source
- * AI models and runtime libraries used by Convert Image.
+ * AI models and runtime libraries used by Image Convert.
  */
 function LicensesPage() {
-  useDocumentTitle('AI Models & Licenses');
-
   return (
     <div className={styles.page}>
+      <SeoHead
+        title="Open-Source AI Models & Licenses — Image Convert"
+        description="Review licensing, citations, and open-source attributions for the AI models and runtime libraries powering Image Convert by WebToolOcean."
+        canonicalPath={ROUTES.licenses}
+      />
       <h1 className={styles.pageTitle}>AI Models &amp; Licenses</h1>
       <p className={styles.pageIntro}>
         Convert Image uses open-source software and machine-learning models to

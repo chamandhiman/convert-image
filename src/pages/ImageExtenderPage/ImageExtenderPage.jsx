@@ -258,9 +258,11 @@ function ImageExtenderPage({ embedded }) {
       title="AI Image Extender"
       description="Expand image borders into 16:9, 4:5, or custom aspect ratios with neural outpainting. 100% private in your browser."
       embedded={embedded}
+      content={<ImageExtenderContent />}
+      contentFullWidth
       showHero={false}
     >
-      <div className={styles.converterSurface}>
+      <div id="tool" className={styles.converterSurface}>
         {phase === PHASE.IDLE && (
           <div>
             <div className={styles.uploadHeader}>
@@ -686,9 +688,6 @@ function ImageExtenderPage({ embedded }) {
             </div>
           </div>
         )}
-
-        {/* Editorial & SEO Section Below Tool */}
-        <ImageExtenderContent />
       </div>
     </ToolPageLayout>
   );

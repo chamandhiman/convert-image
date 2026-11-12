@@ -1,6 +1,14 @@
+import SeoHead from '@/components/seo/SeoHead';
+import { ROUTES } from '@/routes/paths';
 import styles from './AnalyzeContent.module.css';
 
 function AnalyzeContent() {
+  const analyzeFaqs = [
+    { q: 'What does the Image Analyzer measure?', a: 'It calculates exact pixel dimensions, aspect ratio, file weight, compression efficiency score, and potential bandwidth savings from format conversion or resizing.' },
+    { q: 'Are my images uploaded for analysis?', a: 'No. All image inspection and scoring algorithms execute locally inside your web browser via HTML5 Canvas and the File API.' },
+    { q: 'What formats can I analyze?', a: 'You can analyze JPG, PNG, WebP, GIF, SVG, BMP, and TIFF files.' },
+  ];
+
   const features = [
     {
       title: 'Dimension Check',
@@ -73,6 +81,14 @@ function AnalyzeContent() {
 
   return (
     <div className={styles.page}>
+      <SeoHead
+        title="Image Analyzer — Check Dimensions, Compression & Quality"
+        description="Analyze images online for free. Inspect pixel dimensions, compression ratio, color depth, and web performance scores with 100% private in-browser analysis."
+        canonicalPath={ROUTES.analyze}
+        keywords="image analyzer, check image dimensions, image compression analyzer, test image quality, inspect photo metadata"
+        toolName="Image Analyzer"
+        faqs={analyzeFaqs}
+      />
       {/* ------------------------------------------------------------------ */}
       {/*  Hero Banner                                                       */}
       {/* ------------------------------------------------------------------ */}

@@ -6,6 +6,8 @@
  * locally inside the browser.
  */
 
+import { getModelConfig } from '@/config/models';
+
 let activeWorker = null;
 let activeJobId = 0;
 
@@ -100,11 +102,15 @@ function runOutpaintPatch(worker, imageRgba, maskRgba, onProgress) {
       }
     };
 
+    const modelConfig = getModelConfig('lama');
+
     worker.addEventListener('message', handler);
     worker.postMessage(
       {
         type: 'outpaint-patch',
         id,
+        modelConfig,
+        modelUrl: modelConfig.primaryUrl,
         imageRgba: imageRgba.buffer,
         maskRgba: maskRgba.buffer,
       },

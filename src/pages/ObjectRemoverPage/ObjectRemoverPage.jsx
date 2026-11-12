@@ -406,11 +406,12 @@ function ObjectRemoverPage({ embedded, embeddedOnly }) {
       title="AI Object Remover"
       subtitle="Erase unwanted objects, people, or clutter from photos naturally — all in your browser."
       content={<ObjectRemoverContent />}
+      contentFullWidth
       embedded={embedded}
       embeddedOnly={embeddedOnly}
       showHero={false}
     >
-      <div className={styles.converterSurface}>
+      <div id="tool" className={styles.converterSurface}>
         {phase === PHASE.IDLE && (
           <div className={`${styles.idleWrap} ${styles.phaseIn}`}>
             <div className={styles.uploadHeader}>

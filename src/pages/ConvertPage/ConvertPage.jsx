@@ -17,6 +17,7 @@ import {
 } from '@/utils/imageProcessor';
 import { createZipBlob } from '@/utils/zip';
 import { consumePendingToolInput } from '@/utils/toolStateBridge';
+import { trackImageUpload, trackImageConvert, trackImageDownload } from '@/utils/analytics';
 
 import ConvertContent from '@/pages/ConvertPage/ConvertContent';
 import styles from './ConvertPage.module.css';
@@ -37,11 +38,20 @@ const SOURCE_FORMATS = [
   { value: 'image/svg+xml', label: 'SVG', accept: '.svg', mimeTypes: ['image/svg+xml'] },
 ];
 
-function ConvertPage({ embedded, embeddedOnly }) {
-  useDocumentTitle('Convert Images Online — JPG, PNG, WebP & More');
+function ConvertPage({
+  embedded,
+  embeddedOnly,
+  title = 'Convert Images Online',
+  subtitle = 'Convert JPG, PNG, WebP, GIF and SVG images locally in your browser. Fast, free and completely private.',
+  documentTitle = 'Convert Image Online — Fast & Free Multi-Format Converter',
+  initialSourceFormat = 'image/jpeg',
+  initialOutputFormat = 'image/png',
+  contentComponent: ContentComponent = ConvertContent,
+}) {
+  useDocumentTitle(documentTitle);
 
-  const [sourceFormat, setSourceFormat] = useState('image/jpeg');
-  const [outputFormat, setOutputFormat] = useState('image/png');
+  const [sourceFormat, setSourceFormat] = useState(initialSourceFormat);
+  const [outputFormat, setOutputFormat] = useState(initialOutputFormat);
   const [phase, setPhase] = useState(PHASE.IDLE);
   const [queueItems, setQueueItems] = useState([]);
   const [quality, setQuality] = useState(85);
@@ -121,6 +131,7 @@ function ConvertPage({ embedded, embeddedOnly }) {
       if (accepted.length > 0) {
         setQueueItems((prev) => [...prev, ...accepted]);
         setPhase(PHASE.LOADED);
+        trackImageUpload({ tool: 'convert_image', format: sourceFormat, count: accepted.length });
       }
 
       if (skipped > 0) {
@@ -129,7 +140,7 @@ function ConvertPage({ embedded, embeddedOnly }) {
         setError('');
       }
     },
-    [validateFile, sourceFormatObj],
+    [validateFile, sourceFormatObj, sourceFormat],
   );
 
   const handleFileSelect = useCallback(
@@ -246,12 +257,23 @@ function ConvertPage({ embedded, embeddedOnly }) {
     }
 
     setPhase(PHASE.DONE);
-  }, [queueItems, outputFormat, quality, isSameFormat]);
+    trackImageConvert({
+      tool: 'convert_image',
+      inputFormat: sourceFormat,
+      outputFormat: outputFormat,
+      count: readyItems.length,
+    });
+  }, [queueItems, outputFormat, quality, isSameFormat, sourceFormat]);
 
   const handleDownload = useCallback((item) => {
     if (!item.result?.blob || !item.meta) return;
     const filename = buildConvertedFilename(item.meta.name, outputFormat);
     downloadBlob(item.result.blob, filename);
+    trackImageDownload({
+      tool: 'convert_image',
+      outputFormat: outputFormat,
+      isBatch: false,
+    });
   }, [outputFormat]);
 
   const handleDownloadAll = useCallback(async () => {
@@ -263,6 +285,11 @@ function ConvertPage({ embedded, embeddedOnly }) {
       downloadBlob(item.result.blob, filename);
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
+    trackImageDownload({
+      tool: 'convert_image',
+      outputFormat: outputFormat,
+      isBatch: true,
+    });
   }, [queueItems, outputFormat]);
 
   const handleDownloadZip = useCallback(async () => {
@@ -408,10 +435,10 @@ function ConvertPage({ embedded, embeddedOnly }) {
             {queueItems.map((item) => (
               <div key={item.id} className={`${styles.resultCard} ${item.status === 'complete' ? styles.resultCardSuccess : ''} ${item.status === 'failed' ? styles.resultCardFailed : ''}`}>
                 <div className={styles.resultThumbWrap}>
-                  <img 
-                    src={item.status === 'complete' && item.result ? item.result.url : item.previewUrl} 
-                    alt={item.file.name} 
-                    className={styles.resultThumb} 
+                  <img
+                    src={item.status === 'complete' && item.result ? item.result.url : item.previewUrl}
+                    alt={item.file.name}
+                    className={styles.resultThumb}
                   />
                   {item.status === 'complete' && (
                     <div className={styles.resultOverlay}>
@@ -631,17 +658,17 @@ function ConvertPage({ embedded, embeddedOnly }) {
   return (
     <ToolPageLayout
       badge="Free · In-Browser"
-      title="Convert Images Online"
-      subtitle="Convert JPG, PNG, WebP, GIF and SVG images locally in your browser. Fast, free and completely private."
+      title={title}
+      subtitle={subtitle}
       embedded={embedded}
       embeddedOnly={embeddedOnly}
       contentFullWidth
+      content={!embeddedOnly && ContentComponent ? <ContentComponent /> : null}
       showHero={false}
     >
-      <div className={styles.converterSurface}>
+      <div id="tool" className={styles.converterSurface}>
         {!hasImages ? renderEmptyState() : renderWorkspace()}
       </div>
-      {!embeddedOnly && <ConvertContent />}
     </ToolPageLayout>
   );
 }

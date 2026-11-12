@@ -57,56 +57,77 @@ export async function removeImageBackground(imageSource, { onProgress } = {}) {
       : '/imgly/';
 
   try {
-    const removalPromise = remover(imageSource, {
-      publicPath,
-      model: 'isnet_quint8',
-      proxyToWorker: false,
-      debug: false,
-      output: {
-        format: 'image/png',
-        quality: 1,
-      },
-      progress: (key, current, total) => {
-        if (!onProgress) return;
+    const progressCallback = (key, current, total) => {
+      if (!onProgress) return;
 
-        let percent = 0;
-        if (total > 0) {
-          percent = Math.min(100, Math.round((current / total) * 100));
-        } else if (current >= 0 && current <= 1) {
-          percent = Math.min(100, Math.round(current * 100));
-        }
+      let percent = 0;
+      if (total > 0) {
+        percent = Math.min(100, Math.round((current / total) * 100));
+      } else if (current >= 0 && current <= 1) {
+        percent = Math.min(100, Math.round(current * 100));
+      }
 
-        const keyLower = String(key || '').toLowerCase();
+      const keyLower = String(key || '').toLowerCase();
 
-        if (
-          keyLower.includes('fetch') ||
-          keyLower.includes('download') ||
-          keyLower.includes('wasm') ||
-          keyLower.includes('model') ||
-          keyLower.includes('init')
-        ) {
-          onProgress({
-            stage: 'loading-model',
-            percent,
-            message:
-              percent > 0
-                ? `Downloading model assets (${percent}%)…`
-                : 'Downloading model assets…',
-          });
-        } else {
-          onProgress({
-            stage: 'processing',
-            percent,
-            message:
-              percent > 0
-                ? `Removing background (${percent}%)…`
-                : 'Separating subject from background…',
-          });
-        }
-      },
-    });
+      if (
+        keyLower.includes('fetch') ||
+        keyLower.includes('download') ||
+        keyLower.includes('wasm') ||
+        keyLower.includes('model') ||
+        keyLower.includes('init')
+      ) {
+        onProgress({
+          stage: 'loading-model',
+          percent,
+          message:
+            percent > 0
+              ? `Downloading model assets (${percent}%)…`
+              : 'Downloading model assets…',
+        });
+      } else {
+        onProgress({
+          stage: 'processing',
+          percent,
+          message:
+            percent > 0
+              ? `Removing background (${percent}%)…`
+              : 'Separating subject from background…',
+        });
+      }
+    };
 
-    const blob = await Promise.race([removalPromise, timeoutPromise]);
+    let blob;
+    try {
+      const removalPromise = remover(imageSource, {
+        publicPath,
+        model: 'isnet_quint8',
+        device: 'cpu',
+        proxyToWorker: false,
+        debug: false,
+        output: {
+          format: 'image/png',
+          quality: 1,
+        },
+        progress: progressCallback,
+      });
+
+      blob = await Promise.race([removalPromise, timeoutPromise]);
+    } catch (localErr) {
+      console.warn('[BackgroundRemoval] Local asset load failed, attempting fallback CDN...', localErr);
+      const fallbackPromise = remover(imageSource, {
+        model: 'isnet_quint8',
+        device: 'cpu',
+        proxyToWorker: false,
+        debug: false,
+        output: {
+          format: 'image/png',
+          quality: 1,
+        },
+        progress: progressCallback,
+      });
+
+      blob = await Promise.race([fallbackPromise, timeoutPromise]);
+    }
     clearTimeout(timer);
 
     if (onProgress) {

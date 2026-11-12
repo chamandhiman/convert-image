@@ -1,6 +1,15 @@
+import SeoHead from '@/components/seo/SeoHead';
+import { ROUTES } from '@/routes/paths';
 import styles from './CleanContent.module.css';
 
 function CleanContent() {
+  const cleanFaqs = [
+    { q: 'What is image metadata?', a: 'Metadata is embedded technical data stored inside image files by digital cameras and smartphones, including camera serial numbers, exposure settings, timestamps, and GPS location coordinates.' },
+    { q: 'Can photos contain my location?', a: 'Yes. Most modern smartphones automatically record GPS latitude, longitude, and altitude in the EXIF block unless explicitly disabled in device camera permissions.' },
+    { q: 'Does this tool upload my image to a server?', a: 'No. All metadata inspection and stripping runs locally inside your browser via client-side JavaScript. Your photos never leave your device.' },
+    { q: 'Does cleaning metadata reduce image quality?', a: 'No. Stripping metadata only removes technical header tags and binary information blocks without altering or compressing the image pixel matrix.' },
+  ];
+
   const features = [
     {
       title: 'Remove EXIF Data',
@@ -99,6 +108,14 @@ function CleanContent() {
 
   return (
     <div className={styles.page}>
+      <SeoHead
+        title="Privacy Cleaner — Remove EXIF & GPS Metadata from Images"
+        description="Strip EXIF, GPS location, device serial numbers, and camera metadata from photos online for free. 100% private in-browser metadata cleaner."
+        canonicalPath={ROUTES.clean}
+        keywords="remove exif, clean metadata, strip photo location, remove gps from photo, privacy cleaner, photo metadata eraser"
+        toolName="Privacy Cleaner"
+        faqs={cleanFaqs}
+      />
       {/* ------------------------------------------------------------------ */}
       {/*  Hero Banner                                                       */}
       {/* ------------------------------------------------------------------ */}

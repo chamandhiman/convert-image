@@ -325,9 +325,9 @@ function processCanvas(
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
 
-      // Fill white background for JPEG so transparent pixels do not turn black
+      // Fill background for JPEG so transparent pixels do not turn black
       if (outputType === 'image/jpeg') {
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = options.backgroundColor || '#ffffff';
         ctx.fillRect(0, 0, width, height);
       }
 
@@ -452,11 +452,12 @@ export function buildConvertedFilename(originalName, outputType) {
  * @param {number} height
  * @returns {string}
  */
-export function buildResizedFilename(originalName, outputType, width, height) {
+export function buildResizedFilename(originalName, outputType, width, height, customSuffix = '') {
   const base = originalName.replace(/\.[^.]+$/, '') || 'image';
   const format = ALL_OUTPUT_FORMATS.find((f) => f.value === outputType);
   const ext = format?.extension ?? '.jpg';
-  return `${base}-${Math.round(width)}x${Math.round(height)}${ext}`;
+  const suffix = customSuffix || `-${Math.round(width)}x${Math.round(height)}`;
+  return `${base}${suffix}${ext}`;
 }
 
 /**

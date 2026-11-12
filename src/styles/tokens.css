@@ -14,62 +14,68 @@
   --color-black: #000000;
 
   /* Ink palette */
-  --color-ink: #12141C;
-  --color-ink-soft: #4A4E5A;
-  --color-ink-faint: #7C7F89;
+  --color-ink: #0F172A;
+  --color-ink-soft: #475569;
+  --color-ink-faint: #64748B;
 
   /* Paper palette */
-  --color-paper: #F5F3EE;
-  --color-paper-deep: #ECE8DE;
+  --color-paper: #FFFFFF;
+  --color-paper-deep: #FAF9FD;
   --color-surface: #FFFFFF;
 
   /* Borders */
-  --color-line: #E1DED4;
-  --color-line-strong: #CFCBBD;
+  --color-line: #F1F0F7;
+  --color-line-strong: #E2DFEC;
 
   /* Accent */
-  --color-accent: #2451FF;
-  --color-accent-ink: #173BC4;
-  --color-accent-tint: #EAEFFF;
+  --color-accent: #7C3AED;
+  --color-accent-ink: #6D28D9;
+  --color-accent-tint: #F3E8FF;
+
+  /* Brand gradients */
+  --color-brand-purple: #7C3AED;
+  --color-brand-violet: #8B5CF6;
+  --color-brand-pink: #EC4899;
+  --color-brand-coral: #F97316;
+  --gradient-cta: linear-gradient(90deg, #8929C0 0%, #D84697 52%, #F27E4B 100%);
+  --gradient-brand: linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #EC4899 100%);
 
   /* Gold/Pro */
   --color-gold: #B5811A;
   --color-gold-tint: #F7ECD4;
 
   /* Semantic */
-  --color-success: #1F8A5D;
+  --color-success: #10B981;
 
-  /* Semantic colours — light paper/ink default */
-  --color-bg: #F5F3EE;
-  --color-bg-subtle: #ECE8DE;
-  --color-bg-muted: #F5F3EE;
-  --color-bg-inverse: #12141C;
+  /* Semantic colours — modern clean white / purple theme */
+  --color-bg: #FFFFFF;
+  --color-bg-subtle: #FAFAFD;
+  --color-bg-muted: #F5F3FF;
+  --color-bg-inverse: #0F172A;
 
   --color-surface: #FFFFFF;
   --color-surface-raised: #FFFFFF;
-  --color-surface-overlay: rgba(18, 20, 28, 72%);
+  --color-surface-overlay: rgba(15, 23, 42, 60%);
 
-  --color-text: #12141C;
-  --color-text-secondary: #4A4E5A;
-  --color-text-muted: #7C7F89;
-  --color-text-inverse: #F5F3EE;
+  --color-text: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748B;
+  --color-text-inverse: #FFFFFF;
   --color-text-on-brand: #FFFFFF;
 
-  --color-border: #E1DED4;
-  --color-border-strong: #CFCBBD;
-  --color-matte-black: #1A1A1A;
+  --color-border: #EEEEF6;
+  --color-border-strong: #E2DFEC;
+  --color-matte-black: #0F172A;
 
-  --color-primary: #2451FF;
-  --color-primary-hover: #173BC4;
-  --color-primary-active: #173BC4;
-  --color-primary-subtle: #EAEFFF;
-  --color-focus-ring: #2451FF;
+  --color-primary: #7C3AED;
+  --color-primary-hover: #6D28D9;
+  --color-primary-active: #5B21B6;
+  --color-primary-subtle: #F3E8FF;
+  --color-focus-ring: #7C3AED;
 
-  --color-success: #1F8A5D;
-  --color-warning: #B5811A;
-  --color-danger: #ef4444;
-  --color-accent: #2451FF;
-  --color-accent-subtle: #EAEFFF;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-accent-subtle: #F3E8FF;
 
   /* Typography */
   --font-sans:

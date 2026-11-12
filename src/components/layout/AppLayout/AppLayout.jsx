@@ -6,6 +6,7 @@ import RouteScrollReset from '@/components/layout/RouteScrollReset';
 import BackToTopButton from '@/components/layout/BackToTopButton';
 import { DragProvider } from '@/hooks/useDragOverlay';
 import DragOverlay from '@/components/ui/DragOverlay';
+import CookieConsentModal from '@/components/ui/CookieConsentModal';
 
 import styles from './AppLayout.module.css';
 
@@ -35,6 +36,7 @@ function AppLayout() {
 
         <BackToTopButton />
         <DragOverlay />
+        <CookieConsentModal />
       </div>
     </DragProvider>
   );

@@ -23,6 +23,7 @@ import {
   buildNoBgFilename,
 } from '@/tools/backgroundRemoval/backgroundRemoval';
 import { consumePendingToolInput } from '@/utils/toolStateBridge';
+import { trackImageUpload, trackImageConvert, trackImageDownload } from '@/utils/analytics';
 
 import RemoveBackgroundContent from './RemoveBackgroundContent';
 import styles from './RemoveBackgroundPage.module.css';
@@ -126,6 +127,11 @@ function RemoveBackgroundPage({ embedded, embeddedOnly }) {
       setDisplayedUrl(resultUrl);
       setBgChoice('transparent');
       setPhase(PHASE.DONE);
+      trackImageConvert({
+        tool: 'remove_background',
+        inputFormat: f?.type,
+        outputFormat: 'image/png',
+      });
     } catch (err) {
       console.error('[BackgroundRemoval Page Error]:', err);
       const isModelError =
@@ -151,6 +157,7 @@ function RemoveBackgroundPage({ embedded, embeddedOnly }) {
     const first = files[0];
     if (first) {
       handleFileSelect(first);
+      trackImageUpload({ tool: 'remove_background', format: first.type });
     }
   };
 
@@ -166,6 +173,7 @@ function RemoveBackgroundPage({ embedded, embeddedOnly }) {
     if (stagedFile) {
       Promise.resolve().then(() => {
         handleFileSelect(stagedFile);
+        trackImageUpload({ tool: 'remove_background', format: stagedFile.type });
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -208,6 +216,10 @@ function RemoveBackgroundPage({ embedded, embeddedOnly }) {
     if (!displayedBlob || !originalMeta) return;
     const filename = buildNoBgFilename(originalMeta.name, bgChoice);
     downloadBlob(displayedBlob, filename);
+    trackImageDownload({
+      tool: 'remove_background',
+      outputFormat: bgChoice === 'transparent' ? 'image/png' : 'image/jpeg',
+    });
   };
 
   /* -------------------------------------------------------------------- */
@@ -401,13 +413,12 @@ function RemoveBackgroundPage({ embedded, embeddedOnly }) {
               </span>
             </div>
             <div
-              className={`${styles.imageStageCutout} ${
-                bgChoice === 'transparent'
+              className={`${styles.imageStageCutout} ${bgChoice === 'transparent'
                   ? styles.checkerboard
                   : bgChoice === 'white'
                     ? styles.bgWhite
                     : styles.bgBlack
-              }`}
+                }`}
             >
               <ImagePreview
                 src={displayedUrl}
@@ -485,7 +496,7 @@ function RemoveBackgroundPage({ embedded, embeddedOnly }) {
       embeddedOnly={embeddedOnly}
       showHero={false}
     >
-      <div className={styles.converterSurface}>
+      <div id="tool" className={styles.converterSurface}>
         {phase === PHASE.IDLE && renderEmptyState()}
 
         {isBusy && originalMeta && renderProcessingWorkspace()}

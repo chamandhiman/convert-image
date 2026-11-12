@@ -1,205 +1,247 @@
-import { Link } from 'react-router-dom';
+import { Maximize, ShieldCheck, Zap, Sparkles, Scissors, RefreshCw, SlidersHorizontal } from 'lucide-react';
 import { ROUTES } from '@/routes/paths';
-import styles from './ImageExtenderContent.module.css';
+import ToolContentSection from '@/components/tool-content/ToolContentSection';
+import SeoHead from '@/components/seo/SeoHead';
 
-const FAQS = [
+const steps = [
   {
-    q: 'What is AI Image Extension (Outpainting)?',
-    a: 'AI Image Extension—also known as outpainting or uncropping—is a neural vision technique that analyzes the visual structure, textures, and lighting of an existing image and generates realistic new scenery beyond its original boundaries.',
+    title: 'Upload Source Photo',
+    desc: 'Select or drag & drop any JPG, PNG, or WebP photo into the outpainting workspace.',
   },
   {
-    q: 'Does extending an image reduce the quality of my original photo?',
-    a: 'No. Your original photo is preserved at 100% full pixel resolution. The AI only synthesizes new pixels in the added canvas borders and seamlessly blends the edges.',
+    title: 'Choose Target Aspect Ratio',
+    desc: 'Select your desired output framing: 16:9 Widescreen, 4:5 Instagram Portrait, 9:16 Vertical Story, or Custom Canvas.',
   },
   {
-    q: 'Are my images uploaded to a cloud server?',
-    a: 'No. All neural inference and image synthesis execute directly inside your web browser via WebGPU and WebAssembly. Your photos never leave your device.',
+    title: 'Run In-Browser Outpainting',
+    desc: 'Click "Extend Image" to execute LaMa neural outpainting shaders locally using WebGPU and WebAssembly.',
   },
   {
-    q: 'Can I extend an image into popular social media aspect ratios?',
-    a: 'Yes. You can choose one-click presets like 16:9 Landscape for wallpapers and YouTube thumbnails, 4:5 Portrait for Instagram feeds, 9:16 for Stories and Reels, 1:1 Square, or enter custom pixel amounts.',
-  },
-  {
-    q: 'What image formats are supported?',
-    a: 'You can upload JPG, PNG, and WebP images. Results can be downloaded as high-quality PNG or standard JPG.',
+    title: 'Review & Download',
+    desc: 'Inspect the seamlessly extended canvas boundaries, then download your full-resolution extended photo.',
   },
 ];
 
-function ImageExtenderContent() {
+const features = [
+  {
+    title: 'Neural Background Synthesis',
+    desc: 'Deep convolutional networks analyze lighting vectors, edge textures, and scene geometry to synthesize seamless canvas expansions.',
+    icon: <Sparkles size={24} />,
+  },
+  {
+    title: '100% Client-Side Privacy',
+    desc: 'All neural model weights execute locally in your browser. Your images never leave your computer or upload to external servers.',
+    icon: <ShieldCheck size={24} />,
+  },
+  {
+    title: 'Social & Video Presets',
+    desc: '1-click presets for YouTube banners (16:9), Instagram posts (4:5, 1:1), and mobile phone wallpapers (9:16).',
+    icon: <Maximize size={24} />,
+  },
+  {
+    title: 'Completely Free Forever',
+    desc: 'No subscription tiers, credit meters, or watermarks. Extend as many images as you need with zero restrictions.',
+    icon: <Zap size={24} />,
+  },
+];
+
+const useCases = [
+  {
+    title: 'Portrait to Landscape Adaptation',
+    desc: 'Convert vertical smartphone shots into cinematic 16:9 landscape wallpapers and desktop backgrounds.',
+  },
+  {
+    title: 'Social Media Headers & Banners',
+    desc: 'Extend background horizons to create wide Twitter headers, LinkedIn banners, and YouTube channel art.',
+  },
+  {
+    title: 'E-Commerce Hero Containers',
+    desc: 'Expand product photos horizontally to fit wide website hero sections and promotional landing page carousels.',
+  },
+  {
+    title: 'Uncropping Tight Camera Frames',
+    desc: 'Add breathing room around tightly cropped portraits, pets, or architectural photos without zooming out.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'What is AI image outpainting (uncropping)?',
+    a: 'AI image outpainting—often called uncropping or image extension—is a neural vision technique that generates realistic visual content outside the original boundaries of a photograph. Rather than blurring or stretching edge pixels, the AI analyzes the visual patterns, textures, and lighting in your photo and synthesizes a natural continuation of the scene.',
+  },
+  {
+    q: 'How does this tool process photos without uploading to a cloud server?',
+    a: 'Image Convert runs a lightweight, optimized version of the LaMa (Large Mask Inpainting) model directly in your web browser using WebAssembly and WebGPU. Your device\'s local hardware computes the image pixels, ensuring complete confidentiality for your media.',
+  },
+  {
+    q: 'What aspect ratios can I extend my images to?',
+    a: 'We provide popular 1-click presets including 16:9 Widescreen (YouTube / TV), 4:5 Portrait (Instagram feed), 9:16 Vertical (Stories / TikTok), 1:1 Square, and fully customizable custom canvas margins.',
+  },
+  {
+    q: 'Will the extended edges look blurry or artificial?',
+    a: 'Our neural model utilizes Fast Fourier Convolutions designed specifically for high-receptive field texture synthesis. It naturally recreates complex backgrounds such as sky, grass, water, walls, and architectural structures with consistent lighting and grain.',
+  },
+  {
+    q: 'What image file formats and dimensions are supported?',
+    a: 'You can upload standard JPG, PNG, and WebP images up to 25 MB. Output can be saved as lossless PNG or compressed JPG.',
+  },
+  {
+    q: 'Can I extend an image multiple times?',
+    a: 'Yes! You can extend an image, download the result, and extend it further in any direction if needed.',
+  },
+  {
+    q: 'Is this service completely free?',
+    a: 'Yes, 100% free with no watermarks, daily quotas, or subscription fees.',
+  },
+];
+
+const relatedTools = [
+  {
+    name: 'AI Object Remover',
+    description: 'Erase unwanted people, wires, or watermarks using neural inpainting.',
+    href: ROUTES.objectRemover,
+    icon: <RefreshCw size={20} />,
+  },
+  {
+    name: 'AI Photo Restorer',
+    description: 'Sharpen blurry photos and repair faded vintage family prints.',
+    href: ROUTES.photoRestorer,
+    icon: <Sparkles size={20} />,
+  },
+  {
+    name: 'Remove Background',
+    description: 'Isolate subjects and create transparent cutouts instantly with AI.',
+    href: ROUTES.removeBackground,
+    icon: <Scissors size={20} />,
+  },
+  {
+    name: 'Resize Image',
+    description: 'Change pixel dimensions or percentage with aspect ratio lock.',
+    href: ROUTES.resize,
+    icon: <SlidersHorizontal size={20} />,
+  },
+];
+
+function ExtenderVisual() {
   return (
-    <div className={styles.page}>
-      {/* ------------------------------------------------------------------ */}
-      {/*  Hero Banner                                                       */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={styles.heroBanner} aria-label="AI Image Extender banner">
-        <div className={`container ${styles.heroInner}`}>
-          <div className={styles.heroBadge}>AI Creative Tool</div>
-          <h2 className={styles.heroTitle}>AI Image Extender</h2>
-          <p className={styles.heroLead}>
-            Expand image borders into 16:9, 4:5, or custom aspect ratios with neural outpainting. 100% private in your browser.
-          </p>
-          <div className={styles.heroCtas}>
-            <a href="#tool" className={styles.heroPrimary}>Start Extending</a>
-            <a href="#how-it-works" className={styles.heroSecondary}>Learn More</a>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '14px',
+          padding: '24px',
+          background: 'rgba(255, 255, 255, 0.92)',
+          backdropFilter: 'blur(8px)',
+          borderRadius: '16px',
+          border: '1px solid rgba(124, 58, 237, 0.2)',
+          boxShadow: '0 12px 32px rgba(124, 58, 237, 0.12)',
+          maxWidth: '300px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div
+            style={{
+              padding: '6px 12px',
+              borderRadius: '8px',
+              background: '#e2e8f0',
+              color: '#475569',
+              fontWeight: 700,
+              fontSize: '12px',
+            }}
+          >
+            1:1 Square
           </div>
-        </div>
-      </section>
-
-      <section className={styles.contentSection} aria-label="About AI Image Extension">
-      <article className={styles.article}>
-        <h2 className={styles.headingPrimary}>What Is AI Image Extension?</h2>
-        <p className={styles.paragraph}>
-          AI Image Extension (also known as <strong>outpainting</strong> or <strong>canvas uncropping</strong>) 
-          is a deep learning technique that intelligently expands the canvas of any photograph. Rather than 
-          stretching pixels or adding artificial letterbox bars, an advanced Fast Fourier Convolution neural 
-          network learns the context, colors, lighting, and repeating textures of your image to generate 
-          plausible new content that blends naturally with the original scene.
-        </p>
-
-        <h2 className={styles.headingSecondary}>How AI Image Extender Works</h2>
-        <p className={styles.paragraph}>
-          When you upload an image and choose a target aspect ratio or directional padding, the tool:
-        </p>
-        <ul className={styles.highlightList}>
-          <li className={styles.highlightItem}>
-            <strong>Preserves Native Pixels:</strong> Keeps every pixel of your original photo intact without lossy scaling.
-          </li>
-          <li className={styles.highlightItem}>
-            <strong>Synthesizes Surrounding Context:</strong> Deep neural layers sample surrounding environment cues—such as sky gradients, foliage, indoor walls, or floor patterns—to extrapolate new visual details.
-          </li>
-          <li className={styles.highlightItem}>
-            <strong>Feathered Edge Blending:</strong> Seamlessly blends the transition boundary to ensure zero visible seams or harsh line artifacts.
-          </li>
-          <li className={styles.highlightItem}>
-            <strong>100% Private In-Browser Execution:</strong> Utilizes hardware-accelerated WebGPU shaders and multi-threaded WebAssembly to compute the result locally on your computer or mobile phone.
-          </li>
-        </ul>
-
-        <h2 className={styles.headingSecondary}>How to Extend an Image</h2>
-        <div className={styles.stepsGrid}>
-          <div className={styles.stepCard}>
-            <span className={styles.stepNum}>1</span>
-            <h3 className={styles.stepTitle}>Upload Photo</h3>
-            <p className={styles.stepDesc}>
-              Drag and drop any JPG, PNG, or WebP photo into the browser editor.
-            </p>
-          </div>
-          <div className={styles.stepCard}>
-            <span className={styles.stepNum}>2</span>
-            <h3 className={styles.stepTitle}>Choose Aspect Ratio</h3>
-            <p className={styles.stepDesc}>
-              Select a preset (16:9, 4:5, 1:1, 9:16) or manually configure left, right, top, and bottom pixel padding.
-            </p>
-          </div>
-          <div className={styles.stepCard}>
-            <span className={styles.stepNum}>3</span>
-            <h3 className={styles.stepTitle}>Extend with AI</h3>
-            <p className={styles.stepDesc}>
-              Click <strong>Extend Image</strong> to let the neural network synthesize the new background.
-            </p>
-          </div>
-          <div className={styles.stepCard}>
-            <span className={styles.stepNum}>4</span>
-            <h3 className={styles.stepTitle}>Compare &amp; Download</h3>
-            <p className={styles.stepDesc}>
-              Inspect the side-by-side comparison, fine-tune the canvas if needed, and save your high-resolution image.
-            </p>
+          <span style={{ fontSize: '18px', color: '#7C3AED', fontWeight: 'bold' }}>➔</span>
+          <div
+            style={{
+              padding: '6px 12px',
+              borderRadius: '8px',
+              background: 'linear-gradient(135deg, #7C3AED 0%, #D946EF 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              fontSize: '12px',
+              boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
+            }}
+          >
+            16:9 Widescreen
           </div>
         </div>
 
-        <h2 className={styles.headingSecondary}>Best Uses for Image Extension</h2>
-        <ul className={styles.highlightList}>
-          <li className={styles.highlightItem}>
-            <strong>Adapting Vertical Photos to Widescreen:</strong> Convert 4:5 or 9:16 smartphone photos into 16:9 landscape headers, YouTube thumbnails, or desktop wallpapers.
-          </li>
-          <li className={styles.highlightItem}>
-            <strong>Fixing Tight Framing:</strong> Add breathing room around subjects where the camera was framed too closely to borders or heads were clipped.
-          </li>
-          <li className={styles.highlightItem}>
-            <strong>E-Commerce &amp; Social Banners:</strong> Expand product photography backgrounds to fit varied banner ratios across marketplaces.
-          </li>
-        </ul>
-
-        <h2 className={styles.headingSecondary}>Image Extension vs Image Resizing</h2>
-        <div className={styles.tableWrap}>
-          <table className={styles.comparisonTable}>
-            <thead>
-              <tr>
-                <th>Feature</th>
-                <th>AI Image Extender</th>
-                <th>Standard Resizing / Cropping</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Subject Preservation</strong></td>
-                <td>100% preserved at original size</td>
-                <td>Distorted if stretched or lost if cropped</td>
-              </tr>
-              <tr>
-                <td><strong>Canvas Boundary</strong></td>
-                <td>Expands to new aspect ratio</td>
-                <td>Locked to existing pixel aspect ratio</td>
-              </tr>
-              <tr>
-                <td><strong>Content Generation</strong></td>
-                <td>Synthesizes realistic new surroundings</td>
-                <td>No new content created</td>
-              </tr>
-              <tr>
-                <td><strong>Privacy</strong></td>
-                <td>100% Local In-Browser Processing</td>
-                <td>100% Local In-Browser Processing</td>
-              </tr>
-            </tbody>
-          </table>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontWeight: 700, fontSize: '15px', color: '#1E1B4B' }}>Neural Outpainting Engine</div>
+          <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>Scene Continuity · WebGPU Shaders</div>
         </div>
 
-        <h2 className={styles.headingSecondary}>Frequently Asked Questions</h2>
-        <div className={styles.faqSection}>
-          <div className={styles.faqInner}>
-            {FAQS.map((faq, idx) => (
-              <div key={idx} className={styles.faqItem}>
-                <details>
-                  <summary>
-                    <span className={styles.faqQuestion}>{faq.q}</span>
-                    <span className={styles.faqIcon} aria-hidden="true">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="16" x2="12" y2="12" />
-                        <line x1="12" y1="8" x2="12.01" y2="8" />
-                      </svg>
-                    </span>
-                  </summary>
-                  <p>{faq.a}</p>
-                </details>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <h2 className={styles.headingSecondary}>Related Image Tools</h2>
-        <div className={styles.relatedTools}>
-          <Link to={ROUTES.upscaler} className={styles.toolCard}>
-            <span className={styles.toolName}>AI Image Upscaler</span>
-            <span className={styles.toolDesc}>Enlarge photos up to 4× with neural super-resolution.</span>
-          </Link>
-          <Link to={ROUTES.objectRemover} className={styles.toolCard}>
-            <span className={styles.toolName}>AI Object Remover</span>
-            <span className={styles.toolDesc}>Erase unwanted people, text, and objects cleanly.</span>
-          </Link>
-          <Link to={ROUTES.removeBackground} className={styles.toolCard}>
-            <span className={styles.toolName}>Background Remover</span>
-            <span className={styles.toolDesc}>Isolate foreground subjects with instant transparent PNG output.</span>
-          </Link>
-          <Link to={ROUTES.convert} className={styles.toolCard}>
-            <span className={styles.toolName}>Image Converter</span>
-            <span className={styles.toolDesc}>Convert between JPG, PNG, WebP, and AVIF formats.</span>
-          </Link>
-        </div>
-      </article>
-    </section>
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 10px',
+            borderRadius: '9999px',
+            background: 'rgba(124, 58, 237, 0.1)',
+            color: '#7C3AED',
+            fontSize: '11px',
+            fontWeight: 600,
+          }}
+        >
+          ✓ 100% In-Browser Outpainting
+        </span>
+      </div>
     </div>
+  );
+}
+
+export function ImageExtenderContent() {
+  return (
+    <>
+      <SeoHead
+        title="AI Image Extender Online Free — Outpaint & Expand Photos"
+        description="Expand photo backgrounds and uncrop images online for free with AI. Extend to 16:9, 4:5, or custom canvas sizes with 100% private in-browser neural outpainting."
+        canonicalPath={ROUTES.imageExtender}
+        keywords="ai image extender, uncrop image online, outpainting free, expand photo background, extend canvas ai, widescreen photo extender"
+        toolName="AI Image Extender"
+        faqs={faqs}
+      />
+      <ToolContentSection
+        badge="Neural Outpainting · Free"
+        title="Expand Image Borders with AI Outpainting"
+        lead="Uncrop photos and generate realistic background extensions to fit 16:9, 4:5, or custom aspect ratios in seconds. 100% private in your browser."
+        primaryCtaText="Extend Photo Now"
+        primaryCtaHref="#tool"
+        secondaryCtaText="How Outpainting Works"
+        secondaryCtaHref="#what-is"
+        whatIsTitle="What is AI Image Outpainting?"
+        whatIsLead="Learn how neural networks synthesize realistic environments beyond the original edges of a camera frame."
+        whatIsContent={[
+          'AI Image Outpainting (also called uncropping or image expansion) is an advanced computer vision technique that extends a picture\'s canvas beyond its original borders. Instead of simply mirroring or blurring border pixels, deep neural networks analyze the semantic structure of the scene—such as horizon orientation, perspective, architectural lines, and foliage—and generate a plausible continuation of the environment.',
+          'Our client-side implementation uses Fast Fourier Convolutions (LaMa architecture) to capture global scene context. This allows the model to synthesize broad background features (like sweeping skies, ocean water, or wooden flooring) with realistic texture consistency and continuous lighting.',
+          'With Image Convert by WebToolOcean, all outpainting calculations execute locally inside your web browser via WebGPU and WebAssembly. Your photos never leave your device, ensuring complete privacy, zero queue delays, and unlimited high-resolution exports.',
+        ]}
+        whatIsVisual={<ExtenderVisual />}
+        stepsTitle="How to Extend Images in 4 Easy Steps"
+        stepsLead="Expand photos to any aspect ratio in seconds without Photoshop."
+        steps={steps}
+        featuresTitle="Why Choose Our AI Image Extender"
+        featuresLead="Advanced neural synthesis combined with absolute on-device privacy."
+        features={features}
+        useCasesTitle="Common AI Outpainting Scenarios"
+        useCasesLead="Adapt existing photos to widescreen displays, social banners, and digital ads."
+        useCases={useCases}
+        privacyTitle="100% Private In-Browser AI Outpainting"
+        privacyText="Your private photos, portraits, and creative assets remain strictly on your computer. All neural outpainting tensors and shader computations execute locally via WebGPU inside your browser sandbox—never sent to cloud servers or stored in remote databases."
+        faqsTitle="Frequently Asked Questions"
+        faqsLead="Answers to common questions about extending images online with AI."
+        faqs={faqs}
+        relatedTitle="Explore More Free Image Tools"
+        relatedLead="Complete suite of browser-based utilities to edit, optimize, and enhance your photos."
+        relatedTools={relatedTools}
+      />
+    </>
   );
 }
 

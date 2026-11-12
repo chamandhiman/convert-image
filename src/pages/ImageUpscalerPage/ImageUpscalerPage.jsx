@@ -288,11 +288,12 @@ function ImageUpscalerPage({ embedded, embeddedOnly }) {
       title="AI Image Upscaler"
       subtitle="Increase image resolution and recover sharper detail directly in your browser. 100% private, executed locally."
       content={<ImageUpscalerContent />}
+      contentFullWidth
       embedded={embedded}
       embeddedOnly={embeddedOnly}
       showHero={false}
     >
-      <div className={styles.converterSurface}>
+      <div id="tool" className={styles.converterSurface}>
         {phase === PHASE.IDLE && (
           <div className={styles.idleWrap}>
             <div className={styles.uploadHeader}>

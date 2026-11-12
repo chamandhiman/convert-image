@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '@/routes/paths';
+import SeoHead from '@/components/seo/SeoHead';
 import styles from './ObjectRemoverContent.module.css';
 
 const steps = [
@@ -43,6 +44,14 @@ function ObjectRemoverContent() {
 
   return (
     <div className={styles.page}>
+      <SeoHead
+        title="AI Object Remover Online Free — Erase Unwanted Objects from Photos"
+        description="Remove unwanted objects, people, text, and clutter from photos online for free. 100% private in-browser AI inpainting powered by LaMa and WebGPU."
+        canonicalPath={ROUTES.objectRemover}
+        keywords="object remover, erase object from photo, magic eraser online, remove person from photo, photo inpainting, clean photo clutter, free object remover"
+        toolName="AI Object Remover"
+        faqs={faqs}
+      />
       {/* ------------------------------------------------------------------ */}
       {/*  Hero Banner                                                       */}
       {/* ------------------------------------------------------------------ */}

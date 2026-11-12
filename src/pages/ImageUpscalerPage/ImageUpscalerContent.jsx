@@ -1,247 +1,247 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { ShieldCheck, Cpu, Zap, Sparkles, Scissors, SlidersHorizontal } from 'lucide-react';
 import { ROUTES } from '@/routes/paths';
-import styles from './ImageUpscalerContent.module.css';
+import ToolContentSection from '@/components/tool-content/ToolContentSection';
+import SeoHead from '@/components/seo/SeoHead';
 
 const steps = [
-  { title: 'Upload your photo', desc: 'Drag and drop any JPG, PNG, or WebP image into the upload area.' },
-  { title: 'Select upscale factor', desc: 'Choose 2× for faster results or 4× for maximum detail and print-quality output.' },
-  { title: 'Compare & Download', desc: 'Inspect the interactive Before/After comparison slider, then download your high-resolution result.' },
+  {
+    title: 'Upload Low-Res Photo',
+    desc: 'Drag & drop any JPG, PNG, or WebP photo into the upscale workspace from your computer or mobile device.',
+  },
+  {
+    title: 'Select Upscale Factor',
+    desc: 'Choose 2× for fast web optimization or 4× for maximum detail synthesis and high-DPI print preparation.',
+  },
+  {
+    title: 'Run In-Browser Neural Model',
+    desc: 'Click "Upscale Image" to execute Real-ESRGAN super-resolution shaders locally via WebGPU and WebAssembly.',
+  },
+  {
+    title: 'Compare & Download',
+    desc: 'Slide the before-and-after comparison divider to inspect synthesized details, then download your crisp HD image.',
+  },
 ];
 
 const features = [
-  { title: 'Neural Super-Resolution', desc: 'Powered by Real-ESRGAN to reconstruct realistic fine details and sharpen edges.', icon: '🧠' },
-  { title: '100% Private', desc: 'All processing runs in your browser via WebAssembly and WebGPU. Your photos never leave your device.', icon: '🔒' },
-  { title: 'Tiled Processing', desc: 'Overlapping tile processing ensures stable memory usage even for large images.', icon: '🧩' },
-  { title: 'Free Forever', desc: 'No watermarks, no subscriptions, no uploads. Unlimited AI upscaling in your browser.', icon: '💸' },
+  {
+    title: 'Neural Super-Resolution',
+    desc: 'Trained on millions of real-world photographic degradations to reconstruct fine hair, sharp text, and realistic textures.',
+    icon: <Sparkles size={24} />,
+  },
+  {
+    title: '100% Client-Side Privacy',
+    desc: 'The entire neural network runs locally inside your browser. Your images never leave your machine or upload to external servers.',
+    icon: <ShieldCheck size={24} />,
+  },
+  {
+    title: 'Tiled Memory Processing',
+    desc: 'Overlapping tile convolutions ensure steady browser memory management without crashing on massive 4000px source photos.',
+    icon: <Cpu size={24} />,
+  },
+  {
+    title: 'Completely Free Forever',
+    desc: 'No credit systems, subscription paywalls, watermarks, or sign-up hurdles. Upscale unlimited images at zero cost.',
+    icon: <Zap size={24} />,
+  },
 ];
 
 const useCases = [
-  { title: 'Web Graphics', desc: '2× upscale for digital banners, social media posts, and fast previews with excellent clarity.' },
-  { title: 'Print Preparation', desc: '4× upscale for preparing photos for physical printing at 300 DPI canvas prints.' },
-  { title: 'Archival Restoration', desc: 'Restore low-resolution historical photographs and scanned documents with neural detail synthesis.' },
-  { title: 'Digital Art', desc: 'Enhance pixel art, screenshots, and digital illustrations with sharp edges and clean textures.' },
+  {
+    title: 'High-DPI Print Preparation',
+    desc: 'Enlarge digital camera snapshots and graphics to 300 DPI canvas sizes for crisp physical poster, frame, and apparel printing.',
+  },
+  {
+    title: 'Digital Art & Illustrations',
+    desc: 'Sharpen digital drawings, anime wallpapers, and renders without chromatic aberration or blurry interpolation halos.',
+  },
+  {
+    title: 'E-Commerce Product Zoom',
+    desc: 'Boost resolution on product catalog thumbnails so online shoppers can inspect material textures and details up close.',
+  },
+  {
+    title: 'Archival & Old Photo Enhancement',
+    desc: 'Reconstruct low-resolution vintage scans, phone camera snaps, and compressed web graphics into crystal-clear images.',
+  },
 ];
 
 const faqs = [
-  { q: 'Are my images uploaded to any remote server?', a: 'No. The neural network runs entirely inside your web browser using WebAssembly and WebGPU. Your personal photos never leave your device.' },
-  { q: 'Why is the first upscale slightly slower?', a: 'On the first run, your browser downloads the compact 4.6 MB AI model weights into its local cache. Subsequent upscales load the cached model instantly from memory.' },
-  { q: 'What is the maximum image resolution I can upscale?', a: 'Because our engine uses overlapping tile processing, it can comfortably process images up to 3000–4000 pixels on most desktop devices without running out of browser memory.' },
-  { q: 'How does 2× upscaling work if the neural model is 4×?', a: 'The neural network reconstructs high-frequency details at full 4× resolution, which is then downsampled with high-quality bicubic filtering to 2×. This creates an exceptionally clean, razor-sharp 2× output with no interpolation blur.' },
-  { q: 'Is there any watermark or subscription fee?', a: 'No. Convert Image tools are completely free, private, and unlimited. Output files have no watermarks or restrictions.' },
+  {
+    q: 'How does AI super-resolution differ from standard photo resizing?',
+    a: 'Traditional photo resizing (like bilinear or bicubic interpolation) simply duplicates or averages neighboring pixel values, which inevitably makes enlarged photos look fuzzy or blurry. In contrast, AI super-resolution (powered by deep convolutional neural networks) understands real-world shapes, textures, and lighting, synthesizing plausible high-frequency details that were lost during capture or compression.',
+  },
+  {
+    q: 'Are my images uploaded to any remote server or stored in the cloud?',
+    a: 'No. The neural network runs entirely inside your web browser using WebAssembly and WebGPU hardware acceleration. Your images never leave your device, ensuring total privacy for sensitive client media and personal photographs.',
+  },
+  {
+    q: 'Why does the first upscale take a few moments to initialize?',
+    a: 'On your very first use, your browser downloads the compact ~4.6 MB AI model weights into its local browser cache. Once cached, subsequent upscales initialize almost instantaneously from local memory.',
+  },
+  {
+    q: 'How does 2× upscaling work when the base neural model is 4×?',
+    a: 'Our engine runs the neural network to synthesize razor-sharp details at 4×, and then downsamples the resulting high-frequency tensor to 2× using high-precision bicubic filtering. This produces an exceptionally sharp, clean 2× image with zero interpolation artifacts.',
+  },
+  {
+    q: 'What is the maximum resolution image I can upscale?',
+    a: 'Because our engine utilizes an overlapping tiled architecture, it comfortably processes images up to 3000×3000 pixels on most desktop devices without exceeding browser memory limits.',
+  },
+  {
+    q: 'Are there any watermarks or hidden charges on the downloaded images?',
+    a: 'None whatsoever. All tools on Image Convert by WebToolOcean are completely free with no watermarks, subscriptions, or restrictions.',
+  },
+  {
+    q: 'Can I use upscaled images for commercial merchandise and printing?',
+    a: 'Yes! You retain 100% intellectual property ownership of your original and upscaled images. You may freely use them for commercial e-commerce, print-on-demand merchandise, and advertising.',
+  },
 ];
 
 const relatedTools = [
-  { name: 'Remove Background', description: 'Isolate subjects and export transparent PNG cutouts with browser AI.', href: ROUTES.removeBackground },
-  { name: 'Compress Image', description: 'Shrink file size while preserving high visual quality.', href: ROUTES.compress },
-  { name: 'Resize Image', description: 'Change pixel dimensions or percentage with aspect ratio lock.', href: ROUTES.resize },
+  {
+    name: 'AI Photo Restorer',
+    description: 'Sharpen blurry photos, repair faded vintage prints, and fix scratches.',
+    href: ROUTES.photoRestorer,
+    icon: <Sparkles size={20} />,
+  },
+  {
+    name: 'Remove Background',
+    description: 'Isolate subjects and create transparent cutouts instantly with AI.',
+    href: ROUTES.removeBackground,
+    icon: <Scissors size={20} />,
+  },
+  {
+    name: 'Compress Image',
+    description: 'Reduce file size by up to 80% without noticeable quality loss.',
+    href: ROUTES.compress,
+    icon: <Zap size={20} />,
+  },
+  {
+    name: 'Resize Image',
+    description: 'Change pixel dimensions or percentage with aspect ratio lock.',
+    href: ROUTES.resize,
+    icon: <SlidersHorizontal size={20} />,
+  },
 ];
 
-function ImageUpscalerContent() {
-  const [openIndex, setOpenIndex] = useState(null);
-
+function UpscalerVisual() {
   return (
-    <div className={styles.page}>
-      {/* ------------------------------------------------------------------ */}
-      {/*  Hero Banner                                                       */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={styles.heroBanner} aria-labelledby="upscaler-heading">
-        <div className="container">
-          <div className={styles.heroInner}>
-            <div className={styles.heroBadge}>Flagship Neural Super-Resolution</div>
-            <h1 id="upscaler-heading" className={styles.heroTitle}>AI Image Upscaler</h1>
-            <p className={styles.heroLead}>
-              Increase image resolution and recover sharper detail directly in your browser. 100% private, executed locally.
-            </p>
-            <div className={styles.heroCtas}>
-              <a href="#tool" className={styles.heroPrimary}>Start Upscaling</a>
-              <a href="#how-it-works" className={styles.heroSecondary}>Learn More</a>
-            </div>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '14px',
+          padding: '24px',
+          background: 'rgba(255, 255, 255, 0.92)',
+          backdropFilter: 'blur(8px)',
+          borderRadius: '16px',
+          border: '1px solid rgba(124, 58, 237, 0.2)',
+          boxShadow: '0 12px 32px rgba(124, 58, 237, 0.12)',
+          maxWidth: '300px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div
+            style={{
+              padding: '6px 12px',
+              borderRadius: '8px',
+              background: '#e2e8f0',
+              color: '#475569',
+              fontWeight: 700,
+              fontSize: '12px',
+            }}
+          >
+            500 × 500 px
+          </div>
+          <span style={{ fontSize: '18px', color: '#7C3AED', fontWeight: 'bold' }}>➔</span>
+          <div
+            style={{
+              padding: '6px 12px',
+              borderRadius: '8px',
+              background: 'linear-gradient(135deg, #7C3AED 0%, #D946EF 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              fontSize: '12px',
+              boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
+            }}
+          >
+            2000 × 2000 px (4× HD)
           </div>
         </div>
-      </section>
 
-      {/* ------------------------------------------------------------------ */}
-      {/*  What is AI Image Upscaling?                                        */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={styles.section} aria-labelledby="what-heading">
-        <div className="container">
-          <header className={styles.sectionHeader}>
-            <h2 id="what-heading" className={styles.sectionTitle}>What is AI Image Upscaling?</h2>
-            <p className={styles.sectionLead}>
-              Traditional image enlarging stretches pixels using basic interpolation. AI upscaling uses a trained neural network to infer realistic details.
-            </p>
-          </header>
-          <div className={styles.prose}>
-            <p>
-              Traditional image enlarging stretches existing pixels using basic mathematical interpolation
-              such as nearest-neighbor, bilinear, or bicubic scaling. While these methods increase pixel
-              dimensions, they inevitably produce soft, blurry edges and pixelated artifacts because they
-              cannot reconstruct missing visual information.
-            </p>
-            <p>
-              <strong>AI image upscaling</strong> (deep-learning super-resolution) uses a trained convolutional
-              neural network—specifically <em>Real-ESRGAN</em>—to infer realistic fine details, sharpen
-              soft contours, suppress JPEG compression noise, and generate high-frequency textures that
-              were absent in the lower-resolution source.
-            </p>
-          </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontWeight: 700, fontSize: '15px', color: '#1E1B4B' }}>Real-ESRGAN Super-Resolution</div>
+          <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>Sub-Pixel Synthesis · 300 DPI Ready</div>
         </div>
-      </section>
 
-      {/* ------------------------------------------------------------------ */}
-      {/*  How to Upscale an Image                                           */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={styles.section} aria-labelledby="steps-heading">
-        <div className="container">
-          <header className={styles.sectionHeader}>
-            <h2 id="steps-heading" className={styles.sectionTitle}>How to Upscale an Image</h2>
-            <p className={styles.sectionLead}>Increase resolution in three simple steps.</p>
-          </header>
-          <div className={styles.stepGrid}>
-            {steps.map((step, idx) => (
-              <div key={idx} className={styles.stepCard}>
-                <span className={styles.stepNumber}>0{idx + 1}</span>
-                <h3 className={styles.stepTitle}>{step.title}</h3>
-                <p className={styles.stepDesc}>{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------------ */}
-      {/*  Why Choose Our Upscaler                                           */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={styles.section} aria-labelledby="features-heading">
-        <div className="container">
-          <header className={styles.sectionHeader}>
-            <h2 id="features-heading" className={styles.sectionTitle}>Why Choose Our AI Upscaler</h2>
-            <p className={styles.sectionLead}>Built for speed, privacy, and exceptional detail preservation.</p>
-          </header>
-          <div className={styles.featureGrid}>
-            {features.map((feature) => (
-              <div key={feature.title} className={styles.featureCard}>
-                <div className={styles.featureIcon} aria-hidden="true">{feature.icon}</div>
-                <h3 className={styles.featureTitle}>{feature.title}</h3>
-                <p className={styles.featureDesc}>{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------------ */}
-      {/*  2× vs 4× Upscaling                                                */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={styles.section} aria-labelledby="compare-heading">
-        <div className="container">
-          <header className={styles.sectionHeader}>
-            <h2 id="compare-heading" className={styles.sectionTitle}>2× vs 4× Image Upscaling</h2>
-            <p className={styles.sectionLead}>Choose the right scale factor for your intended use.</p>
-          </header>
-          <div className={styles.formatGrid}>
-            <div className={styles.formatCard}>
-              <div className={styles.formatAccent} style={{ backgroundColor: 'var(--color-primary)' }} />
-              <h3 className={styles.formatTitle}>2× Upscale (Faster)</h3>
-              <p className={styles.formatDesc}>
-                Doubles width and height (4× total pixels). Ideal for web graphics, digital banners, social media posts, and fast previews. Offers the quickest processing time with excellent clarity.
-              </p>
-            </div>
-            <div className={styles.formatCard}>
-              <div className={styles.formatAccent} style={{ backgroundColor: 'var(--color-accent)' }} />
-              <h3 className={styles.formatTitle}>4× Upscale (Maximum Detail)</h3>
-              <p className={styles.formatDesc}>
-                Quadruples width and height (16× total pixels). Best for preparing photos for physical printing (e.g. 300 DPI canvas prints), cropping into fine details, or restoring low-resolution archival photos.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------------ */}
-      {/*  Common Use Cases                                                  */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={styles.section} aria-labelledby="usecases-heading">
-        <div className="container">
-          <header className={styles.sectionHeader}>
-            <h2 id="usecases-heading" className={styles.sectionTitle}>Common Use Cases</h2>
-            <p className={styles.sectionLead}>From web graphics to print preparation.</p>
-          </header>
-          <div className={styles.formatGrid}>
-            {useCases.map((item) => (
-              <div key={item.title} className={styles.formatCard}>
-                <div className={styles.formatAccent} style={{ backgroundColor: 'var(--color-primary)' }} />
-                <h3 className={styles.formatTitle}>{item.title}</h3>
-                <p className={styles.formatDesc}>{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------------ */}
-      {/*  FAQ                                                               */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={styles.faqSection} aria-labelledby="faq-heading">
-        <div className="container">
-          <div className={styles.faqInner}>
-            <header className={styles.sectionHeader}>
-              <h2 id="faq-heading" className={styles.sectionTitle}>Frequently Asked Questions</h2>
-              <p className={styles.sectionLead}>Everything you need to know about AI image upscaling.</p>
-            </header>
-            <div className={styles.faqList}>
-              {faqs.map((faq, index) => (
-                <details
-                  key={faq.q}
-                  className={styles.faqItem}
-                  open={openIndex === index}
-                  onToggle={(e) => setOpenIndex(e.currentTarget.open ? index : null)}
-                >
-                  <summary>{faq.q}</summary>
-                  <p>{faq.a}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------------ */}
-      {/*  Related Tools                                                     */}
-      {/* ------------------------------------------------------------------ */}
-      <section className={styles.relatedSection} aria-labelledby="related-heading">
-        <div className="container">
-          <header className={styles.sectionHeader}>
-            <h2 id="related-heading" className={styles.sectionTitle}>Related Tools</h2>
-            <p className={styles.sectionLead}>More free image tools to enhance your workflow.</p>
-          </header>
-          <div className={styles.relatedGrid}>
-            {relatedTools.map((tool) => (
-              <Link key={tool.name} to={tool.href} className={styles.relatedCard}>
-                <div className={styles.relatedIcon} aria-hidden="true">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 3v12" />
-                    <path d="m8 11 4 4 4-4" />
-                    <path d="M8 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4" />
-                  </svg>
-                </div>
-                <div className={styles.relatedBody}>
-                  <span className={styles.relatedName}>{tool.name}</span>
-                  <span className={styles.relatedDesc}>{tool.description}</span>
-                </div>
-                <span className={styles.relatedArrow} aria-hidden="true">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 10px',
+            borderRadius: '9999px',
+            background: 'rgba(124, 58, 237, 0.1)',
+            color: '#7C3AED',
+            fontSize: '11px',
+            fontWeight: 600,
+          }}
+        >
+          ✓ WebGPU Shaders · 100% In-Browser
+        </span>
+      </div>
     </div>
+  );
+}
+
+export function ImageUpscalerContent() {
+  return (
+    <>
+      <SeoHead
+        title="AI Image Upscaler Online Free — 2x & 4x Super-Resolution"
+        description="Upscale images online for free with AI. Enhance resolution by 2x or 4x without losing quality. 100% private in-browser neural super-resolution powered by WebGPU."
+        canonicalPath={ROUTES.upscaler}
+        keywords="ai image upscaler, upscale image free, image super resolution, enlarge image without losing quality, 4k image enhancer, 4x upscaler online"
+        toolName="AI Image Upscaler"
+        faqs={faqs}
+      />
+      <ToolContentSection
+        badge="Neural Super-Resolution · Free"
+        title="Upscale Images Online with AI Super-Resolution"
+        lead="Enlarge photos by 2× or 4× while synthesizing sharp details and textures in seconds. 100% private, accelerated by your device's GPU."
+        primaryCtaText="Upscale Image Now"
+        primaryCtaHref="#tool"
+        secondaryCtaText="How AI Upscaling Works"
+        secondaryCtaHref="#what-is"
+        whatIsTitle="What is AI Image Super-Resolution?"
+        whatIsLead="Understand how deep neural networks reconstruct lost high-frequency details from low-resolution source files."
+        whatIsContent={[
+          'AI Image Super-Resolution is a computational technique that generates a plausible high-resolution image from a low-resolution input. Unlike legacy interpolation algorithms that simply calculate intermediate color averages, neural networks understand semantic visual structures—such as eyelash contours, fabric weaves, brick patterns, and tree foliage.',
+          'Our pipeline uses the state-of-the-art Real-ESRGAN architecture, which utilizes high-capacity residual dense blocks trained with perceptual and adversarial loss functions. It effectively reverses blur, camera sensor noise, and JPEG blockiness simultaneously.',
+          'With Image Convert by WebToolOcean, the entire model is executed directly within your web browser using WebGPU compute shaders and WebAssembly. Your photos are never uploaded across external networks, ensuring absolute privacy, zero latency, and limitless high-resolution exports.',
+        ]}
+        whatIsVisual={<UpscalerVisual />}
+        stepsTitle="How to Upscale Images in 4 Easy Steps"
+        stepsLead="Transform low-resolution graphics into razor-sharp 4K images in seconds."
+        steps={steps}
+        featuresTitle="Why Choose Our AI Image Upscaler"
+        featuresLead="Cutting-edge neural synthesis combined with absolute on-device privacy."
+        features={features}
+        useCasesTitle="Common AI Upscaling Use Cases"
+        useCasesLead="Prepare images for physical printing, high-res displays, and digital art portfolios."
+        useCases={useCases}
+        privacyTitle="100% Private In-Browser AI Upscaling"
+        privacyText="Your private photos, artwork, and client media remain strictly on your computer. All neural network tensors and shader computations execute locally via WebGPU inside your browser sandbox—never sent to cloud servers or stored in remote databases."
+        faqsTitle="Frequently Asked Questions"
+        faqsLead="Answers to common questions about upscaling images online with AI."
+        faqs={faqs}
+        relatedTitle="Explore More Free Image Tools"
+        relatedLead="Complete suite of browser-based utilities to edit, optimize, and enhance your photos."
+        relatedTools={relatedTools}
+      />
+    </>
   );
 }
 

@@ -1,19 +1,21 @@
 /**
- * Static product metadata. Anything shown in <title>, meta tags, the footer or
- * structured data should read from here rather than being typed inline.
+ * Static product metadata.
+ * Brand: Image Convert by WebToolOcean.
  */
 
 import { env } from './env';
 
 export const site = {
-  name: 'Convert Image',
-  shortName: 'ConvertImage',
-  tagline: 'Fast, private image conversion in your browser',
+  name: 'Image Convert',
+  shortName: 'ImageConvert',
+  brand: 'WebToolOcean',
+  subtitle: 'By WebToolOcean',
+  tagline: 'Convert Images Online for Free',
   description:
-    'Convert images between formats without uploading them anywhere. Everything runs locally in your browser.',
-  url: env.siteUrl,
+    'Quickly convert, resize, compress, and optimize your images. Supports JPG, PNG, WebP, GIF, BMP and more — fast, secure, and 100% free.',
+  url: env.siteUrl || 'https://imageconvert.webtoolocean.com',
   locale: 'en',
-  themeColor: '#1f3fed',
+  themeColor: '#7C3AED',
 };
 
 export default site;

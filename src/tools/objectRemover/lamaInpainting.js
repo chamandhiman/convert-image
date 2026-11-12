@@ -5,6 +5,8 @@
  * 512x512 scaling for LaMa, and feathered alpha compositing.
  */
 
+import { getModelConfig } from '@/config/models';
+
 let activeWorker = null;
 let currentRequestId = 0;
 
@@ -153,9 +155,7 @@ export async function removeObject(sourceImage, maskCanvas, {
   // 5. Send to Web Worker
   const worker = getWorker();
   const requestId = ++currentRequestId;
-  const modelUrl = typeof window !== 'undefined' && window.location
-    ? new URL('/models/lama_fp32.onnx', window.location.origin).href
-    : '/models/lama_fp32.onnx';
+  const modelConfig = getModelConfig('lama');
 
   const workerResult = await new Promise((resolve, reject) => {
     const handleMessage = (e) => {
@@ -184,7 +184,8 @@ export async function removeObject(sourceImage, maskCanvas, {
       {
         type: 'inpaint',
         id: requestId,
-        modelUrl,
+        modelConfig,
+        modelUrl: modelConfig.primaryUrl,
         imageRgba: imgData.data.buffer,
         maskRgba: mskData.data.buffer,
       },

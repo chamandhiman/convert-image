@@ -26,6 +26,7 @@ import {
   downloadBlob,
 } from '@/utils/imageProcessor';
 import { consumePendingToolInput } from '@/utils/toolStateBridge';
+import { trackImageUpload, trackImageConvert, trackImageDownload } from '@/utils/analytics';
 
 import CompressContent from './CompressContent';
 import styles from './CompressPage.module.css';
@@ -88,6 +89,7 @@ function CompressPage({ embedded, embeddedOnly }) {
     setQueueItems((prev) => [...prev, ...accepted]);
     setPhase(PHASE.LOADED);
     setError('');
+    trackImageUpload({ tool: 'compress_image', count: accepted.length });
   }, []);
 
   const handleFileSelect = useCallback(
@@ -158,12 +160,22 @@ function CompressPage({ embedded, embeddedOnly }) {
     }
 
     setPhase(PHASE.DONE);
+    trackImageConvert({
+      tool: 'compress_image',
+      outputFormat: outputFormat,
+      count: readyItems.length,
+    });
   }, [queueItems, outputFormat, quality]);
 
   const handleDownload = useCallback((item) => {
     if (!item.result?.blob || !item.meta) return;
     const filename = buildOutputFilename(item.meta.name, outputFormat, quality / 100);
     downloadBlob(item.result.blob, filename);
+    trackImageDownload({
+      tool: 'compress_image',
+      outputFormat: outputFormat,
+      isBatch: false,
+    });
   }, [outputFormat, quality]);
 
   const handleDownloadAll = useCallback(async () => {
@@ -175,6 +187,11 @@ function CompressPage({ embedded, embeddedOnly }) {
       downloadBlob(item.result.blob, filename);
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
+    trackImageDownload({
+      tool: 'compress_image',
+      outputFormat: outputFormat,
+      isBatch: true,
+    });
   }, [queueItems, outputFormat, quality]);
 
   const handleStartAgain = useCallback(() => {
@@ -201,11 +218,12 @@ function CompressPage({ embedded, embeddedOnly }) {
       title="Compress Image"
       subtitle="Reduce image file size without uploading. Everything runs locally in your browser."
       content={<CompressContent />}
+      contentFullWidth
       embedded={embedded}
       embeddedOnly={embeddedOnly}
       showHero={false}
     >
-      <div className={styles.converterSurface}>
+      <div id="tool" className={styles.converterSurface}>
         {!hasImages ? (
           <div className={styles.uploadSurface}>
             <div className={styles.uploadHeader}>

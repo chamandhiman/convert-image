@@ -346,9 +346,11 @@ function GenerativeFillPage({ embedded, embeddedOnly }) {
       description="Describe what you'd like to change — then let AI create it. 100% private, runs in your browser."
       embedded={embedded}
       embeddedOnly={embeddedOnly}
+      content={<GenerativeFillContent />}
+      contentFullWidth
       showHero={false}
     >
-      <div className={styles.converterSurface}>
+      <div id="tool" className={styles.converterSurface}>
         {phase === PHASE.IDLE && (
           <div>
             <div className={styles.uploadHeader}>
@@ -886,9 +888,6 @@ function GenerativeFillPage({ embedded, embeddedOnly }) {
             </div>
           </div>
         )}
-
-        {/* Editorial & SEO Section */}
-        <GenerativeFillContent />
       </div>
     </ToolPageLayout>
   );

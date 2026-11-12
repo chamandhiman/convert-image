@@ -1,0 +1,80 @@
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.15s ease;
+}
+
+.logoLink:hover {
+  opacity: 0.92;
+}
+
+.logoContainer {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.markSvg {
+  display: block;
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 2px 4px rgba(124, 58, 237, 0.15));
+}
+
+.textWrap {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.brandTitle {
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #111827;
+  display: inline-flex;
+}
+
+.brandGradient {
+  background: linear-gradient(90deg, #7c3aed 0%, #c026d3 50%, #f43f5e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.brandSub {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #6b7280;
+  letter-spacing: 0.01em;
+  margin-top: 1px;
+}
+
+@media (max-width: 480px) {
+  .logoContainer {
+    gap: 7px;
+  }
+
+  .markSvg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .brandTitle {
+    font-size: 0.96rem;
+  }
+
+  .brandSub {
+    font-size: 0.62rem;
+  }
+}

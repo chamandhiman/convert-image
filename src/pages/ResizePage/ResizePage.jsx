@@ -1,19 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import ToolPageLayout from '@/components/layout/ToolPageLayout';
 import MultiImageUploader from '@/components/ui/MultiImageUploader';
-import {
-  ToolTopBar,
-  ToolImageGrid,
-  ToolImageCard,
-  ToolResultGrid,
-  ToolResultCard,
-  ToolProcessingState,
-  ToolResultToolbar,
-} from '@/components/ui/tool-ui';
-import { Button } from '@/components/ui/Button';
-import { IconCrop } from '@/components/ui/Icons/Icons';
 import { formatFileSize } from '@/utils/formatFileSize';
 import {
   CONVERT_INPUT_TYPES,
@@ -29,6 +17,11 @@ import {
 } from '@/utils/imageProcessor';
 import { consumePendingToolInput } from '@/utils/toolStateBridge';
 
+import { detectColorModeAndAlpha } from './resizeHelpers';
+import { trackImageUpload, trackImageConvert, trackImageDownload } from '@/utils/analytics';
+import ResizePreview from './ResizePreview';
+import ResizeSettingsPanel from './ResizeSettingsPanel';
+import ResizeResultsView from './ResizeResultsView';
 import ResizeContent from './ResizeContent';
 import styles from './ResizePage.module.css';
 
@@ -40,100 +33,166 @@ const PHASE = {
   ERROR: 'error',
 };
 
-const PERCENTAGE_PRESETS = [25, 50, 75, 100, 125, 150, 200];
-
 function ResizePage({ embedded, embeddedOnly }) {
   useDocumentTitle('Resize Images Online — Change Image Dimensions');
 
   const [phase, setPhase] = useState(PHASE.IDLE);
   const [queueItems, setQueueItems] = useState([]);
-  const [mode, setMode] = useState('dimensions');
+  const [activeId, setActiveId] = useState(null);
+
+  // Resize settings state
+  const [mode, setMode] = useState('dimensions'); // 'dimensions' | 'percentage'
   const [targetWidth, setTargetWidth] = useState(0);
   const [targetHeight, setTargetHeight] = useState(0);
   const [lockAspectRatio, setLockAspectRatio] = useState(true);
   const [percentage, setPercentage] = useState(100);
+
+  // Format & Quality settings
   const outputFormats = useMemo(() => getSupportedOutputFormats(), []);
   const [outputFormat, setOutputFormat] = useState('original');
   const [quality, setQuality] = useState(85);
+
+  // Advanced options
+  const [preventEnlargement, setPreventEnlargement] = useState(false);
+  const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
+  const [customSuffix, setCustomSuffix] = useState('');
+
   const [error, setError] = useState('');
-  const [processingIndex, setProcessingIndex] = useState(0);
+  const [isResizing, setIsResizing] = useState(false);
 
   const hasImages = queueItems.length > 0;
-  const completedCount = queueItems.filter((i) => i.status === 'complete').length;
-
   const totalSize = useMemo(
     () => queueItems.reduce((sum, item) => sum + (item.file?.size || 0), 0),
     [queueItems],
   );
 
+  // Active item in workspace
+  const activeItem = useMemo(() => {
+    if (!queueItems.length) return null;
+    return queueItems.find((i) => i.id === activeId) || queueItems[0];
+  }, [queueItems, activeId]);
+
+  // Clean up object URLs on unmount or reset
   const cleanup = useCallback(() => {
     queueItems.forEach((item) => {
       if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
       if (item.result?.url) URL.revokeObjectURL(item.result.url);
     });
     setQueueItems([]);
+    setActiveId(null);
     setError('');
     setPhase(PHASE.IDLE);
-    setProcessingIndex(0);
+    setIsResizing(false);
   }, [queueItems]);
 
-  const handleFilesChange = useCallback((files) => {
-    if (!files || files.length === 0) return;
+  // Load single image metadata and color mode
+  const processUploadedFile = useCallback(async (file, id) => {
+    try {
+      const image = await loadImage(file);
+      const meta = getImageMeta(image, file);
+      const colorMode = detectColorModeAndAlpha(image);
 
-    const accepted = [];
-    Array.from(files).forEach((file) => {
-      const previewUrl = URL.createObjectURL(file);
-      accepted.push({
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-        file,
-        previewUrl,
-        status: 'ready',
-        error: '',
-        img: null,
-        meta: null,
-        result: null,
-      });
-    });
+      setQueueItems((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? { ...item, img: image, meta, colorMode, status: 'ready' }
+            : item,
+        ),
+      );
 
-    setQueueItems((prev) => [...prev, ...accepted]);
-    setPhase(PHASE.LOADED);
-    setError('');
+      // If dimensions are not yet initialized, initialize with this image's dimensions
+      setTargetWidth((prevW) => (prevW > 0 ? prevW : meta.width));
+      setTargetHeight((prevH) => (prevH > 0 ? prevH : meta.height));
+    } catch (err) {
+      setQueueItems((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                status: 'failed',
+                error: err?.message || 'Could not load image file.',
+              }
+            : item,
+        ),
+      );
+    }
   }, []);
 
-  const handleFileSelect = useCallback(
-    async (file) => {
-      setError('');
-      try {
-        const image = await loadImage(file);
-        const meta = getImageMeta(image, file);
+  // Handle files dropped or selected
+  const handleFilesChange = useCallback(
+    (files) => {
+      if (!files || files.length === 0) return;
 
-        setQueueItems((prev) =>
-          prev.map((item) =>
-            item.file === file ? { ...item, img: image, meta, status: 'ready' } : item,
-          ),
-        );
-      } catch (err) {
-        setError(err?.message || 'Could not load the image file.');
-      }
+      const newItems = [];
+      const fileList = Array.from(files);
+
+      fileList.forEach((file) => {
+        const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+        const previewUrl = URL.createObjectURL(file);
+        newItems.push({
+          id,
+          file,
+          previewUrl,
+          status: 'loading',
+          error: '',
+          img: null,
+          meta: null,
+          colorMode: 'RGB (24-bit)',
+          result: null,
+        });
+
+        // Trigger asynchronous processing
+        processUploadedFile(file, id);
+      });
+
+      setQueueItems((prev) => {
+        const combined = [...prev, ...newItems];
+        if (!activeId && combined.length > 0) {
+          setActiveId(combined[0].id);
+        }
+        return combined;
+      });
+
+      setPhase(PHASE.LOADED);
+      setError('');
+      trackImageUpload({ tool: 'resize_image', count: newItems.length });
     },
-    [],
+    [activeId, processUploadedFile],
   );
 
-  const handleRemoveItem = useCallback((id) => {
-    setQueueItems((prev) => {
-      const item = prev.find((i) => i.id === id);
-      if (item) {
-        if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
-        if (item.result?.url) URL.revokeObjectURL(item.result.url);
-      }
-      return prev.filter((i) => i.id !== id);
-    });
+  // Switch active item and sync dimensions if still unedited
+  const handleSelectActive = useCallback((id) => {
+    setActiveId(id);
   }, []);
 
-  const handleClear = useCallback(() => {
+  // Remove single item from queue
+  const handleRemoveItem = useCallback(
+    (id) => {
+      setQueueItems((prev) => {
+        const item = prev.find((i) => i.id === id);
+        if (item) {
+          if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+          if (item.result?.url) URL.revokeObjectURL(item.result.url);
+        }
+        const filtered = prev.filter((i) => i.id !== id);
+        if (filtered.length === 0) {
+          setPhase(PHASE.IDLE);
+          setActiveId(null);
+        } else if (activeId === id) {
+          setActiveId(filtered[0].id);
+        }
+        return filtered;
+      });
+    },
+    [activeId],
+  );
+
+  // Clear all
+  const handleClearAll = useCallback(() => {
     cleanup();
   }, [cleanup]);
 
+  // Start again / reset
   const handleStartAgain = useCallback(() => {
     cleanup();
     setMode('dimensions');
@@ -143,18 +202,28 @@ function ResizePage({ embedded, embeddedOnly }) {
     setPercentage(100);
     setOutputFormat('original');
     setQuality(85);
+    setPreventEnlargement(false);
+    setBackgroundColor('#FFFFFF');
+    setCustomSuffix('');
   }, [cleanup]);
 
+  // Execute Resizing
   const handleResize = useCallback(async () => {
     const readyItems = queueItems.filter((item) => item.img && item.meta);
-    if (readyItems.length === 0) return;
+    if (readyItems.length === 0) {
+      setError('Please upload at least one valid image.');
+      return;
+    }
 
     if (mode === 'dimensions') {
       if (targetWidth <= 0 || targetHeight <= 0) {
         setError('Width and height must be greater than 0 pixels.');
         return;
       }
-      if (targetWidth > MAX_CANVAS_DIMENSION || targetHeight > MAX_CANVAS_DIMENSION) {
+      if (
+        targetWidth > MAX_CANVAS_DIMENSION ||
+        targetHeight > MAX_CANVAS_DIMENSION
+      ) {
         setError(`Maximum dimension is ${MAX_CANVAS_DIMENSION.toLocaleString()} pixels.`);
         return;
       }
@@ -165,80 +234,118 @@ function ResizePage({ embedded, embeddedOnly }) {
     }
 
     setPhase(PHASE.RESIZING);
+    setIsResizing(true);
     setError('');
-    setProcessingIndex(0);
 
     for (let i = 0; i < readyItems.length; i++) {
       const item = readyItems[i];
-      setProcessingIndex(i + 1);
 
-      let width = targetWidth;
-      let height = targetHeight;
+      let w = targetWidth;
+      let h = targetHeight;
 
       if (mode === 'percentage') {
-        width = Math.round(item.meta.width * (percentage / 100));
-        height = Math.round(item.meta.height * (percentage / 100));
+        const scale = percentage / 100;
+        w = Math.max(1, Math.round(item.meta.width * scale));
+        h = Math.max(1, Math.round(item.meta.height * scale));
+      } else if (readyItems.length > 1 && lockAspectRatio) {
+        // Multi-image batch resizing: fit within bounding box preserving each item's natural ratio
+        const scale = Math.min(
+          targetWidth / item.meta.width,
+          targetHeight / item.meta.height,
+        );
+        w = Math.max(1, Math.round(item.meta.width * scale));
+        h = Math.max(1, Math.round(item.meta.height * scale));
+      }
+
+      // Prevent enlargement if option is checked
+      if (preventEnlargement) {
+        if (w > item.meta.width) w = item.meta.width;
+        if (h > item.meta.height) h = item.meta.height;
       }
 
       try {
+        const resolvedType =
+          outputFormat === 'original'
+            ? item.meta.isSvg
+              ? 'image/png'
+              : item.meta.type
+            : outputFormat;
+
         const output = await resizeImage(item.img, {
-          width,
-          height,
-          outputType: outputFormat === 'original' ? undefined : outputFormat,
+          width: w,
+          height: h,
+          outputType: resolvedType,
           quality: quality / 100,
+          backgroundColor: resolvedType === 'image/jpeg' ? backgroundColor : undefined,
         });
 
         setQueueItems((prev) =>
           prev.map((qItem) =>
-            qItem.id === item.id ? { ...qItem, result: output, status: 'complete' } : qItem,
+            qItem.id === item.id
+              ? { ...qItem, result: output, status: 'complete' }
+              : qItem,
           ),
         );
       } catch (err) {
         const errMsg = err?.message || 'Failed to resize this image.';
         setQueueItems((prev) =>
           prev.map((qItem) =>
-            qItem.id === item.id ? { ...qItem, status: 'failed', error: errMsg } : qItem,
+            qItem.id === item.id
+              ? { ...qItem, status: 'failed', error: errMsg }
+              : qItem,
           ),
         );
       }
     }
 
+    setIsResizing(false);
     setPhase(PHASE.DONE);
-  }, [queueItems, mode, targetWidth, targetHeight, percentage, outputFormat, quality]);
+    trackImageConvert({
+      tool: 'resize_image',
+      outputFormat: outputFormat,
+      count: readyItems.length,
+    });
+  }, [
+    queueItems,
+    mode,
+    targetWidth,
+    targetHeight,
+    percentage,
+    lockAspectRatio,
+    preventEnlargement,
+    outputFormat,
+    quality,
+    backgroundColor,
+  ]);
 
-  const handleDownload = useCallback((item) => {
-    if (!item.result?.blob || !item.meta) return;
-    const resolvedType = outputFormat === 'original'
-      ? (item.meta.isSvg ? 'image/png' : item.meta.type)
-      : outputFormat;
-    const filename = buildResizedFilename(
-      item.meta.name,
-      resolvedType,
-      item.result.width,
-      item.result.height,
-    );
-    downloadBlob(item.result.blob, filename);
-  }, [outputFormat]);
-
-  const handleDownloadAll = useCallback(async () => {
-    const completedItems = queueItems.filter((item) => item.status === 'complete' && item.result);
-    if (completedItems.length === 0) return;
-
-    for (const item of completedItems) {
-      const resolvedType = outputFormat === 'original'
-        ? (item.meta.isSvg ? 'image/png' : item.meta.type)
-        : outputFormat;
+  // Download single item
+  const handleDownloadItem = useCallback(
+    (item) => {
+      if (!item.result?.blob || !item.meta) return;
+      const resolvedType =
+        outputFormat === 'original'
+          ? item.meta.isSvg
+            ? 'image/png'
+            : item.meta.type
+          : outputFormat;
       const filename = buildResizedFilename(
         item.meta.name,
         resolvedType,
         item.result.width,
         item.result.height,
+        customSuffix,
       );
       downloadBlob(item.result.blob, filename);
-      await new Promise((resolve) => setTimeout(resolve, 300));
-    }
-  }, [queueItems, outputFormat]);
+      trackImageDownload({
+        tool: 'resize_image',
+        outputFormat: resolvedType,
+        isBatch: false,
+      });
+    },
+    [outputFormat, customSuffix],
+  );
 
+  // Consume staged file if bridged from another tool
   useEffect(() => {
     const { file: stagedFile } = consumePendingToolInput();
     if (stagedFile) {
@@ -246,22 +353,7 @@ function ResizePage({ embedded, embeddedOnly }) {
         handleFilesChange([stagedFile]);
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const resolvedOutputType = useMemo(() => {
-    const firstReady = queueItems.find((i) => i.meta);
-    if (outputFormat === 'original') {
-      if (firstReady?.meta?.isSvg) return 'image/png';
-      const match = outputFormats.find((f) => f.value === firstReady?.meta?.type && f.isSupported);
-      if (match) return match.value;
-      return 'image/jpeg';
-    }
-    return outputFormat;
-  }, [outputFormat, queueItems, outputFormats]);
-
-  const selectedFormatObj = outputFormats.find((f) => f.value === resolvedOutputType);
-  const isLossy = selectedFormatObj ? selectedFormatObj.lossy : resolvedOutputType !== 'image/png';
+  }, [handleFilesChange]);
 
   return (
     <ToolPageLayout
@@ -274,265 +366,119 @@ function ResizePage({ embedded, embeddedOnly }) {
       embeddedOnly={embeddedOnly}
       showHero={false}
     >
-      <div className={styles.converterSurface}>
+      <div id="tool" className={styles.converterSurface}>
         {!hasImages ? (
+          /* Empty State: Multi-Image Drag & Drop Upload Zone */
           <div className={styles.uploadSurface}>
             <div className={styles.uploadHeader}>
-              <div>
-                <h2 className={styles.uploadTitle}>Resize your images</h2>
-                <p className={styles.uploadDesc}>
-                  Upload images and resize by exact pixels or percentage. Everything stays in your browser.
-                </p>
-              </div>
+              <h2 className={styles.uploadTitle}>Resize your images</h2>
+              <p className={styles.uploadDesc}>
+                Upload images and resize by exact pixels or percentage. Fast, high-quality, and 100% private in your browser.
+              </p>
             </div>
 
-          <MultiImageUploader
-            onFilesChange={handleFilesChange}
-            onFileSelect={handleFileSelect}
-            accept={CONVERT_ACCEPT_STRING}
-            acceptedTypes={CONVERT_INPUT_TYPES}
-            hint="JPG, PNG, WebP, AVIF, GIF, SVG — up to 50 MB"
+            <MultiImageUploader
+              onFilesChange={handleFilesChange}
+              onFileSelect={(file) => {
+                if (file) handleFilesChange([file]);
+              }}
+              accept={CONVERT_ACCEPT_STRING}
+              acceptedTypes={CONVERT_INPUT_TYPES}
+              hint="JPG, PNG, WebP, AVIF, GIF, SVG — up to 50 MB"
+            />
+
+            {error && (
+              <p className={styles.emptyError} role="status">
+                {error}
+              </p>
+            )}
+          </div>
+        ) : phase === PHASE.DONE ? (
+          /* Post-Resize State: High-Precision Results View */
+          <ResizeResultsView
+            queueItems={queueItems}
+            onDownloadItem={handleDownloadItem}
+            onStartAgain={handleStartAgain}
+            outputFormat={outputFormat}
+            customSuffix={customSuffix}
           />
-
-          {error && (
-            <p className={styles.emptyError} role="status">
-              {error}
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className={styles.workspaceSurface}>
-          {phase === PHASE.DONE ? (
-            <ToolResultToolbar
-              completedCount={completedCount}
-              totalCount={queueItems.length}
-              totalSize={formatFileSize(totalSize)}
-              onDownloadAll={handleDownloadAll}
-              onDownloadZip={handleDownloadAll}
-              onStartAgain={handleStartAgain}
-              startAgainLabel="Resize Another"
-              downloadZipLabel="Download All"
-            />
-          ) : (
-            <ToolTopBar
-              itemCount={queueItems.length}
-              totalSize={totalSize}
-              onAddMore={handleFilesChange}
-              onClearAll={handleClear}
-              addMoreAccept={CONVERT_ACCEPT_STRING}
-            />
-          )}
-
-          {phase !== PHASE.DONE && (
-            <div className={styles.controlBar}>
-              <div className={styles.controlBarLeft}>
-                <div className={styles.modeTabs} role="tablist" aria-label="Resize mode">
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={mode === 'dimensions'}
-                    className={`${styles.modeTab} ${mode === 'dimensions' ? styles.modeTabActive : ''}`}
-                    onClick={() => setMode('dimensions')}
-                  >
-                    Custom Dimensions (px)
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={mode === 'percentage'}
-                    className={`${styles.modeTab} ${mode === 'percentage' ? styles.modeTabActive : ''}`}
-                    onClick={() => setMode('percentage')}
-                  >
-                    Percentage (%)
-                  </button>
-                </div>
-
-                {mode === 'dimensions' && (
-                  <div className={styles.dimensionsRow}>
-                    <div className={styles.dimensionField}>
-                      <label className={styles.controlLabel} htmlFor="resize-width">
-                        Width (px)
-                      </label>
-                      <div className={styles.inputWithSuffix}>
-                        <input
-                          id="resize-width"
-                          type="number"
-                          min="1"
-                          max={MAX_CANVAS_DIMENSION}
-                          value={targetWidth || ''}
-                          onChange={(e) => setTargetWidth(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                          className={styles.numberInput}
-                        />
-                        <span className={styles.inputSuffix}>px</span>
-                      </div>
-                    </div>
-
-                    <div className={styles.lockContainer}>
-                      <button
-                        type="button"
-                        onClick={() => setLockAspectRatio((prev) => !prev)}
-                        className={`${styles.lockBtn} ${lockAspectRatio ? styles.lockBtnActive : ''}`}
-                        title={lockAspectRatio ? 'Unlock aspect ratio' : 'Lock aspect ratio'}
-                        aria-label={lockAspectRatio ? 'Unlock aspect ratio' : 'Lock aspect ratio'}
-                        aria-pressed={lockAspectRatio}
-                      >
-                        {lockAspectRatio ? (
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                          </svg>
-                        ) : (
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 9.9-1" />
-                          </svg>
-                        )}
-                      </button>
-                    </div>
-
-                    <div className={styles.dimensionField}>
-                      <label className={styles.controlLabel} htmlFor="resize-height">
-                        Height (px)
-                      </label>
-                      <div className={styles.inputWithSuffix}>
-                        <input
-                          id="resize-height"
-                          type="number"
-                          min="1"
-                          max={MAX_CANVAS_DIMENSION}
-                          value={targetHeight || ''}
-                          onChange={(e) => setTargetHeight(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                          className={styles.numberInput}
-                        />
-                        <span className={styles.inputSuffix}>px</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {mode === 'percentage' && (
-                  <div className={styles.presetGrid} role="group" aria-label="Scale presets">
-                    {PERCENTAGE_PRESETS.map((pct) => (
-                      <button
-                        key={pct}
-                        type="button"
-                        className={`${styles.presetBtn} ${percentage === pct ? styles.presetBtnActive : ''}`}
-                        onClick={() => setPercentage(pct)}
-                      >
-                        {pct}%
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                <div className={styles.controlGroup}>
-                  <label className={styles.controlLabel} htmlFor="output-format-select">
-                    Output Format
-                  </label>
-                  <select
-                    id="output-format-select"
-                    className={styles.select}
-                    value={outputFormat}
-                    onChange={(e) => setOutputFormat(e.target.value)}
-                  >
-                    <option value="original">Keep original</option>
-                    {outputFormats.map((f) => (
-                      <option key={f.value} value={f.value} disabled={!f.isSupported}>
-                        {f.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.controlGroup}>
-                  <div className={styles.sliderHeader}>
-                    <label className={styles.controlLabel} htmlFor="resize-quality-slider">
-                      Quality
-                    </label>
-                    <output className={styles.qualityValue} htmlFor="resize-quality-slider">
-                      {isLossy ? `${quality}%` : 'Lossless'}
-                    </output>
-                  </div>
-                  <input
-                    id="resize-quality-slider"
-                    type="range"
-                    min="10"
-                    max="100"
-                    step="1"
-                    value={quality}
-                    onChange={(e) => setQuality(Number(e.target.value))}
-                    className={styles.slider}
-                    disabled={!isLossy}
-                  />
-                  {!isLossy && (
-                    <p className={styles.controlHint}>
-                      PNG uses lossless compression — quality setting does not apply.
-                    </p>
-                  )}
-                </div>
+        ) : (
+          /* Active Editing State: Studio Interface */
+          <div className={styles.workspaceSurface}>
+            {/* Top Workspace Bar */}
+            <div className={styles.workspaceTopBar}>
+              <div className={styles.topBarLeft}>
+                <span className={styles.itemCountBadge}>
+                  {queueItems.length} {queueItems.length === 1 ? 'image' : 'images'}
+                </span>
+                <span className={styles.totalSizeText}>
+                  Total: {formatFileSize(totalSize)}
+                </span>
               </div>
-
-              <div className={styles.controlBarRight}>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  icon={<IconCrop />}
-                  onClick={handleResize}
-                  disabled={phase === PHASE.RESIZING}
+              <div className={styles.topBarRight}>
+                <button
+                  type="button"
+                  className={styles.clearAllBtn}
+                  onClick={handleClearAll}
                 >
-                  {phase === PHASE.RESIZING ? 'Resizing…' : 'Resize Images'}
-                </Button>
+                  Clear All
+                </button>
               </div>
             </div>
-          )}
 
-          {phase === PHASE.RESIZING && (
-            <ToolProcessingState label="Resizing your images" current={processingIndex} total={queueItems.length} />
-          )}
+            {error && (
+              <p className={styles.emptyError} role="status">
+                {error}
+              </p>
+            )}
 
-          {phase === PHASE.ERROR && error && (
-            <div className={styles.errorBlock} role="alert">
-              <p className={styles.errorTitle}>Error</p>
-              <p className={styles.errorText}>{error}</p>
-              <button type="button" className={styles.btnSecondary} onClick={handleClear}>
-                Try another image
-              </button>
+            {/* Studio Workspace: Preview on left, Settings on right */}
+            <div className={styles.studioLayout}>
+              <ResizePreview
+                activeItem={activeItem}
+                targetWidth={targetWidth}
+                targetHeight={targetHeight}
+                origWidth={activeItem?.meta?.width || 0}
+                origHeight={activeItem?.meta?.height || 0}
+                lockAspectRatio={lockAspectRatio}
+                queueItems={queueItems}
+                activeId={activeId}
+                onSelectActive={handleSelectActive}
+                onRemoveItem={handleRemoveItem}
+                onAddMore={handleFilesChange}
+                isResizing={isResizing}
+              />
+
+              <ResizeSettingsPanel
+                activeItem={activeItem}
+                mode={mode}
+                setMode={setMode}
+                targetWidth={targetWidth}
+                setTargetWidth={setTargetWidth}
+                targetHeight={targetHeight}
+                setTargetHeight={setTargetHeight}
+                lockAspectRatio={lockAspectRatio}
+                setLockAspectRatio={setLockAspectRatio}
+                percentage={percentage}
+                setPercentage={setPercentage}
+                outputFormat={outputFormat}
+                setOutputFormat={setOutputFormat}
+                quality={quality}
+                setQuality={setQuality}
+                preventEnlargement={preventEnlargement}
+                setPreventEnlargement={setPreventEnlargement}
+                backgroundColor={backgroundColor}
+                setBackgroundColor={setBackgroundColor}
+                customSuffix={customSuffix}
+                setCustomSuffix={setCustomSuffix}
+                onResize={handleResize}
+                isResizing={isResizing}
+                totalCount={queueItems.length}
+                outputFormats={outputFormats}
+              />
             </div>
-          )}
-
-          {phase !== PHASE.DONE && (
-            <ToolImageGrid>
-              {queueItems.map((item) => (
-                <ToolImageCard
-                  key={item.id}
-                  previewUrl={item.previewUrl}
-                  fileName={item.file.name}
-                  fileSize={`${(item.file.size / (1024 * 1024)).toFixed(1)} MB`}
-                  status={item.status}
-                  error={item.error}
-                  onRemove={() => handleRemoveItem(item.id)}
-                />
-              ))}
-            </ToolImageGrid>
-          )}
-
-          {phase === PHASE.DONE && (
-            <ToolResultGrid>
-              {queueItems.map((item) => (
-                <ToolResultCard
-                  key={item.id}
-                  previewUrl={item.status === 'complete' && item.result ? item.result.url : item.previewUrl}
-                  fileName={item.file.name}
-                  fileSize={item.meta ? formatFileSize(item.meta.size) : ''}
-                  status={item.status}
-                  error={item.error}
-                  onDownload={() => handleDownload(item)}
-                />
-              ))}
-            </ToolResultGrid>
-          )}
-        </div>
-      )}
+          </div>
+        )}
       </div>
     </ToolPageLayout>
   );

@@ -1,8 +1,25 @@
+import SeoHead from '@/components/seo/SeoHead';
+import { ROUTES } from '@/routes/paths';
 import styles from './OptimizeContent.module.css';
 
 function OptimizeContent() {
+  const optimizeFaqs = [
+    { q: 'How does Smart Image Optimization work?', a: 'Smart Image Optimization analyzes your source image dimensions and color depth, applying tailored compression tables and modern encoding standards (such as WebP) to maximize page load speeds.' },
+    { q: 'Which preset should I choose?', a: 'Choose "Balanced" for everyday social media and web pages, "Maximum Compression" for email attachments and thumbnails, or "Web High" for crisp portfolio photography.' },
+    { q: 'Are my images processed in the browser?', a: 'Yes. All compression and optimization runs directly in your web browser via HTML5 Canvas without uploading files to remote servers.' },
+  ];
+
   return (
-    <div className={styles.page}>
+    <>
+      <SeoHead
+        title="Smart Image Optimizer — Optimize Images for Web & Mobile"
+        description="Optimize images online for free. Boost page speeds and Google Core Web Vitals with one-click web presets and 100% private in-browser compression."
+        canonicalPath={ROUTES.optimize}
+        keywords="image optimizer, optimize images for web, speed up website images, web presets, compress web images"
+        toolName="Smart Image Optimizer"
+        faqs={optimizeFaqs}
+      />
+      <div className={styles.page}>
       {/* ------------------------------------------------------------------ */}
       {/*  Hero Banner                                                       */}
       {/* ------------------------------------------------------------------ */}
@@ -361,6 +378,7 @@ function OptimizeContent() {
         </div>
       </section>
     </div>
+  </>
   );
 }
 

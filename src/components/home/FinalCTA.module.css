@@ -1,0 +1,120 @@
+.section {
+  padding-top: clamp(2rem, 4vw, 3.5rem);
+  padding-bottom: clamp(3rem, 6vw, 5rem);
+  background-color: #ffffff;
+}
+
+.banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2rem, 5vw, 4rem);
+  background: linear-gradient(135deg, #fdf6ff 0%, #f7edfd 45%, #efe5fc 100%);
+  border: 1px solid #eedcfb;
+  border-radius: 28px;
+  padding: clamp(2.5rem, 5vw, 3.75rem) clamp(2rem, 5vw, 4rem);
+  box-shadow: 0 12px 32px -8px rgba(124, 58, 237, 0.12), 0 2px 8px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+}
+
+/* Subtle background sunburst ambiance */
+.bannerRays {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 55% 50%,
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(245, 232, 254, 0.3) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Floating Graphic */
+.graphicWrap {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Content */
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.title {
+  font-size: clamp(1.85rem, 3.2vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: #111827;
+  margin: 0 0 0.875rem 0;
+}
+
+.burstWord {
+  position: relative;
+  display: inline-block;
+  color: #7c3aed;
+}
+
+.burstRays {
+  position: absolute;
+  top: -14px;
+  right: -16px;
+  pointer-events: none;
+}
+
+.desc {
+  font-size: clamp(0.95rem, 1.2vw, 1.0625rem);
+  color: #4b5563;
+  margin: 0 0 1.75rem 0;
+  max-width: 480px;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, #8929c0 0%, #d84697 52%, #f27e4b 100%);
+  color: #ffffff;
+  padding: 13px 32px;
+  border-radius: 9999px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 8px 24px -4px rgba(137, 41, 192, 0.42);
+  transition: all 0.22s ease;
+  white-space: nowrap;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(137, 41, 192, 0.52);
+  filter: brightness(1.05);
+}
+
+.btnArrow {
+  transition: transform 0.2s ease;
+}
+
+.ctaButton:hover .btnArrow {
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  .banner {
+    flex-direction: column;
+    padding: 2.5rem 1.75rem;
+  }
+}

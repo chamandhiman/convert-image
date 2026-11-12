@@ -15,7 +15,7 @@ This document records the exact licensing, provenance, and legal verification fo
   - `mask`: `[1, 1, 512, 512]` `float32` in `{0.0, 1.0}` (NCHW format, 1.0 = area to inpaint)
 - **Output Dimensions**:
   - `output`: `[1, 3, 512, 512]` `float32` in `[0.0, 255.0]` (NCHW format)
-- **Local Storage Path**: `public/models/lama_fp32.onnx` (served same-origin for privacy and offline capability)
+- **Storage Path**: Hosted on Cloudflare R2 / CDN (`models/lama_fp32.onnx`), streamed dynamically with client-side Cache Storage API caching (bypassing Cloudflare Workers 25 MiB asset limit)
 
 ---
 

@@ -6,6 +6,7 @@
  */
 
 import * as ortModule from 'onnxruntime-web';
+import { getModelConfig } from '@/config/models';
 
 const ort = ortModule.default || ortModule;
 
@@ -13,7 +14,8 @@ let cachedSession = null;
 let activeBackend = 'wasm';
 let wasmBlobUrls = null;
 
-const MODEL_PATH = '/models/realesr-general-x4v3.onnx';
+const modelConfig = getModelConfig('realesrgan');
+const MODEL_PATH = modelConfig.primaryUrl || '/models/realesr-general-x4v3.onnx';
 
 /**
  * Configure JSEP WASM binaries so WebGPU executes hardware-accelerated shaders.

@@ -24,7 +24,23 @@ export const env = {
   basePath: raw.BASE_URL ?? '/',
 
   /** Optional analytics/telemetry ids — absent until wired up. */
-  analyticsId: raw.VITE_ANALYTICS_ID ?? '',
+  analyticsId: raw.VITE_ANALYTICS_ID ?? 'G-4C1PP726EZ',
+
+  /**
+   * Base URL for external model hosting (e.g. Cloudflare R2 bucket or custom CDN domain).
+   * Example: 'https://models.webtoolocean.com' or 'https://pub-c2a4f4d2f09d4350a416ea05b4a0ca87.r2.dev'
+   */
+  modelsBaseUrl: raw.VITE_MODELS_BASE_URL ? stripTrailingSlash(raw.VITE_MODELS_BASE_URL) : '',
+
+  /**
+   * Specific URL for LaMa inpainting ONNX model (198.4 MB).
+   */
+  lamaModelUrl: raw.VITE_LAMA_MODEL_URL ? stripTrailingSlash(raw.VITE_LAMA_MODEL_URL) : '',
+
+  /**
+   * Specific URL for Real-ESRGAN restoration/upscaler ONNX model (4.6 MB).
+   */
+  upscalerModelUrl: raw.VITE_UPSCALER_MODEL_URL ? stripTrailingSlash(raw.VITE_UPSCALER_MODEL_URL) : '',
 };
 
 export default env;

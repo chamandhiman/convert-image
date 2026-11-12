@@ -1,0 +1,621 @@
+/* =============================================================================
+   ToolContentSection — Shared SEO & Educational Layout for all Tool Pages.
+   Matches reference design: 4-step process, feature cards, use case cards,
+   privacy banner, interactive FAQ accordion, and related tools.
+   ========================================================================== */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   Hero Banner
+   ------------------------------------------------------------------------ */
+.heroBanner {
+  background: linear-gradient(180deg, var(--color-bg-subtle) 0%, var(--color-bg) 100%);
+  border-bottom: var(--border-width) solid var(--color-border);
+  padding: var(--space-12) 0;
+  text-align: center;
+}
+
+.heroInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 800px;
+  margin-inline: auto;
+  padding: 0 var(--space-4);
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.heroTitle {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  line-height: var(--line-height-snug);
+  color: var(--color-text);
+}
+
+.heroLead {
+  max-width: 58ch;
+  margin: 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.heroCtas {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.heroPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.4rem;
+  border-radius: var(--radius-xs);
+  background: var(--color-primary);
+  color: #ffffff !important;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  border: none;
+  transition: background-color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-out);
+}
+
+.heroPrimary:hover {
+  background: var(--color-accent-ink);
+  transform: translateY(-1px);
+}
+
+.heroSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.4rem;
+  border-radius: var(--radius-xs);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
+}
+
+.heroSecondary:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-bg-subtle);
+}
+
+/* ---------------------------------------------------------------------------
+   Shared Section Layout
+   ------------------------------------------------------------------------ */
+.section {
+  padding: var(--space-12) 0;
+  background: var(--color-bg);
+}
+
+.sectionAlt {
+  padding: var(--space-12) 0;
+  background: var(--color-bg-subtle);
+}
+
+.sectionHeader {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+  max-width: 700px;
+  margin-inline: auto;
+  padding: 0 var(--space-4);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  line-height: var(--line-height-snug);
+  color: var(--color-text);
+}
+
+.sectionLead {
+  max-width: 58ch;
+  margin: 0 auto;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ---------------------------------------------------------------------------
+   What Is Section — 2-column with visual
+   ------------------------------------------------------------------------ */
+.whatIsSection {
+  background: linear-gradient(180deg, var(--color-bg-subtle) 0%, var(--color-bg) 100%);
+  padding: var(--space-12) 0;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.whatIsGrid {
+  display: grid;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .whatIsGrid {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+}
+
+.whatIsText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.whatIsText .sectionTitle {
+  text-align: left;
+}
+
+.whatIsText .sectionLead {
+  text-align: left;
+  margin: 0;
+}
+
+.proseBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  font-size: var(--font-size-base);
+}
+
+.proseBlock strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.whatIsVisual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.visualCard {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-2xl);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(124, 58, 237, 0.12) 100%);
+  border: var(--border-width) solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  box-shadow: 0 8px 30px rgba(124, 58, 237, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Step Grid (4 steps)
+   ------------------------------------------------------------------------ */
+.stepGrid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .stepGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stepGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stepCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  transition: transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.stepCard:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.08);
+}
+
+.stepNumber {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+.stepTitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+  color: var(--color-text);
+}
+
+.stepDesc {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ---------------------------------------------------------------------------
+   Feature Grid (4 cards)
+   ------------------------------------------------------------------------ */
+.featureGrid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .featureGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .featureGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.featureCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  transition: transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.featureCard:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.08);
+}
+
+.featureIcon {
+  display: inline-flex;
+  width: 3.25rem;
+  height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(217, 70, 239, 0.1) 100%);
+  color: var(--color-primary);
+  font-size: 1.4rem;
+  margin-bottom: var(--space-1);
+}
+
+.featureTitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+  color: var(--color-text);
+}
+
+.featureDesc {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ---------------------------------------------------------------------------
+   Use Cases Grid (4 cards)
+   ------------------------------------------------------------------------ */
+.formatGrid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .formatGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .formatGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.formatCard {
+  position: relative;
+  padding: var(--space-6);
+  padding-top: calc(var(--space-6) + var(--space-2));
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  transition: transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.formatCard:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.08);
+}
+
+.formatAccent {
+  position: absolute;
+  top: 0;
+  left: var(--space-6);
+  width: 3rem;
+  height: 0.25rem;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-primary) 0%, #ec4899 100%);
+}
+
+.formatTitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-2);
+  color: var(--color-text);
+}
+
+.formatDesc {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ---------------------------------------------------------------------------
+   Privacy Section — Full-width blue/purple banner
+   ------------------------------------------------------------------------ */
+.privacySection {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #2451FF 100%);
+  padding: var(--space-16) 0;
+  color: #ffffff;
+  text-align: center;
+}
+
+.privacyInner {
+  max-width: 820px;
+  margin-inline: auto;
+  padding: 0 var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.privacyTitle {
+  color: #ffffff;
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  margin: 0;
+}
+
+.privacyParagraph {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+.privacyParagraph strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   FAQ Section
+   ------------------------------------------------------------------------ */
+.faqSection {
+  background: var(--color-bg);
+  padding: var(--space-12) 0;
+}
+
+.faqInner {
+  max-width: 780px;
+  margin-inline: auto;
+  padding: 0 var(--space-4);
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.faqItem {
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  overflow: hidden;
+  transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.faqItem[open] {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.08);
+}
+
+.faqSummary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1.15rem 1.4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--color-text);
+  gap: var(--space-4);
+  user-select: none;
+}
+
+.faqSummary::-webkit-details-marker {
+  display: none;
+}
+
+.faqQuestion {
+  flex: 1;
+  text-align: left;
+}
+
+.faqIcon {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.faqItem[open] .faqIcon {
+  background: var(--color-primary);
+  color: #ffffff;
+  transform: rotate(45deg);
+}
+
+.faqAnswer {
+  margin: 0 1.4rem 1.4rem;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  line-height: var(--line-height-relaxed);
+  text-align: left;
+}
+
+/* ---------------------------------------------------------------------------
+   Related Tools
+   ------------------------------------------------------------------------ */
+.relatedSection {
+  background: var(--color-bg-subtle);
+  padding: var(--space-12) 0;
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.relatedGrid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .relatedGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .relatedGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.relatedCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
+  text-decoration: none;
+  color: inherit;
+  transition: transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.relatedCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.08);
+}
+
+.relatedIcon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(217, 70, 239, 0.1) 100%);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.relatedBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.relatedName {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.relatedDesc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.relatedArrow {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  transition: transform var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.relatedCard:hover .relatedArrow {
+  transform: translateX(3px);
+  color: var(--color-primary);
+}
+

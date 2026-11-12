@@ -6,6 +6,8 @@
  */
 
 import * as ortModule from 'onnxruntime-web';
+import { downloadModelWithCache } from '@/utils/modelDownloader';
+import { MODEL_SPECS } from '@/config/models';
 
 const ort = ortModule.default || ortModule;
 
@@ -49,67 +51,6 @@ async function setupOrtWasm() {
 }
 
 /**
- * Download model with streamed byte progress and integrity validation.
- */
-async function downloadModel(modelUrl) {
-  self.postMessage({
-    type: 'progress',
-    stage: 'loading-model',
-    percent: 5,
-    message: 'Connecting to AI inpainting model…',
-  });
-
-  const response = await fetch(modelUrl);
-  if (!response.ok) {
-    throw new Error(`Failed to download LaMa model from ${modelUrl} (HTTP ${response.status} ${response.statusText})`);
-  }
-
-  const contentLength = response.headers.get('content-length');
-  const totalBytes = contentLength ? parseInt(contentLength, 10) : MODEL_SIZE;
-
-  if (!response.body) {
-    const buffer = await response.arrayBuffer();
-    return new Uint8Array(buffer);
-  }
-
-  const reader = response.body.getReader();
-  let receivedBytes = 0;
-  const chunks = [];
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    chunks.push(value);
-    receivedBytes += value.length;
-
-    const downloadPercent = Math.min(75, Math.round((receivedBytes / totalBytes) * 75));
-    const recMb = (receivedBytes / (1024 * 1024)).toFixed(1);
-    const totalMb = (totalBytes / (1024 * 1024)).toFixed(1);
-
-    self.postMessage({
-      type: 'progress',
-      stage: 'loading-model',
-      percent: downloadPercent,
-      message: `Downloading AI model (${recMb} / ${totalMb} MB)…`,
-    });
-  }
-
-  const modelData = new Uint8Array(receivedBytes);
-  let offset = 0;
-  for (const chunk of chunks) {
-    modelData.set(chunk, offset);
-    offset += chunk.length;
-  }
-
-  if (modelData.byteLength < 180000000) {
-    throw new Error(`Model download was incomplete (${modelData.byteLength} bytes). Please check your connection and try again.`);
-  }
-
-  return modelData;
-}
-
-/**
  * Helper to wrap session creation in a timeout promise.
  */
 function createSessionWithTimeout(modelData, options, timeoutMs, providerName) {
@@ -149,13 +90,31 @@ function createSessionWithTimeout(modelData, options, timeoutMs, providerName) {
 /**
  * Initialize or return the cached LaMa InferenceSession.
  */
-async function getSession(modelUrl) {
+async function getSession(modelConfigOrUrl) {
   if (cachedSession) return cachedSession;
 
   await setupOrtWasm();
 
-  // 1. Download model bytes with real streamed progress
-  const modelBytes = await downloadModel(modelUrl);
+  const primaryUrl = typeof modelConfigOrUrl === 'string' ? modelConfigOrUrl : modelConfigOrUrl?.primaryUrl || MODEL_SPECS.lama.localDevPath;
+  const fallbackUrls = typeof modelConfigOrUrl === 'object' && Array.isArray(modelConfigOrUrl?.fallbackUrls)
+    ? modelConfigOrUrl.fallbackUrls
+    : [MODEL_SPECS.lama.upstreamUrl];
+  const spec = typeof modelConfigOrUrl === 'object' && modelConfigOrUrl?.spec ? modelConfigOrUrl.spec : MODEL_SPECS.lama;
+
+  // 1. Download/load model bytes with streaming progress & Cache Storage caching
+  const modelBytes = await downloadModelWithCache({
+    primaryUrl,
+    fallbackUrls,
+    spec,
+    onProgress: (prog) => {
+      self.postMessage({
+        type: 'progress',
+        stage: prog.stage,
+        percent: prog.percent,
+        message: prog.message,
+      });
+    },
+  });
 
   self.postMessage({
     type: 'progress',
@@ -265,11 +224,11 @@ function nchwToRgba(outputTensorData, size = 512) {
 
 // Worker message router
 self.onmessage = async (e) => {
-  const { type, id, modelUrl, imageRgba, maskRgba } = e.data;
+  const { type, id, modelConfig, modelUrl, imageRgba, maskRgba } = e.data;
 
   if (type === 'inpaint') {
     try {
-      const session = await getSession(modelUrl);
+      const session = await getSession(modelConfig || modelUrl);
 
       self.postMessage({
         type: 'progress',
