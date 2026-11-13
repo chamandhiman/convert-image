@@ -1,0 +1,147 @@
+/* =============================================================================
+   Frequently Asked Questions (FAQ) Accordion
+   ========================================================================== */
+
+.section {
+  padding: 0 0 clamp(3.5rem, 6vw, 5rem);
+  width: 100%;
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.kicker {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7c3aed;
+  margin-bottom: 0.4rem;
+}
+
+.title {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+}
+
+.gradientTitle {
+  background: linear-gradient(135deg, #7c3aed 0%, #c026d3 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0 auto;
+  max-width: 540px;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.faqCard {
+  background: #ffffff;
+  border: 1px solid #ebe8f3;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow:
+    0 2px 8px -2px rgba(124, 58, 237, 0.03),
+    0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.faqCard:hover {
+  border-color: #d8b4fe;
+}
+
+.faqCardOpen {
+  border-color: #c084fc;
+  box-shadow:
+    0 8px 24px -4px rgba(124, 58, 237, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.faqQuestion {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.4rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  gap: 1rem;
+  font-family: inherit;
+}
+
+.questionText {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.chevronIcon {
+  color: #7c3aed;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.faqAnswer {
+  padding: 0 1.4rem 1.25rem 1.4rem;
+  animation: slideDown 0.18s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.answerText {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #475569;
+  margin: 0;
+}
+
+@media (max-width: 576px) {
+  .faqQuestion {
+    padding: 1rem 1.15rem;
+  }
+
+  .questionText {
+    font-size: 0.9375rem;
+  }
+
+  .faqAnswer {
+    padding: 0 1.15rem 1rem 1.15rem;
+  }
+}
+

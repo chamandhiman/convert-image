@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import AppLayout from '@/components/layout/AppLayout';
 import RouteError from '@/components/layout/RouteError';
 import HomePage from '@/pages/HomePage';
+import EditImagePage from '@/pages/EditImagePage';
 import CompressPage from '@/pages/CompressPage';
 import ConvertPage from '@/pages/ConvertPage';
 import ResizePage from '@/pages/ResizePage';
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
 
       // Canonical tool routes
+      { path: ROUTES.edit, element: <EditImagePage /> },
       { path: ROUTES.convert, element: <ConvertPage /> },
       { path: ROUTES.resize, element: <ResizePage /> },
       { path: ROUTES.compress, element: <CompressPage /> },
@@ -64,6 +66,7 @@ export const router = createBrowserRouter([
       { path: ROUTES.analyze, element: <AnalyzePage /> },
 
       // Permanent 301-equivalent redirects from old/short URLs
+      { path: ROUTES.editOld, element: <Navigate to={ROUTES.edit} replace /> },
       { path: ROUTES.convertOld, element: <Navigate to={ROUTES.convert} replace /> },
       { path: ROUTES.resizeOld, element: <Navigate to={ROUTES.resize} replace /> },
       { path: ROUTES.compressOld, element: <Navigate to={ROUTES.compress} replace /> },

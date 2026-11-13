@@ -1,269 +1,332 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Image as ImageIcon,
   Maximize2,
-  Layers,
   Crop,
+  Layers,
   RotateCw,
-  LayoutGrid,
-  ArrowRight,
-  X,
-  Sparkles,
-  Shield,
+  Wand2,
   Sliders,
-  Scissors,
+  Sparkles,
+  ArrowRight,
+  Search,
+  Type,
+  Shapes,
+  Shield,
 } from 'lucide-react';
 import { ROUTES } from '@/routes/paths';
 import styles from './ImageTools.module.css';
 
-const TOOLS = [
+// 4 Primary Popular Tools from Mockup Top-Left
+const POPULAR_TOOLS = [
   {
-    id: 'converter',
-    name: 'Image Converter',
-    desc: 'Convert images between JPG, PNG, WebP, GIF, BMP and more.',
+    id: 'convert',
+    name: 'Convert Image',
+    desc: 'Change image format',
     to: ROUTES.convert,
-    type: 'icon',
     icon: ImageIcon,
-    iconBg: '#F3E8FF',
-    iconColor: '#7C3AED',
+    iconBg: '#E6FFFA',
+    iconColor: '#0D9488',
   },
   {
     id: 'resize',
     name: 'Resize Image',
-    desc: 'Change image dimensions instantly.',
+    desc: 'Change width & height',
     to: ROUTES.resize,
-    type: 'icon',
     icon: Maximize2,
     iconBg: '#EFF6FF',
     iconColor: '#2563EB',
   },
   {
-    id: 'compress',
-    name: 'Compress Image',
-    desc: 'Reduce image file size without losing quality.',
-    to: ROUTES.compress,
-    type: 'icon',
-    icon: Layers,
-    iconBg: '#EEF2FF',
-    iconColor: '#4F46E5',
-  },
-  {
     id: 'crop',
     name: 'Crop Image',
-    desc: 'Crop your image to the perfect size.',
+    desc: 'Crop to desired area',
     to: ROUTES.crop,
-    type: 'icon',
     icon: Crop,
     iconBg: '#FDF2F8',
     iconColor: '#DB2777',
   },
   {
-    id: 'rotate',
-    name: 'Rotate Image',
-    desc: 'Rotate or flip images horizontally or vertically.',
-    to: ROUTES.rotate,
-    type: 'icon',
-    icon: RotateCw,
-    iconBg: '#F0F9FF',
-    iconColor: '#0284C7',
-  },
-  {
-    id: 'webp',
-    name: 'Image to WebP',
-    desc: 'Convert any image to lightweight WebP.',
-    to: ROUTES.imageToWebp,
-    type: 'badge-box',
-    badgeText: 'WEBP',
-    badgeBg: '#F5F3FF',
-    badgeColor: '#7C3AED',
-  },
-  {
-    id: 'jpg-to-png',
-    name: 'JPG to PNG',
-    desc: 'Convert JPG images to PNG format.',
-    to: ROUTES.jpgToPng,
-    type: 'badge-pair',
-    from: 'JPG',
-    toFmt: 'PNG',
-    pairBg: '#F5EEFF',
-    pairColor: '#7C3AED',
-  },
-  {
-    id: 'png-to-jpg',
-    name: 'PNG to JPG',
-    desc: 'Convert PNG images to JPG format.',
-    to: ROUTES.pngToJpg,
-    type: 'badge-pair',
-    from: 'PNG',
-    toFmt: 'JPG',
-    pairBg: '#FDF2F8',
-    pairColor: '#DB2777',
-  },
-  {
-    id: 'more',
-    name: 'More Image Tools',
-    desc: 'Explore 20+ free image tools for everyday tasks.',
-    isAction: true,
-    type: 'icon',
-    icon: LayoutGrid,
+    id: 'compress',
+    name: 'Compress Image',
+    desc: 'Reduce file size',
+    to: ROUTES.compress,
+    icon: Layers,
     iconBg: '#FFF7ED',
     iconColor: '#EA580C',
   },
 ];
 
-const ADDITIONAL_TOOLS = [
-  { title: 'Background Remover', desc: 'Isolate subjects and export transparent cutouts', to: ROUTES.removeBackground, icon: Scissors, cat: 'AI Tools' },
-  { title: 'Image Upscaler', desc: 'Enhance image quality 2x & 4x with super-resolution', to: ROUTES.upscaler, icon: Sparkles, cat: 'AI Tools' },
-  { title: 'Object Remover', desc: 'Erase unwanted objects, photobombers and clutter', to: ROUTES.objectRemover, icon: Sparkles, cat: 'AI Tools' },
-  { title: 'Photo Restorer', desc: 'Restore old, scratched, blurry and faded photos', to: ROUTES.photoRestorer, icon: Sparkles, cat: 'AI Tools' },
-  { title: 'Generative Fill', desc: 'AI inpainting & expansion for custom canvas borders', to: ROUTES.generativeFill, icon: Sparkles, cat: 'AI Tools' },
-  { title: 'Privacy Cleaner', desc: 'Remove sensitive EXIF, GPS and camera metadata', to: ROUTES.clean, icon: Shield, cat: 'Privacy' },
-  { title: 'Smart Optimizer', desc: 'Optimize imagery based on specific target platforms', to: ROUTES.optimize, icon: Sliders, cat: 'Optimization' },
-  { title: 'Quality Analyzer', desc: 'Inspect compression artifacts and format efficiency', to: ROUTES.analyze, icon: Layers, cat: 'Analytics' },
+// All Tools Directory from Mockup Bottom-Right
+const ALL_DIRECTORY_TOOLS = [
+  {
+    id: 'smart-editor',
+    name: 'Smart Image Editor',
+    desc: 'Photoshop-style online photo editor with layers',
+    to: ROUTES.edit,
+    category: 'Edit',
+    icon: Sliders,
+    iconBg: '#F3E8FF',
+    iconColor: '#7C3AED',
+    badge: 'PRO',
+  },
+  {
+    id: 'convert-all',
+    name: 'Convert Image',
+    desc: 'Convert to JPG, PNG, WEBP, GIF, SVG, etc.',
+    to: ROUTES.convert,
+    category: 'Convert',
+    icon: ImageIcon,
+    iconBg: '#E6FFFA',
+    iconColor: '#0D9488',
+  },
+  {
+    id: 'resize-all',
+    name: 'Resize Image',
+    desc: 'Change image dimensions with exact pixels',
+    to: ROUTES.resize,
+    category: 'Edit',
+    icon: Maximize2,
+    iconBg: '#EFF6FF',
+    iconColor: '#2563EB',
+  },
+  {
+    id: 'crop-all',
+    name: 'Crop Image',
+    desc: 'Crop and remove unwanted outer areas',
+    to: ROUTES.crop,
+    category: 'Edit',
+    icon: Crop,
+    iconBg: '#FDF2F8',
+    iconColor: '#DB2777',
+  },
+  {
+    id: 'rotate-all',
+    name: 'Rotate Image',
+    desc: 'Rotate 90°, 180° or flip horizontally and vertically',
+    to: ROUTES.rotate,
+    category: 'Adjust',
+    icon: RotateCw,
+    iconBg: '#F0F9FF',
+    iconColor: '#0284C7',
+  },
+  {
+    id: 'compress-all',
+    name: 'Compress Image',
+    desc: 'Reduce image file size with smart quality loss protection',
+    to: ROUTES.compress,
+    category: 'Optimize',
+    icon: Layers,
+    iconBg: '#FFF7ED',
+    iconColor: '#EA580C',
+  },
+  {
+    id: 'remove-bg',
+    name: 'Remove Background',
+    desc: 'Automatic 1-click cutout with transparent output',
+    to: ROUTES.removeBackground,
+    category: 'Create',
+    icon: Wand2,
+    iconBg: '#FAF5FF',
+    iconColor: '#9333EA',
+  },
+  {
+    id: 'add-text',
+    name: 'Add Text to Image',
+    desc: 'Add custom text, fonts, colors and shadow styles',
+    to: `${ROUTES.edit}?tab=text`,
+    category: 'Create',
+    icon: Type,
+    iconBg: '#F5EEFF',
+    iconColor: '#7C3AED',
+  },
+  {
+    id: 'add-shapes',
+    name: 'Add Shapes',
+    desc: 'Draw rectangles, circles, arrows, stars and lines',
+    to: `${ROUTES.edit}?tab=shapes`,
+    category: 'Create',
+    icon: Shapes,
+    iconBg: '#FFFBEB',
+    iconColor: '#D97706',
+  },
+  {
+    id: 'upscaler',
+    name: 'Image Upscaler',
+    desc: 'Super-resolution 2x & 4x enhancement',
+    to: ROUTES.upscaler,
+    category: 'Optimize',
+    icon: Sparkles,
+    iconBg: '#EEF2FF',
+    iconColor: '#4F46E5',
+  },
+  {
+    id: 'privacy-cleaner',
+    name: 'Privacy Cleaner',
+    desc: 'Remove GPS, EXIF and camera metadata',
+    to: ROUTES.clean,
+    category: 'Adjust',
+    icon: Shield,
+    iconBg: '#F0FDF4',
+    iconColor: '#16A34A',
+  },
+  {
+    id: 'photo-restorer',
+    name: 'Photo Restorer',
+    desc: 'Enhance vintage photos and restore face details',
+    to: ROUTES.photoRestorer,
+    category: 'Create',
+    icon: Sparkles,
+    iconBg: '#FDF4FF',
+    iconColor: '#C026D3',
+  },
 ];
 
+const CATEGORIES = ['All Tools', 'Convert', 'Edit', 'Optimize', 'Adjust', 'Create'];
+
 export function ImageTools() {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedCat, setSelectedCat] = useState('All Tools');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAllTools, setShowAllTools] = useState(false);
+
+  const filteredTools = useMemo(() => {
+    return ALL_DIRECTORY_TOOLS.filter((tool) => {
+      const matchCat = selectedCat === 'All Tools' || tool.category === selectedCat;
+      const matchQuery =
+        !searchQuery.trim() ||
+        `${tool.name} ${tool.desc} ${tool.category}`.toLowerCase().includes(searchQuery.toLowerCase().trim());
+      return matchCat && matchQuery;
+    });
+  }, [selectedCat, searchQuery]);
+
+  const handleToggleAllTools = (e) => {
+    e.preventDefault();
+    setShowAllTools((prev) => !prev);
+    if (!showAllTools) {
+      setTimeout(() => {
+        const el = document.getElementById('all-tools-directory');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+    }
+  };
 
   return (
-    <section className={styles.section} id="image-tools" aria-labelledby="tools-heading">
-      <div className="container">
-        {/* Section Header */}
-        <div className={styles.header}>
-          <span className={styles.kicker}>IMAGE TOOLS</span>
-          <h2 id="tools-heading" className={styles.title}>
-            All Essential Image Tools at <span className={styles.gradientTitle}>One Place</span>
+    <section className={styles.section} id="image-tools" aria-labelledby="popular-tools-heading">
+      <div className={`container ${styles.container}`}>
+        {/* Popular Image Tools Section (Mockup Top-Left) */}
+        <div className={styles.popularHeader}>
+          <h2 id="popular-tools-heading" className={styles.popularTitle}>
+            Popular Image Tools
           </h2>
-          <p className={styles.subtitle}>
-            Free online tools to convert, edit, optimize and manage your images — all in your browser.
-          </p>
+          <button
+            type="button"
+            className={styles.viewAllBtn}
+            onClick={handleToggleAllTools}
+            aria-expanded={showAllTools}
+          >
+            <span>{showAllTools ? 'Hide All Tools' : 'View All Tools'}</span>
+            <ArrowRight size={15} className={`${styles.arrowIcon} ${showAllTools ? styles.arrowRotated : ''}`} />
+          </button>
         </div>
 
-        {/* 3-Column Tool Cards Grid */}
-        <div className={styles.grid}>
-          {TOOLS.map((tool) => {
-            const cardContent = (
-              <>
-                <div className={styles.cardLeft}>
-                  {tool.type === 'icon' && (
-                    <div
-                      className={styles.iconBox}
-                      style={{ backgroundColor: tool.iconBg, color: tool.iconColor }}
-                    >
-                      <tool.icon size={22} />
-                    </div>
-                  )}
-
-                  {tool.type === 'badge-box' && (
-                    <div
-                      className={styles.badgeBox}
-                      style={{ backgroundColor: tool.badgeBg, color: tool.badgeColor }}
-                    >
-                      <span>{tool.badgeText}</span>
-                    </div>
-                  )}
-
-                  {tool.type === 'badge-pair' && (
-                    <div
-                      className={styles.badgePair}
-                      style={{ backgroundColor: tool.pairBg, color: tool.pairColor }}
-                    >
-                      <span>{tool.from}</span>
-                      <span className={styles.pairArrow}>→</span>
-                      <span>{tool.toFmt}</span>
-                    </div>
-                  )}
-
-                  <div className={styles.cardText}>
-                    <h3 className={styles.toolName}>{tool.name}</h3>
-                    <p className={styles.toolDesc}>{tool.desc}</p>
-                  </div>
-                </div>
-
-                <div className={styles.arrowCircle}>
-                  <ArrowRight size={14} className={styles.arrowIcon} />
-                </div>
-              </>
-            );
-
-            if (tool.isAction) {
-              return (
-                <button
-                  key={tool.id}
-                  type="button"
-                  className={`${styles.card} ${styles.actionCard}`}
-                  onClick={() => setModalOpen(true)}
-                  aria-haspopup="dialog"
-                >
-                  {cardContent}
-                </button>
-              );
-            }
-
+        {/* 4 Cards Grid */}
+        <div className={styles.popularGrid}>
+          {POPULAR_TOOLS.map((tool) => {
+            const Icon = tool.icon;
             return (
               <Link
                 key={tool.id}
                 to={tool.to}
-                className={styles.card}
+                className={styles.popularCard}
                 title={`Open ${tool.name}`}
               >
-                {cardContent}
+                <div
+                  className={styles.popularIconWrap}
+                  style={{ backgroundColor: tool.iconBg, color: tool.iconColor }}
+                >
+                  <Icon size={22} />
+                </div>
+                <div className={styles.popularMeta}>
+                  <h3 className={styles.popularName}>{tool.name}</h3>
+                  <p className={styles.popularDesc}>{tool.desc}</p>
+                </div>
               </Link>
             );
           })}
         </div>
-      </div>
 
-      {/* Additional Tools Modal */}
-      {modalOpen && (
-        <div className={styles.modalBackdrop} onClick={() => setModalOpen(false)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
+        {/* Complete Tools Directory (Mockup Bottom-Right) */}
+        {showAllTools && (
+          <div className={styles.directorySection} id="all-tools-directory">
+            <div className={styles.directoryHeader}>
               <div>
-                <span className={styles.modalKicker}>ALL FREE IMAGE TOOLS</span>
-                <h3 className={styles.modalTitle}>More Image Tools by WebToolOcean</h3>
+                <h3 className={styles.directoryTitle}>Image Tools</h3>
+                <p className={styles.directorySubtitle}>
+                  A complete collection of free online image tools for editing, converting and optimizing images.
+                </p>
               </div>
-              <button
-                type="button"
-                className={styles.closeBtn}
-                onClick={() => setModalOpen(false)}
-                aria-label="Close dialog"
-              >
-                <X size={18} />
-              </button>
+
+              {/* Search Bar */}
+              <div className={styles.searchBar}>
+                <Search size={16} className={styles.searchIcon} />
+                <input
+                  type="text"
+                  placeholder="Search image tools..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={styles.searchInput}
+                />
+              </div>
             </div>
 
-            <div className={styles.modalGrid}>
-              {ADDITIONAL_TOOLS.map((t) => {
-                const ToolIcon = t.icon;
+            {/* Category Filter Pills */}
+            <div className={styles.categoryPills}>
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`${styles.catPill} ${selectedCat === cat ? styles.catPillActive : ''}`}
+                  onClick={() => setSelectedCat(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Filtered Tools Grid */}
+            <div className={styles.directoryGrid}>
+              {filteredTools.map((tool) => {
+                const ToolIcon = tool.icon;
                 return (
                   <Link
-                    key={t.title}
-                    to={t.to}
-                    className={styles.additionalCard}
-                    onClick={() => setModalOpen(false)}
+                    key={tool.id}
+                    to={tool.to}
+                    className={styles.directoryCard}
+                    title={`Open ${tool.name}`}
                   >
-                    <div className={styles.additionalIconBox}>
-                      <ToolIcon size={18} />
+                    <div
+                      className={styles.directoryIconWrap}
+                      style={{ backgroundColor: tool.iconBg, color: tool.iconColor }}
+                    >
+                      <ToolIcon size={20} />
                     </div>
-                    <div>
-                      <div className={styles.additionalTitleRow}>
-                        <span className={styles.additionalTitle}>{t.title}</span>
-                        <span className={styles.additionalCat}>{t.cat}</span>
+                    <div className={styles.directoryMeta}>
+                      <div className={styles.titleRow}>
+                        <h4 className={styles.directoryName}>{tool.name}</h4>
+                        {tool.badge && <span className={styles.toolBadge}>{tool.badge}</span>}
                       </div>
-                      <p className={styles.additionalDesc}>{t.desc}</p>
+                      <p className={styles.directoryDesc}>{tool.desc}</p>
                     </div>
                   </Link>
                 );
               })}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 }
 
 export default ImageTools;
-

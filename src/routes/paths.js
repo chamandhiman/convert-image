@@ -11,6 +11,7 @@ export const ROUTES = {
   home: '/',
 
   // Canonical SEO-friendly tool routes
+  edit: '/edit-image',
   convert: '/convert-image',
   resize: '/resize-image',
   compress: '/compress-image',
@@ -38,6 +39,7 @@ export const ROUTES = {
   notFound: '*',
 
   // Legacy URLs for permanent redirects (301-equivalent)
+  editOld: '/edit',
   convertOld: '/convert',
   resizeOld: '/resize',
   compressOld: '/compress',

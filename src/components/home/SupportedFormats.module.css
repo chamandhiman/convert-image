@@ -1,87 +1,142 @@
+/* =============================================================================
+   Supported Formats Grid
+   ========================================================================== */
+
 .section {
-  padding-top: 1.5rem;
-  padding-bottom: 3.5rem;
-  background-color: #ffffff;
+  padding: 0 0 clamp(3.5rem, 6vw, 5rem);
+  width: 100%;
 }
 
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.titleDivider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 780px;
-  gap: 14px;
-  margin-bottom: 1.5rem;
+.header {
+  text-align: center;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
 }
 
-.line {
-  flex: 1;
-  min-width: 8px;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgba(226, 232, 240, 0) 0%,
-    rgba(216, 180, 254, 0.45) 50%,
-    rgba(226, 232, 240, 0) 100%
-  );
-}
-
-.titleText {
-  font-size: 0.8125rem;
-  font-weight: 600;
+.kicker {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: #7c3aed;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  flex-shrink: 0;
+  margin-bottom: 0.4rem;
 }
 
-.badgesRow {
+.title {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+}
+
+.gradientTitle {
+  background: linear-gradient(135deg, #7c3aed 0%, #c026d3 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0 auto;
+  max-width: 540px;
+}
+
+.formatsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.formatCard {
+  background: #ffffff;
+  border: 1px solid #ebe8f3;
+  border-radius: 18px;
+  padding: 1.15rem 1.25rem;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
+  gap: 1rem;
+  text-decoration: none;
+  box-shadow:
+    0 4px 16px -2px rgba(124, 58, 237, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.22s ease;
+}
+
+.formatCard:hover {
+  transform: translateY(-2px);
+  border-color: #c084fc;
+  box-shadow:
+    0 10px 24px -4px rgba(124, 58, 237, 0.12),
+    0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .formatBadge {
-  display: inline-flex;
+  width: 52px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 58px;
-  padding: 6px 16px;
-  border-radius: 9999px;
-  border-width: 1px;
-  border-style: solid;
   font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.formatMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.topMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.formatName {
+  font-size: 0.9375rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
-  text-decoration: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-  transition: all 0.18s ease;
+  color: #0f172a;
 }
 
-.formatBadge:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.15);
-  filter: saturate(1.1);
+.formatTag {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #7c3aed;
+  background: #f5f3ff;
+  padding: 0.1rem 0.4rem;
+  border-radius: 9999px;
 }
 
-@media (max-width: 640px) {
-  .badgesRow {
-    gap: 8px;
+.fullName {
+  font-size: 0.8125rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .formatsGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
-  .formatBadge {
-    padding: 5px 12px;
-    font-size: 0.75rem;
-    min-width: 50px;
-  }
-  .titleText {
-    font-size: 0.75rem;
+}
+
+@media (max-width: 576px) {
+  .formatsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 }

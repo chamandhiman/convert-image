@@ -1,38 +1,30 @@
-import { Zap, ShieldCheck, Rocket, Laptop } from 'lucide-react';
+import { ShieldCheck, Zap, Layers, Sparkles } from 'lucide-react';
 import styles from './WhyChooseUs.module.css';
 
-const FEATURES = [
-  {
-    icon: Zap,
-    title: '100% Free',
-    desc: 'All tools are completely free to use.',
-    iconColor: '#7C3AED',
-    bg: '#FAF5FF',
-    border: '#E9D5FF',
-  },
+const PILLARS = [
   {
     icon: ShieldCheck,
-    title: 'Privacy First',
-    desc: 'Your files are not stored on our servers.',
-    iconColor: '#8B5CF6',
-    bg: '#FAF5FF',
-    border: '#EDE9FE',
+    title: '100% Client-Side Privacy',
+    desc: 'Your photos never leave your device. All conversion and editing processes run locally in your browser sandbox.',
+    badge: 'Zero Uploads',
   },
   {
-    icon: Rocket,
-    title: 'Fast & Reliable',
-    desc: 'Get results in seconds with high quality.',
-    iconColor: '#9333EA',
-    bg: '#FAF5FF',
-    border: '#F3E8FF',
+    icon: Zap,
+    title: 'Lightning Fast In-Browser Speed',
+    desc: 'Instant processing powered by WebAssembly and HTML5 Canvas with no server lag or queue wait times.',
+    badge: 'Instant Results',
   },
   {
-    icon: Laptop,
-    title: 'Works Everywhere',
-    desc: 'Use on desktop, tablet or mobile.',
-    iconColor: '#2563EB',
-    bg: '#EFF6FF',
-    border: '#DBEAFE',
+    icon: Layers,
+    title: 'Multi-File Batch Conversion',
+    desc: 'Upload multiple files simultaneously, configure target format, and download all converted images individually or as a ZIP.',
+    badge: 'Batch Power',
+  },
+  {
+    icon: Sparkles,
+    title: 'Free Forever, No Signup',
+    desc: 'No account registration, no subscriptions, and no hidden limitations. Enjoy unrestricted image conversion anytime.',
+    badge: 'Unrestricted',
   },
 ];
 
@@ -40,40 +32,32 @@ export function WhyChooseUs() {
   return (
     <section className={styles.section} id="why-choose-us" aria-labelledby="why-heading">
       <div className={`container ${styles.container}`}>
-        <div className={styles.layout}>
-          {/* Left Column: Title & Description */}
-          <div className={styles.leftCol}>
-            <span className={styles.kicker}>WHY CHOOSE US</span>
-            <h2 id="why-heading" className={styles.title}>
-              Why Use <span className={styles.gradientTitle}>Image Convert?</span>
-            </h2>
-            <p className={styles.desc}>
-              A fast, simple, and free way to convert and optimize your images online.
-            </p>
-          </div>
+        <div className={styles.header}>
+          <span className={styles.kicker}>BUILT FOR PRIVACY & PERFORMANCE</span>
+          <h2 id="why-heading" className={styles.title}>
+            Why Choose <span className={styles.gradientTitle}>Image Convert?</span>
+          </h2>
+          <p className={styles.subtitle}>
+            A modern, secure and reliable image conversion platform designed for web creators and developers.
+          </p>
+        </div>
 
-          {/* Right Column: 4 Features */}
-          <div className={styles.featuresRow}>
-            {FEATURES.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div key={item.title} className={styles.featureItem}>
-                  <div
-                    className={styles.iconCircle}
-                    style={{
-                      backgroundColor: item.bg,
-                      borderColor: item.border,
-                      color: item.iconColor,
-                    }}
-                  >
-                    <Icon size={24} />
+        <div className={styles.pillarsGrid}>
+          {PILLARS.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.title} className={styles.pillarCard}>
+                <div className={styles.topRow}>
+                  <div className={styles.iconContainer}>
+                    <Icon size={22} className={styles.pillarIcon} />
                   </div>
-                  <h3 className={styles.featureTitle}>{item.title}</h3>
-                  <p className={styles.featureDesc}>{item.desc}</p>
+                  <span className={styles.pillarBadge}>{item.badge}</span>
                 </div>
-              );
-            })}
-          </div>
+                <h3 className={styles.pillarTitle}>{item.title}</h3>
+                <p className={styles.pillarDesc}>{item.desc}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -81,4 +65,3 @@ export function WhyChooseUs() {
 }
 
 export default WhyChooseUs;
-

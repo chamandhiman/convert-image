@@ -15,6 +15,7 @@ import {
   Crop,
   Layers,
   RotateCw,
+  Sliders,
   Wand2,
   FileText,
   HelpCircle,
@@ -27,6 +28,12 @@ import { ROUTES } from '@/routes/paths';
 import styles from './Header.module.css';
 
 const IMAGE_TOOLS_LIST = [
+  {
+    to: ROUTES.edit,
+    label: 'Edit Image',
+    desc: 'Advanced Photoshop-style editor: Resize, Crop & Canvas',
+    icon: Sliders,
+  },
   {
     to: ROUTES.resize,
     label: 'Resize Image',
@@ -100,6 +107,7 @@ const RESOURCES_LIST = [
 ];
 
 const SEARCHABLE_TOOLS = [
+  { title: 'Edit Image', path: ROUTES.edit, category: 'Edit', keywords: 'edit image editor photoshop resize crop canvas modify' },
   { title: 'Convert Image', path: ROUTES.convert, category: 'Convert', keywords: 'convert format jpg png webp gif bmp svg heic' },
   { title: 'Resize Image', path: ROUTES.resize, category: 'Edit', keywords: 'resize dimensions width height scale pixels aspect ratio' },
   { title: 'Compress Image', path: ROUTES.compress, category: 'Optimize', keywords: 'compress shrink size mb kb optimize quality' },
@@ -218,7 +226,8 @@ export function Header() {
       )
     : SEARCHABLE_TOOLS.slice(0, 8);
 
-  const isConvertActive = location.pathname === ROUTES.convert;
+  const isEditorActive = location.pathname === ROUTES.edit || location.pathname === '/edit';
+  const isConvertActive = location.pathname === ROUTES.convert || location.pathname === ROUTES.home;
 
   return (
     <header className={styles.headerWrapper}>
@@ -231,7 +240,19 @@ export function Header() {
         {/* Center: Desktop Navigation Bar */}
         <nav className={styles.desktopNav} aria-label="Main Navigation">
           <ul className={styles.navList}>
-            {/* 1. Convert Image */}
+            {/* 1. Smart Image Editor */}
+            <li>
+              <Link
+                to={ROUTES.edit}
+                className={`${styles.navLink} ${isEditorActive ? styles.navLinkActive : ''}`}
+              >
+                <Sliders size={15} className={styles.navIcon} />
+                <span>Smart Image Editor</span>
+                <span className={styles.proBadge}>PRO</span>
+              </Link>
+            </li>
+
+            {/* 2. Convert Image */}
             <li>
               <Link
                 to={ROUTES.convert}
@@ -242,7 +263,7 @@ export function Header() {
               </Link>
             </li>
 
-            {/* 2. Image Tools (Dropdown) */}
+            {/* 3. Image Tools (Dropdown) */}
             <li className={styles.dropdownWrap} ref={toolsDropdownRef}>
               <button
                 type="button"
@@ -301,18 +322,6 @@ export function Header() {
                   </div>
                 </div>
               )}
-            </li>
-
-            {/* 3. Features */}
-            <li>
-              <button
-                type="button"
-                className={styles.navLink}
-                onClick={() => handleAnchorNav('why-choose-us')}
-              >
-                <Sparkles size={15} className={styles.navIcon} />
-                <span>Features</span>
-              </button>
             </li>
 
             {/* 4. Resources (Dropdown) */}
@@ -409,6 +418,15 @@ export function Header() {
             <Search size={16} />
           </button>
 
+          <button
+            type="button"
+            className={styles.allToolsButton}
+            onClick={() => handleAnchorNav('image-tools')}
+          >
+            <Grid3x3 size={15} className={styles.gridIcon} />
+            <span>All Tools</span>
+          </button>
+
           {/* Mobile Menu Toggle */}
           <button
             type="button"
@@ -498,8 +516,18 @@ export function Header() {
             {/* Mobile Navigation Links */}
             <div className={styles.mobileNavLinks}>
               <Link
+                to={ROUTES.edit}
+                className={`${styles.mobileNavLink} ${isEditorActive ? styles.mobileNavLinkActive : ''}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                <Sliders size={18} className={styles.mobileNavIcon} />
+                <span>Smart Image Editor</span>
+                <span className={styles.proBadge}>PRO</span>
+              </Link>
+
+              <Link
                 to={ROUTES.convert}
-                className={styles.mobileNavLink}
+                className={`${styles.mobileNavLink} ${isConvertActive ? styles.mobileNavLinkActive : ''}`}
                 onClick={() => setMenuOpen(false)}
               >
                 <Image size={18} className={styles.mobileNavIcon} />
@@ -523,15 +551,6 @@ export function Header() {
                   );
                 })}
               </div>
-
-              <button
-                type="button"
-                className={styles.mobileNavLink}
-                onClick={() => handleAnchorNav('why-choose-us')}
-              >
-                <Sparkles size={18} className={styles.mobileNavIcon} />
-                <span>Features</span>
-              </button>
 
               <div className={styles.mobileSectionHeader}>Resources</div>
               <div className={styles.mobileToolsGrid}>

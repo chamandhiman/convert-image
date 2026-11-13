@@ -1,70 +1,62 @@
-import { Upload, Settings, Download, ChevronRight } from 'lucide-react';
+import { Upload, SlidersHorizontal, CheckCircle2 } from 'lucide-react';
 import styles from './ConversionSteps.module.css';
 
 const STEPS = [
   {
-    step: 1,
+    step: '1',
     icon: Upload,
-    title: 'Upload Image',
-    desc: 'Select or drag & drop your image file.',
+    title: 'Upload',
+    desc: 'Add your images from your computer or drag & drop.',
   },
   {
-    step: 2,
-    icon: Settings,
+    step: '2',
+    icon: SlidersHorizontal,
     title: 'Choose Format',
-    desc: 'Pick the output format (e.g. PNG, JPG, WebP).',
+    desc: 'Select output format and quality settings.',
   },
   {
-    step: 3,
-    icon: Download,
-    title: 'Download',
-    desc: 'Get your converted image instantly.',
+    step: '3',
+    icon: CheckCircle2,
+    title: 'Convert',
+    desc: 'Get instant results and download individually or as ZIP.',
   },
 ];
 
 export function ConversionSteps() {
   return (
-    <section className={styles.section} aria-labelledby="process-heading">
+    <section className={styles.section} aria-labelledby="steps-heading">
       <div className={`container ${styles.container}`}>
-        {/* Section Header */}
         <div className={styles.header}>
-          <span className={styles.kicker}>SIMPLE PROCESS</span>
-          <h2 id="process-heading" className={styles.title}>
-            Convert Images in <span className={styles.gradientTitle}>3 Easy Steps</span>
+          <span className={styles.kicker}>HOW IT WORKS</span>
+          <h2 id="steps-heading" className={styles.title}>
+            Convert Images in <span className={styles.gradientTitle}>3 Simple Steps</span>
           </h2>
+          <p className={styles.subtitle}>
+            Zero wait time. 100% private in-browser image processing with no file uploads.
+          </p>
         </div>
 
-        {/* 3 Step Cards with Connecting Arrows */}
-        <div className={styles.stepsContainer}>
-          {STEPS.map((item, index) => {
+        <div className={styles.stepsGrid}>
+          {STEPS.map((item, idx) => {
             const Icon = item.icon;
-            const isNotLast = index < STEPS.length - 1;
-
             return (
-              <div key={item.step} className={styles.stepWrapper}>
-                <div className={styles.card}>
-                  {/* Number Badge */}
-                  <div className={styles.numberBadge}>
+              <div key={item.step} className={styles.stepCard}>
+                <div className={styles.stepTopRow}>
+                  <div className={styles.stepNumberBadge}>
                     <span>{item.step}</span>
                   </div>
-
-                  {/* Icon Box */}
-                  <div className={styles.iconBox}>
-                    <Icon size={24} className={styles.stepIcon} />
-                  </div>
-
-                  {/* Text Content */}
-                  <div className={styles.cardContent}>
-                    <h3 className={styles.cardTitle}>{item.title}</h3>
-                    <p className={styles.cardDesc}>{item.desc}</p>
+                  <div className={styles.iconWrap}>
+                    <Icon size={20} className={styles.stepIcon} />
                   </div>
                 </div>
 
-                {/* Connecting Arrow between cards */}
-                {isNotLast && (
-                  <div className={styles.connector} aria-hidden="true">
-                    <ChevronRight size={22} className={styles.chevronIcon} />
-                  </div>
+                <div className={styles.stepBody}>
+                  <h3 className={styles.stepTitle}>{item.title}</h3>
+                  <p className={styles.stepDesc}>{item.desc}</p>
+                </div>
+
+                {idx < STEPS.length - 1 && (
+                  <div className={styles.connectorLine} aria-hidden="true" />
                 )}
               </div>
             );
@@ -76,4 +68,3 @@ export function ConversionSteps() {
 }
 
 export default ConversionSteps;
-

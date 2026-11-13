@@ -3,42 +3,51 @@ import { ROUTES } from '@/routes/paths';
 import styles from './SupportedFormats.module.css';
 
 const FORMATS = [
-  { name: 'JPG', bg: '#F1E4FE', color: '#8A35E9', border: '#E4CDFD', param: 'jpeg' },
-  { name: 'PNG', bg: '#FEE3F2', color: '#D93690', border: '#FCC7E5', param: 'png' },
-  { name: 'WEBP', bg: '#E0E8FB', color: '#3B62DF', border: '#C4D4F7', param: 'webp' },
-  { name: 'GIF', bg: '#E0FAF7', color: '#0D9488', border: '#B8F3EC', param: 'gif' },
-  { name: 'BMP', bg: '#FCEFE9', color: '#D97706', border: '#F8DACB', param: 'bmp' },
-  { name: 'TIFF', bg: '#F5EEFF', color: '#7C3AED', border: '#E8D9FE', param: 'tiff' },
-  { name: 'SVG', bg: '#FAE2F0', color: '#DB2777', border: '#F6C2E2', param: 'svg' },
-  { name: 'HEIC', bg: '#DFE7FC', color: '#2563EB', border: '#C1D2F9', param: 'heic' },
+  { name: 'JPG', fullName: 'JPEG Image', badge: 'Standard', color: '#3B82F6', bg: '#EFF6FF', param: 'jpeg' },
+  { name: 'PNG', fullName: 'Portable Network', badge: 'Lossless', color: '#8B5CF6', bg: '#F5F3FF', param: 'png' },
+  { name: 'WEBP', fullName: 'Google WebP', badge: 'Modern Web', color: '#10B981', bg: '#ECFDF5', param: 'webp' },
+  { name: 'GIF', fullName: 'Graphics Interchange', badge: 'Animated', color: '#A855F7', bg: '#FAF5FF', param: 'gif' },
+  { name: 'SVG', fullName: 'Scalable Vector', badge: 'Vector', color: '#EC4899', bg: '#FDF2F8', param: 'svg' },
+  { name: 'BMP', fullName: 'Bitmap Image', badge: 'Raw Pixel', color: '#F59E0B', bg: '#FFFBEB', param: 'bmp' },
+  { name: 'TIFF', fullName: 'Tagged Image', badge: 'Print High-Res', color: '#6366F1', bg: '#EEF2FF', param: 'tiff' },
+  { name: 'HEIC', fullName: 'High Efficiency', badge: 'Apple Photo', color: '#0EA5E9', bg: '#F0F9FF', param: 'heic' },
 ];
 
 export function SupportedFormats() {
   return (
-    <section className={styles.section} aria-label="Supported image formats">
+    <section className={styles.section} aria-labelledby="formats-heading">
       <div className={`container ${styles.container}`}>
-        {/* Title with lines on both sides */}
-        <div className={styles.titleDivider}>
-          <div className={styles.line} />
-          <span className={styles.titleText}>Supports All Popular Image Formats</span>
-          <div className={styles.line} />
+        <div className={styles.header}>
+          <span className={styles.kicker}>COMPREHENSIVE FORMAT SUPPORT</span>
+          <h2 id="formats-heading" className={styles.title}>
+            Supported <span className={styles.gradientTitle}>Image Formats</span>
+          </h2>
+          <p className={styles.subtitle}>
+            Convert seamlessly between standard, lossless, vector, and high-efficiency image types.
+          </p>
         </div>
 
-        {/* Format Badges Row */}
-        <div className={styles.badgesRow}>
+        <div className={styles.formatsGrid}>
           {FORMATS.map((fmt) => (
             <Link
               key={fmt.name}
               to={`${ROUTES.convert}?to=${fmt.param}`}
-              className={styles.formatBadge}
-              style={{
-                backgroundColor: fmt.bg,
-                color: fmt.color,
-                borderColor: fmt.border,
-              }}
+              className={styles.formatCard}
               title={`Convert to or from ${fmt.name}`}
             >
-              {fmt.name}
+              <div
+                className={styles.formatBadge}
+                style={{ backgroundColor: fmt.bg, color: fmt.color }}
+              >
+                <span>{fmt.name}</span>
+              </div>
+              <div className={styles.formatMeta}>
+                <div className={styles.topMeta}>
+                  <span className={styles.formatName}>{fmt.name}</span>
+                  <span className={styles.formatTag}>{fmt.badge}</span>
+                </div>
+                <span className={styles.fullName}>{fmt.fullName}</span>
+              </div>
             </Link>
           ))}
         </div>
@@ -48,4 +57,3 @@ export function SupportedFormats() {
 }
 
 export default SupportedFormats;
-

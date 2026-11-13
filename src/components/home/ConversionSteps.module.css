@@ -1,157 +1,141 @@
+/* =============================================================================
+   How It Works — 3 Steps
+   ========================================================================== */
+
 .section {
-  padding-top: clamp(3rem, 5vw, 4.5rem);
-  padding-bottom: clamp(3rem, 5vw, 4.5rem);
-  background-color: #fafafd;
+  padding: 0 0 clamp(3.5rem, 6vw, 5rem);
+  width: 100%;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
 }
 
 .kicker {
   display: inline-block;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #7c3aed;
-  text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  color: #7c3aed;
+  margin-bottom: 0.4rem;
 }
 
 .title {
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
   font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
-  color: #111827;
-  margin: 0;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
 }
 
 .gradientTitle {
-  background: linear-gradient(135deg, #7c3aed 0%, #c026d3 50%, #f43f5e 100%);
+  background: linear-gradient(135deg, #7c3aed 0%, #c026d3 50%, #ec4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Steps Container */
-.stepsContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  width: 100%;
+.subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0 auto;
+  max-width: 540px;
 }
 
-.stepWrapper {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  gap: 14px;
-}
-
-.card {
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background-color: #ffffff;
-  border: 1px solid #eee8fb;
-  border-radius: 16px;
-  padding: 20px 22px;
-  flex: 1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.stepCard {
+  background: #ffffff;
+  border: 1px solid #ebe8f3;
+  border-radius: 20px;
+  padding: 1.75rem 1.5rem;
+  position: relative;
+  box-shadow:
+    0 4px 16px -2px rgba(124, 58, 237, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.02);
   transition: all 0.22s ease;
 }
 
-.card:hover {
-  transform: translateY(-2px);
-  border-color: #c4b5fd;
-  box-shadow: 0 10px 24px -6px rgba(124, 58, 237, 0.12);
+.stepCard:hover {
+  transform: translateY(-3px);
+  border-color: #c084fc;
+  box-shadow:
+    0 12px 28px -4px rgba(124, 58, 237, 0.12),
+    0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
-/* Number Badge on Top-Left */
-.numberBadge {
-  position: absolute;
-  top: -8px;
-  left: -8px;
+.stepTopRow {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.stepNumberBadge {
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
   color: #ffffff;
-  font-size: 0.75rem;
-  font-weight: 700;
-  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.35);
-  border: 2px solid #ffffff;
-}
-
-.iconBox {
+  font-size: 0.9375rem;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.3);
+}
+
+.iconWrap {
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
-  background-color: #faf5ff;
-  border: 1px solid #f3e8ff;
-  flex-shrink: 0;
-}
-
-.stepIcon {
+  background: #f5f3ff;
   color: #7c3aed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.cardContent {
-  flex: 1;
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
-.cardTitle {
-  font-size: 1rem;
+.stepTitle {
+  font-size: 1.125rem;
   font-weight: 700;
-  color: #111827;
-  letter-spacing: -0.01em;
-  margin: 0 0 4px 0;
-}
-
-.cardDesc {
-  font-size: 0.8125rem;
-  line-height: 1.45;
-  color: #6b7280;
+  color: #0f172a;
   margin: 0;
 }
 
-/* Connector Chevron */
-.connector {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #a78bfa;
-  flex-shrink: 0;
+.stepDesc {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
 }
 
-.chevronIcon {
-  opacity: 0.7;
-}
+/* Tablet / Mobile */
+@media (max-width: 860px) {
+  .stepsGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .stepsContainer {
-    flex-direction: column;
-    gap: 20px;
-  }
-  .stepWrapper {
-    width: 100%;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .card {
-    width: 100%;
-  }
-  .connector {
-    transform: rotate(90deg);
+  .stepCard {
+    padding: 1.25rem 1.25rem;
   }
 }

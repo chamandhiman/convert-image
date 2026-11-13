@@ -8,7 +8,8 @@ import { ROUTES } from '@/routes/paths';
 import styles from './Footer.module.css';
 
 const TOOLS_LINKS = [
-  { label: 'Image Converter', to: ROUTES.convert },
+  { label: 'Convert Image', to: ROUTES.convert },
+  { label: 'Smart Image Editor', to: ROUTES.edit },
   { label: 'Resize Image', to: ROUTES.resize },
   { label: 'Compress Image', to: ROUTES.compress },
   { label: 'Crop Image', to: ROUTES.crop },
@@ -178,9 +179,11 @@ export function Footer() {
             © {currentYear} WebToolOcean. All rights reserved.
           </div>
           <div className={styles.legalLinks}>
-            <Link to={ROUTES.privacy} className={styles.legalLink}>Privacy</Link>
+            <Link to={ROUTES.privacy} className={styles.legalLink}>Privacy Policy</Link>
             <Link to={ROUTES.terms} className={styles.legalLink}>Terms</Link>
-            <Link to={ROUTES.cookies} className={styles.legalLink}>Cookies</Link>
+            <Link to={`${ROUTES.terms}#disclaimer`} className={styles.legalLink}>Disclaimer</Link>
+            <Link to={ROUTES.cookies} className={styles.legalLink}>Cookie Policy</Link>
+            <Link to={ROUTES.contact} className={styles.legalLink}>Contact</Link>
             <button
               type="button"
               className={styles.cookiePrefsBtn}

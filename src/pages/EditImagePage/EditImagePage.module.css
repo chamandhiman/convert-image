@@ -1,0 +1,1962 @@
+/* =============================================================================
+   Smart Image Editor — Complete Studio Workspace Styles
+   ========================================================================== */
+
+.editorRoot {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* =============================================================================
+   1. Compact Hero Introduction & Landing Section
+   ========================================================================== */
+/* =============================================================================
+   1. Compact Hero Introduction & Upload Box
+   ========================================================================== */
+.compactUploadHero {
+  width: 100%;
+  padding: 0.75rem 0 1.5rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.compactUploadBox {
+  width: 100%;
+  max-width: 840px;
+  padding: 2.25rem 1.75rem;
+  background: linear-gradient(180deg, #ffffff 0%, #faf8ff 100%);
+  border: 2px dashed #c4b5fd;
+  border-radius: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 20px -2px rgba(124, 58, 237, 0.06);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.compactUploadBox:hover {
+  border-color: #7c3aed;
+  background: #fcfaff;
+  box-shadow: 0 8px 24px -2px rgba(124, 58, 237, 0.12);
+}
+
+.compactUploadBoxDrag {
+  border-color: #7c3aed;
+  background: #f5f0ff;
+  border-style: solid;
+  transform: scale(1.005);
+}
+
+.compactHeading {
+  font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.35rem 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .compactHeading {
+    white-space: normal;
+  }
+}
+
+.titleGradient {
+  background: linear-gradient(135deg, #7c3aed 0%, #d84697 50%, #f27e4b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.compactDesc {
+  font-size: 0.9375rem;
+  color: #475569;
+  margin: 0 0 1rem 0;
+  max-width: 62ch;
+  line-height: 1.45;
+}
+
+.compactFeatureStrip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.compactPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid #e2dfec;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.pillIcon {
+  color: #7c3aed;
+}
+
+.compactActionRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.compactUploadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 9999px;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #d84697 100%);
+  color: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px -3px rgba(124, 58, 237, 0.35);
+  transition: all 0.18s ease;
+}
+
+.compactUploadBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px -3px rgba(124, 58, 237, 0.45);
+}
+
+.compactDropText {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.compactFormats {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* =============================================================================
+   2. Main Photoshop-Inspired Workspace
+   ========================================================================== */
+.workspaceContainer {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #e2dfec;
+  border-radius: 18px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* Top Toolbar */
+.topToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e8e5f2;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.editorBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #0f172a;
+}
+
+.brandIcon {
+  color: #7c3aed;
+}
+
+.editorHeading {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+/* 7 Tool Tabs */
+.tabsNav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #f1f0f7;
+  padding: 0.25rem;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.tabButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.tabButton:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.tabButtonActive {
+  background: #ffffff !important;
+  color: #7c3aed !important;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.12);
+}
+
+/* Toolbar Right */
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.toolBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #e2dfec;
+  background: #faf9fd;
+  color: #334155;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toolBtn:hover:not(:disabled) {
+  border-color: #c4b5fd;
+  background: #f5f0ff;
+  color: #7c3aed;
+}
+
+.toolBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #e2dfec;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.iconBtn:hover:not(:disabled) {
+  border-color: #7c3aed;
+  color: #7c3aed;
+  background: #faf8ff;
+}
+
+.iconBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.divider {
+  width: 1px;
+  height: 22px;
+  background: #e2dfec;
+  margin: 0 0.2rem;
+}
+
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.15rem;
+  border-radius: 9999px;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  color: #ffffff;
+  font-size: 0.84375rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(124, 58, 237, 0.28);
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.downloadBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.38);
+}
+
+/* =============================================================================
+   3. Main Body: Central Dark Viewport + Right Contextual Panel
+   ========================================================================== */
+.editorMainArea {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  min-height: 640px;
+  background: #18181b;
+  position: relative;
+}
+
+/* Central Viewport */
+.canvasViewport {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #18181b;
+  user-select: none;
+  cursor: default;
+}
+
+.viewportEraser {
+  cursor: none !important;
+}
+
+/* The Stage (Transforms with Pan & Zoom) */
+.imageStage {
+  position: relative;
+  display: inline-block;
+  transform-origin: center center;
+  background-color: #27272a;
+  background-image: linear-gradient(45deg, #1f1f23 25%, transparent 25%),
+    linear-gradient(-45deg, #1f1f23 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #1f1f23 75%),
+    linear-gradient(-45deg, transparent 75%, #1f1f23 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  line-height: 0;
+}
+
+.stageImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* =============================================================================
+   4. Overlay Layers (Text & Shapes)
+   ========================================================================== */
+.stageLayerWrapper {
+  position: absolute;
+  box-sizing: border-box;
+  transform-origin: center center;
+  z-index: 10;
+}
+
+.stageLayerSelected {
+  outline: 2px solid #7c3aed;
+  outline-offset: 1px;
+}
+
+.stageTextContent {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 4px;
+}
+
+/* Selection Handles */
+.layerHandle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 2px solid #7c3aed;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  z-index: 20;
+}
+
+.layerHandleNW {
+  left: -6px;
+  top: -6px;
+  cursor: nwse-resize;
+}
+
+.layerHandleNE {
+  right: -6px;
+  top: -6px;
+  cursor: nesw-resize;
+}
+
+.layerHandleSW {
+  left: -6px;
+  bottom: -6px;
+  cursor: nesw-resize;
+}
+
+.layerHandleSE {
+  right: -6px;
+  bottom: -6px;
+  cursor: nwse-resize;
+}
+
+.stageLayerLocked {
+  outline: 1px dashed #94a3b8 !important;
+  cursor: default !important;
+}
+
+/* Rotate Stalk Handle */
+.layerRotateStalk {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 20px;
+  background: #7c3aed;
+  cursor: grab;
+  z-index: 20;
+}
+
+.layerRotateKnob {
+  position: absolute;
+  top: -6px;
+  left: -5px;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 2px solid #7c3aed;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Floating Action Badge */
+.layerActionBadge {
+  position: absolute;
+  top: -32px;
+  right: 0;
+  display: flex;
+  gap: 3px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+  padding: 3px;
+  border-radius: 6px;
+  z-index: 25;
+}
+
+.layerBadgeBtn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.layerBadgeBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Floating Circular Eraser Cursor */
+.eraserCursorRing {
+  position: fixed;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), inset 0 0 4px rgba(255, 255, 255, 0.4);
+  z-index: 100;
+}
+
+/* =============================================================================
+   5. Crop Overlay & Handles
+   ========================================================================== */
+.cropOverlay {
+  position: absolute;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  cursor: move;
+  z-index: 30;
+  box-sizing: border-box;
+}
+
+.gridLineH1,
+.gridLineH2,
+.gridLineV1,
+.gridLineV2 {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+
+.gridLineH1 {
+  top: 33.333%;
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.gridLineH2 {
+  top: 66.666%;
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.gridLineV1 {
+  left: 33.333%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.gridLineV2 {
+  left: 66.666%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.cropDimensionsBadge {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.cropHandle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border: 2px solid #7c3aed;
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.handleNW {
+  top: -7px;
+  left: -7px;
+  cursor: nw-resize;
+}
+.handleNE {
+  top: -7px;
+  right: -7px;
+  cursor: ne-resize;
+}
+.handleSE {
+  bottom: -7px;
+  right: -7px;
+  cursor: se-resize;
+}
+.handleSW {
+  bottom: -7px;
+  left: -7px;
+  cursor: sw-resize;
+}
+
+.edgeHandle {
+  position: absolute;
+  background: #ffffff;
+  border: 1px solid #7c3aed;
+}
+
+.edgeN {
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 6px;
+  border-radius: 3px;
+  cursor: n-resize;
+}
+.edgeS {
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 6px;
+  border-radius: 3px;
+  cursor: s-resize;
+}
+.edgeW {
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 24px;
+  border-radius: 3px;
+  cursor: w-resize;
+}
+.edgeE {
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 24px;
+  border-radius: 3px;
+  cursor: e-resize;
+}
+
+/* Proposed Canvas Guide */
+.canvasProposedGuide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px dashed #a855f7;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Floating Zoom Bar */
+.floatingZoomBar {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(24, 24, 27, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.3rem 0.6rem;
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 50;
+}
+
+.zoomBtn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.zoomBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.zoomBadge {
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0 0.35rem;
+  min-width: 44px;
+  text-align: center;
+}
+
+.zoomTextBtn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.zoomTextBtn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* =============================================================================
+   6. Contextual Settings Panel (Right)
+   ========================================================================== */
+.contextualPanel {
+  background: #ffffff;
+  border-left: 1px solid #e8e5f2;
+  overflow-y: auto;
+  max-height: 720px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Side Panel Tabs (Properties vs Layers) */
+.sidePanelTabs {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e8e5f2;
+  background: #faf9fd;
+  padding: 0.35rem 0.5rem 0 0.5rem;
+  gap: 0.35rem;
+  position: sticky;
+  top: 0;
+  z-index: 25;
+}
+
+.sidePanelTabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: none;
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  bottom: -1px;
+}
+
+.sidePanelTabBtn:hover {
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.04);
+}
+
+.sidePanelTabActive {
+  background: #ffffff !important;
+  color: #7c3aed !important;
+  border-color: #e8e5f2 !important;
+  border-bottom: 1px solid #ffffff !important;
+  font-weight: 700;
+}
+
+.layersTabBadge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 9999px;
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+/* Layers Panel Styles */
+.layersQuickAddGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.layersAddBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #e2dfec;
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.layersAddBtn:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+  background: #f5f0ff;
+}
+
+.layersList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.emptyLayersState {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  background: #faf9fd;
+  border: 1px dashed #e2dfec;
+  border-radius: 12px;
+  color: #475569;
+}
+
+.emptyLayersState p {
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
+  font-size: 0.84375rem;
+}
+
+.emptyLayersHint {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.layerRowItem {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.65rem;
+  background: #ffffff;
+  border: 1px solid #e8e5f2;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  position: relative;
+}
+
+.layerRowItem:hover {
+  border-color: #c4b5fd;
+  background: #faf9fd;
+}
+
+.layerRowSelected {
+  border-color: #7c3aed !important;
+  background: #f5f0ff !important;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.12);
+}
+
+.layerRowHidden {
+  opacity: 0.55;
+  background: #f8fafc;
+}
+
+.layerRowLocked {
+  border-style: dashed;
+}
+
+.layerRowDragOver {
+  border-top: 2px solid #7c3aed !important;
+  transform: translateY(-2px);
+}
+
+.layerDragGrip {
+  color: #94a3b8;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.layerDragGrip:active {
+  cursor: grabbing;
+}
+
+.layerTypeIconWrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #f5f3ff;
+  color: #7c3aed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.layerTypeIcon {
+  color: #7c3aed;
+}
+
+.layerNameCol {
+  flex: 1;
+  min-width: 0;
+}
+
+.layerNameText {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1e293b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: text;
+}
+
+.layerRenameInput {
+  width: 100%;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: 1px solid #7c3aed;
+  border-radius: 4px;
+  outline: none;
+  background: #ffffff;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+.layerActionsCol {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.layerMiniBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: none;
+  background: none;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  padding: 0;
+}
+
+.layerMiniBtn:hover:not(:disabled) {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.layerMiniBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.layerMiniBtnOff {
+  color: #94a3b8;
+}
+
+.layerMiniBtnActive {
+  color: #d97706 !important;
+  background: #fef3c7 !important;
+}
+
+.layerMiniBtnDanger:hover {
+  background: #fee2e2 !important;
+  color: #ef4444 !important;
+}
+
+/* Base Original Image Layer */
+.baseLayerRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-top: 0.25rem;
+}
+
+.baseLayerIconWrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.baseLayerInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.baseLayerTitle {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.baseLayerSub {
+  font-size: 0.6875rem;
+  color: #94a3b8;
+}
+
+.baseLayerLockedBadge {
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+}
+
+.panelContent {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.panelHeaderRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.panelTitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.25rem 0;
+}
+
+.panelDesc {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.controlsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.dimensionInputsRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.inputField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.fieldLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fieldSubtext {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: -0.2rem 0 0.5rem 0;
+}
+
+.labelWithAction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.miniToggleBtn {
+  background: none;
+  border: none;
+  color: #7c3aed;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.numInput {
+  width: 100%;
+  padding: 0.55rem 2rem 0.55rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.numInput:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+.unitTag {
+  position: absolute;
+  right: 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.lockButtonWrap {
+  margin-bottom: 0.25rem;
+}
+
+.lockActive,
+.lockInactive {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #e2dfec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lockActive {
+  background: #f5f0ff;
+  border-color: #7c3aed;
+  color: #7c3aed;
+}
+
+.lockInactive {
+  background: #ffffff;
+  color: #94a3b8;
+}
+
+/* Preset scale pills */
+.presetButtonsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.presetLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.scalePresetBtn {
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #e2dfec;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.scalePresetBtn:hover {
+  background: #ede9fe;
+  color: #7c3aed;
+  border-color: #c4b5fd;
+}
+
+/* Stats Box */
+.statsBox {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+}
+
+.statKey {
+  color: #64748b;
+}
+
+.statVal {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.statValHighlight {
+  font-weight: 700;
+  color: #7c3aed;
+}
+
+/* Button stack & apply */
+.applyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.25);
+}
+
+.applyBtn:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(124, 58, 237, 0.35);
+}
+
+.applyBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondaryBtn {
+  padding: 0.65rem;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.84375rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+}
+
+.secondaryBtn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.buttonStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Crop Presets */
+.presetGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.presetPillsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.4rem;
+}
+
+.presetPill {
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #e2dfec;
+  background: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.presetPill:hover {
+  border-color: #c4b5fd;
+  color: #7c3aed;
+}
+
+.presetPillActive {
+  background: #f5f0ff !important;
+  border-color: #7c3aed !important;
+  color: #7c3aed !important;
+}
+
+.customRatioRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ratioInput {
+  flex: 1;
+  padding: 0.45rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* =============================================================================
+   7. Rotate Tab Specific Styles
+   ========================================================================== */
+.rotateActionsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.rotateBtnGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+}
+
+.quickToolBtn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.65rem 0.4rem;
+  border-radius: 8px;
+  border: 1px solid #e2dfec;
+  background: #faf9fd;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quickToolBtn:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+  background: #f5f0ff;
+}
+
+.flipBtnRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.flipBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem;
+  border-radius: 8px;
+  border: 1px solid #e2dfec;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.flipBtn:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+}
+
+.flipBtnActive {
+  background: #f5f0ff !important;
+  border-color: #7c3aed !important;
+  color: #7c3aed !important;
+}
+
+.sliderGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sliderHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sliderValBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #7c3aed;
+  background: #f5f0ff;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+}
+
+.angleInputWrap {
+  position: relative;
+  width: 72px;
+}
+
+.angleNumInput {
+  width: 100%;
+  padding: 0.25rem 1.25rem 0.25rem 0.45rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+.rangeSlider {
+  width: 100%;
+  accent-color: #7c3aed;
+  cursor: pointer;
+}
+
+.rangeLabelsRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  color: #94a3b8;
+}
+
+.rangeCenterTick {
+  cursor: pointer;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.rangeCenterTick:hover {
+  color: #7c3aed;
+}
+
+/* =============================================================================
+   8. Canvas Tab: Anchor Grid & Colors
+   ========================================================================== */
+.anchorSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.anchorGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.anchorBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.anchorBtn:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+}
+
+.anchorBtnActive {
+  background: #7c3aed !important;
+  border-color: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+.bgSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bgOptionsRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.4rem;
+}
+
+.bgOptionBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #e2dfec;
+  background: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bgOptionActive {
+  border-color: #7c3aed !important;
+  background: #f5f0ff !important;
+  color: #7c3aed !important;
+}
+
+.checkerThumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid #cbd5e1;
+  background: linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 8px 8px;
+}
+
+.colorThumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid #cbd5e1;
+}
+
+.colorPickerRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.colorInput {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 2px;
+  cursor: pointer;
+  background: none;
+}
+
+.colorInputMini {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 1px;
+  cursor: pointer;
+}
+
+.hexInput {
+  flex: 1;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.84375rem;
+  font-family: monospace;
+}
+
+/* =============================================================================
+   9. Add Text & Typography Panel
+   ========================================================================== */
+.addLayerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  border: none;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.addLayerBtn:hover {
+  background: #6d28d9;
+}
+
+.layerSelectorWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.layersPillList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.layerPill {
+  padding: 0.3rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid #e2dfec;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.layerPillActive {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border-color: #7c3aed !important;
+}
+
+.layerEditorBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f1f0f7;
+}
+
+.textAreaInput {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.875rem;
+  color: #0f172a;
+  box-sizing: border-box;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.selectInput {
+  width: 100%;
+  padding: 0.55rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.84375rem;
+  font-weight: 600;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.twoColRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.formatBtnGroup {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.formatIconBtn {
+  flex: 1;
+  padding: 0.55rem 0.3rem;
+  background: #ffffff;
+  border: none;
+  border-right: 1px solid #e2e8f0;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.formatIconBtn:last-child {
+  border-right: none;
+}
+
+.formatBtnActive {
+  background: #f5f0ff !important;
+  color: #7c3aed !important;
+  font-weight: 700;
+}
+
+.miniColorSwatches {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.miniSwatchBtn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.miniSwatchBtn:hover {
+  transform: scale(1.2);
+}
+
+.strokeControlRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.layerActionFooter {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.deleteLayerBtn {
+  padding: 0.65rem;
+  border-radius: 10px;
+  border: 1px solid #fecaca;
+  background: #fff5f5;
+  color: #ef4444;
+  font-size: 0.84375rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+}
+
+.deleteLayerBtn:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+}
+
+.emptyLayerPrompt {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.promptIcon {
+  color: #cbd5e1;
+}
+
+/* =============================================================================
+   10. Erase Tool Specific Styles
+   ========================================================================== */
+.tipCard {
+  display: flex;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  background: #faf8ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 10px;
+}
+
+.tipIcon {
+  color: #7c3aed;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.tipText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.78125rem;
+  line-height: 1.4;
+  color: #4b5563;
+}
+
+.tipText strong {
+  color: #1e1b4b;
+}
+
+/* =============================================================================
+   11. Shapes Tool Specific Styles
+   ========================================================================== */
+.shapeTypesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+}
+
+.shapeAddCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.65rem 0.25rem;
+  border-radius: 10px;
+  border: 1px solid #e2dfec;
+  background: #faf9fd;
+  color: #334155;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.shapeAddCard:hover {
+  border-color: #7c3aed;
+  background: #f5f0ff;
+  color: #7c3aed;
+  transform: translateY(-1px);
+}
+
+/* =============================================================================
+   12. Bottom Status Bar
+   ========================================================================== */
+.bottomStatusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1.25rem;
+  background: #faf9fd;
+  border-top: 1px solid #e8e5f2;
+  font-size: 0.8125rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.statusSection {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.statusLabel {
+  color: #64748b;
+}
+
+.statusValue {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.statusHistory {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.historyStepBadge {
+  background: #ede9fe;
+  color: #6d28d9;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+}
+
+.layersCountBadge {
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+}
+
+/* Workspace Alert */
+.workspaceAlert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  background: #fef2f2;
+  border-bottom: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 0.84375rem;
+  font-weight: 600;
+}
+
+.alertCloseBtn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #b91c1c;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* Error Alert */
+.errorAlert {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.84375rem;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .editorMainArea {
+    grid-template-columns: 1fr;
+  }
+
+  .canvasViewport {
+    min-height: 480px;
+  }
+
+  .contextualPanel {
+    max-height: none;
+    border-left: none;
+    border-top: 1px solid #e8e5f2;
+  }
+}
+
+@media (max-width: 640px) {
+  .topToolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbarRight {
+    justify-content: space-between;
+  }
+
+  .tabsNav {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

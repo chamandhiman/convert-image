@@ -1,105 +1,107 @@
+/* =============================================================================
+   Final CTA Banner
+   ========================================================================== */
+
 .section {
-  padding-top: clamp(2rem, 4vw, 3.5rem);
-  padding-bottom: clamp(3rem, 6vw, 5rem);
-  background-color: #ffffff;
+  padding: 0 0 clamp(4rem, 7vw, 6rem);
+  width: 100%;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .banner {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(2rem, 5vw, 4rem);
-  background: linear-gradient(135deg, #fdf6ff 0%, #f7edfd 45%, #efe5fc 100%);
-  border: 1px solid #eedcfb;
+  background: linear-gradient(135deg, rgba(245, 243, 255, 0.9) 0%, rgba(253, 242, 248, 0.95) 100%);
+  border: 1px solid rgba(226, 223, 236, 0.9);
   border-radius: 28px;
-  padding: clamp(2.5rem, 5vw, 3.75rem) clamp(2rem, 5vw, 4rem);
-  box-shadow: 0 12px 32px -8px rgba(124, 58, 237, 0.12), 0 2px 8px rgba(0, 0, 0, 0.02);
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3rem);
+  text-align: center;
+  box-shadow:
+    0 16px 40px -10px rgba(124, 58, 237, 0.1),
+    0 2px 6px rgba(0, 0, 0, 0.03);
   overflow: hidden;
 }
 
-/* Subtle background sunburst ambiance */
-.bannerRays {
+.ambientGlow {
   position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at 55% 50%,
-    rgba(255, 255, 255, 0.6) 0%,
-    rgba(245, 232, 254, 0.3) 40%,
-    transparent 70%
-  );
+  top: -50%;
+  left: 25%;
+  width: 50%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 50%, rgba(192, 132, 252, 0.25) 0%, rgba(244, 114, 182, 0.1) 40%, transparent 70%);
+  filter: blur(50px);
   pointer-events: none;
-  z-index: 0;
 }
 
-/* Floating Graphic */
-.graphicWrap {
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Content */
 .content {
   position: relative;
   z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.kicker {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7c3aed;
+  margin-bottom: 0.5rem;
 }
 
 .title {
-  font-size: clamp(1.85rem, 3.2vw, 2.75rem);
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
   font-weight: 800;
-  line-height: 1.15;
+  color: #0f172a;
   letter-spacing: -0.025em;
-  color: #111827;
-  margin: 0 0 0.875rem 0;
+  line-height: 1.15;
+  margin: 0 0 1rem;
 }
 
-.burstWord {
-  position: relative;
-  display: inline-block;
-  color: #7c3aed;
-}
-
-.burstRays {
-  position: absolute;
-  top: -14px;
-  right: -16px;
-  pointer-events: none;
+.gradientWord {
+  background: linear-gradient(135deg, #7c3aed 0%, #c026d3 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .desc {
-  font-size: clamp(0.95rem, 1.2vw, 1.0625rem);
-  color: #4b5563;
-  margin: 0 0 1.75rem 0;
-  max-width: 480px;
+  font-size: clamp(1rem, 1.2vw, 1.125rem);
+  line-height: 1.6;
+  color: #475569;
+  margin: 0 0 2rem;
 }
 
-.ctaButton {
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.primaryBtn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: linear-gradient(90deg, #8929c0 0%, #d84697 52%, #f27e4b 100%);
-  color: #ffffff;
-  padding: 13px 32px;
+  gap: 0.6rem;
+  padding: 0.85rem 1.85rem;
   border-radius: 9999px;
-  font-size: 0.9375rem;
-  font-weight: 600;
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 40%, #ec4899 100%);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 8px 24px -4px rgba(137, 41, 192, 0.42);
-  transition: all 0.22s ease;
-  white-space: nowrap;
+  box-shadow: 0 6px 20px -2px rgba(124, 58, 237, 0.35);
+  transition: all 0.2s ease;
 }
 
-.ctaButton:hover {
+.primaryBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px -4px rgba(137, 41, 192, 0.52);
+  box-shadow: 0 10px 26px -2px rgba(124, 58, 237, 0.45);
   filter: brightness(1.05);
 }
 
@@ -107,14 +109,47 @@
   transition: transform 0.2s ease;
 }
 
-.ctaButton:hover .btnArrow {
-  transform: translateX(4px);
+.primaryBtn:hover .btnArrow {
+  transform: translateX(3px);
 }
 
-/* Responsive */
-@media (max-width: 800px) {
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.65rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid #e2dfec;
+  color: #1e293b;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s ease;
+}
+
+.secondaryBtn:hover {
+  transform: translateY(-2px);
+  color: #7c3aed;
+  border-color: #c084fc;
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.1);
+  background: #faf9fd;
+}
+
+@media (max-width: 576px) {
   .banner {
+    padding: 2rem 1.25rem;
+  }
+
+  .buttonGroup {
     flex-direction: column;
-    padding: 2.5rem 1.75rem;
+    width: 100%;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+    justify-content: center;
   }
 }
