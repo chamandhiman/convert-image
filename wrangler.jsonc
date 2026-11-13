@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "convert-image",
+  "compatibility_date": "2024-09-23",
+
+  // Cloudflare Workers Static Assets (<= 25 MiB per file limit enforced by build script)
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "single-page-application"
+  },
+
+  // Environment variables
+  "vars": {
+    "VITE_SITE_URL": "https://image.webtoolocean.com",
+    "VITE_ANALYTICS_ID": "G-4C1PP726EZ"
+    // When your R2 bucket is created and connected to a custom domain:
+    // "VITE_MODELS_BASE_URL": "https://models.webtoolocean.com"
+  }
+}

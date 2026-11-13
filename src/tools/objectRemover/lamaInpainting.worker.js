@@ -13,7 +13,6 @@ const ort = ortModule.default || ortModule;
 
 let cachedSession = null;
 let activeBackend = 'wasm';
-const MODEL_SIZE = 208044816; // 198.4 MB
 const WEBGPU_TIMEOUT_MS = 12000;
 const WASM_TIMEOUT_MS = 60000;
 

@@ -17,7 +17,6 @@ import { consumePendingToolInput } from '@/utils/toolStateBridge';
 import {
   trackImageUpload,
   trackImageConvert,
-  trackImageDownload,
 } from '@/utils/analytics';
 import {
   RESTORATION_STRENGTHS,

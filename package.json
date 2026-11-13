@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:server": "node server/index.js",
-    "build": "vite build",
+    "build": "vite build && node scripts/verify_dist_assets.js",
     "lint": "oxlint",
     "preview": "vite preview"
   },

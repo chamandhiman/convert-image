@@ -23,7 +23,8 @@ export const MODEL_SPECS = {
     name: 'Real-ESRGAN General x4 v3',
     fileName: 'realesr-general-x4v3.onnx',
     sizeBytes: 4866417, // 4.64 MB
-    upstreamUrl: 'https://huggingface.co/CoderViking/realesr-general-x4v3-onnx/resolve/main/realesr-general-x4v3.onnx',
+    upstreamUrl:
+      'https://huggingface.co/CoderViking/realesr-general-x4v3-onnx/resolve/main/realesr-general-x4v3.onnx',
     localDevPath: '/models/realesr-general-x4v3.onnx',
   },
 };
@@ -61,12 +62,20 @@ export function getModelConfig(modelKey) {
     urls.push(`${env.modelsBaseUrl}/${spec.fileName}`);
   }
 
-  // 3. Local path (works in dev or for assets hosted with app)
-  urls.push(spec.localDevPath);
-
-  // 4. Upstream fallback
-  if (spec.upstreamUrl) {
-    urls.push(spec.upstreamUrl);
+  // 3. Local path vs Upstream CDN
+  // In development, prioritize local dev path served by Vite.
+  // In production, lama_fp32.onnx is deliberately excluded from dist/ (>25 MiB Cloudflare limit),
+  // so prioritize upstream CDN if no R2 URL was configured, keeping local path as final fallback.
+  if (env.isDev || modelKey !== 'lama') {
+    urls.push(spec.localDevPath);
+    if (spec.upstreamUrl) {
+      urls.push(spec.upstreamUrl);
+    }
+  } else {
+    if (spec.upstreamUrl) {
+      urls.push(spec.upstreamUrl);
+    }
+    urls.push(spec.localDevPath);
   }
 
   // Deduplicate URLs while preserving order
@@ -80,4 +89,3 @@ export function getModelConfig(modelKey) {
 }
 
 export default getModelConfig;
-

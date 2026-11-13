@@ -93,7 +93,6 @@ export async function downloadModelWithCache({
   // 2. Fetch from network with multi-URL fallback
   const attemptUrls = [primaryUrl, ...fallbackUrls].filter(Boolean);
   const attemptedLogs = [];
-  let lastError = null;
 
   for (let i = 0; i < attemptUrls.length; i++) {
     const url = attemptUrls[i];
@@ -182,7 +181,6 @@ export async function downloadModelWithCache({
 
       return modelBytes;
     } catch (err) {
-      lastError = err;
       attemptedLogs.push(`${url} -> ${err?.message || 'Failed'}`);
       console.warn(`[ModelDownloader] Could not load ${spec.fileName} from ${url}:`, err?.message);
       // Loop continues to next fallback URL
