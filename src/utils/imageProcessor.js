@@ -11,6 +11,8 @@ export const ALL_OUTPUT_FORMATS = [
   { value: 'image/jpeg', label: 'JPG', extension: '.jpg', lossy: true },
   { value: 'image/png', label: 'PNG', extension: '.png', lossy: false },
   { value: 'image/webp', label: 'WebP', extension: '.webp', lossy: true },
+  { value: 'image/gif', label: 'GIF', extension: '.gif', lossy: false },
+  { value: 'application/pdf', label: 'PDF', extension: '.pdf', lossy: false },
 ];
 
 /** Default output formats for compression (JPG, PNG, WebP). */
@@ -105,6 +107,8 @@ export function getFormatLabel(mimeType, filename = '') {
       return 'AVIF';
     case 'image/gif':
       return 'GIF';
+    case 'application/pdf':
+      return 'PDF';
     case 'image/svg+xml':
       return 'SVG';
     default: {
@@ -269,6 +273,71 @@ export function calculateDimensions(
 }
 
 /**
+ * Convert an HTMLCanvasElement into a standard single-page PDF 1.4 Blob.
+ * Pure JavaScript, offline, zero dependencies.
+ *
+ * @param {HTMLCanvasElement} canvas
+ * @param {number} quality
+ * @returns {Promise<Blob>}
+ */
+function canvasToPdfBlob(canvas, quality = 0.92) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((jpegBlob) => {
+      if (!jpegBlob) {
+        reject(new Error('Failed to encode image for PDF generation.'));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const bytes = new Uint8Array(reader.result);
+          const width = Math.round(canvas.width);
+          const height = Math.round(canvas.height);
+
+          const header = '%PDF-1.4\n';
+          const obj1 = '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n';
+          const obj2 = '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n';
+          const obj3 = `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${width} ${height}] /Resources << /XObject << /Im 4 0 R >> >> /Contents 5 0 R >>\nendobj\n`;
+          const obj4Header = `4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`;
+          const obj4Footer = '\nendstream\nendobj\n';
+          const contentStream = `q ${width} 0 0 ${height} 0 0 cm /Im Do Q\n`;
+          const obj5 = `5 0 obj\n<< /Length ${contentStream.length} >>\nstream\n${contentStream}endstream\nendobj\n`;
+
+          const enc = new TextEncoder();
+          const bHeader = enc.encode(header);
+          const bObj1 = enc.encode(obj1);
+          const bObj2 = enc.encode(obj2);
+          const bObj3 = enc.encode(obj3);
+          const bObj4H = enc.encode(obj4Header);
+          const bObj4F = enc.encode(obj4Footer);
+          const bObj5 = enc.encode(obj5);
+
+          const off1 = bHeader.length;
+          const off2 = off1 + bObj1.length;
+          const off3 = off2 + bObj2.length;
+          const off4 = off3 + bObj3.length;
+          const off5 = off4 + bObj4H.length + bytes.length + bObj4F.length;
+          const startXref = off5 + bObj5.length;
+
+          const xref = `xref\n0 6\n0000000000 65535 f \n${String(off1).padStart(10, '0')} 00000 n \n${String(off2).padStart(10, '0')} 00000 n \n${String(off3).padStart(10, '0')} 00000 n \n${String(off4).padStart(10, '0')} 00000 n \n${String(off5).padStart(10, '0')} 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${startXref}\n%%EOF\n`;
+          const bXref = enc.encode(xref);
+
+          const pdfBlob = new Blob(
+            [bHeader, bObj1, bObj2, bObj3, bObj4H, bytes, bObj4F, bObj5, bXref],
+            { type: 'application/pdf' },
+          );
+          resolve(pdfBlob);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read image buffer for PDF.'));
+      reader.readAsArrayBuffer(jpegBlob);
+    }, 'image/jpeg', quality);
+  });
+}
+
+/**
  * Draw an image onto a Canvas with optional dimension scaling and format encoding.
  *
  * @param {HTMLImageElement} img
@@ -281,7 +350,7 @@ export function calculateDimensions(
  */
 function processCanvas(
   img,
-  { outputType = 'image/jpeg', quality = 0.85, width: targetWidth, height: targetHeight } = {},
+  { outputType = 'image/jpeg', quality = 0.85, width: targetWidth, height: targetHeight, backgroundColor = '#ffffff' } = {},
 ) {
   return new Promise((resolve, reject) => {
     try {
@@ -325,13 +394,29 @@ function processCanvas(
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
 
-      // Fill background for JPEG so transparent pixels do not turn black
-      if (outputType === 'image/jpeg') {
-        ctx.fillStyle = options.backgroundColor || '#ffffff';
+      // Fill background for JPEG or PDF so transparent pixels do not turn black
+      if (outputType === 'image/jpeg' || outputType === 'application/pdf') {
+        ctx.fillStyle = backgroundColor || '#ffffff';
         ctx.fillRect(0, 0, width, height);
       }
 
       ctx.drawImage(img, 0, 0, width, height);
+
+      if (outputType === 'application/pdf') {
+        canvasToPdfBlob(canvas, quality)
+          .then((blob) => {
+            const url = URL.createObjectURL(blob);
+            resolve({
+              blob,
+              url,
+              width: canvas.width,
+              height: canvas.height,
+              outputType: 'application/pdf',
+            });
+          })
+          .catch(reject);
+        return;
+      }
 
       canvas.toBlob(
         (blob) => {
@@ -467,14 +552,28 @@ export function buildResizedFilename(originalName, outputType, width, height, cu
  * @param {string} filename
  */
 export function downloadBlob(blob, filename) {
+  if (!blob) {
+    console.error('[downloadBlob] Invalid or null blob provided for download:', filename);
+    return false;
+  }
+  const cleanFilename = (filename || 'download').trim();
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
+  a.style.display = 'none';
+  a.href = url;
+  a.download = cleanFilename;
+  a.rel = 'noopener';
   document.body.appendChild(a);
   a.click();
 
+  // Revoke object URL after a generous delay (60 seconds) so the browser can
+  // finish streaming the file to the local filesystem without premature revocation
   setTimeout(() => {
-    URL.revokeObjectURL(a.href);
-    document.body.removeChild(a);
-  }, 100);
+    URL.revokeObjectURL(url);
+    if (a.parentNode) {
+      a.parentNode.removeChild(a);
+    }
+  }, 60000);
+
+  return true;
 }

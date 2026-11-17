@@ -512,3 +512,5 @@
   font-size: 0.875rem;
   font-weight: 500;
 }
+
+.uploadPrompt { font-size: 1.05rem; font-weight: 600; color: #1e293b; margin: 0; }

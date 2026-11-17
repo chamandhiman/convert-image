@@ -1,0 +1,215 @@
+/* Left Toolbar — Sleek, compact Photoshop-style tool rail */
+
+.leftToolbar {
+  width: 50px;
+  height: 100%;
+  max-height: 100%;
+  background: #ffffff;
+  border-right: 1px solid #e8e5f2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0 0.5rem 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  user-select: none;
+  z-index: 20;
+  overflow: hidden;
+}
+
+.toolsScrollArea {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.15rem 0.25rem 0.5rem 0.25rem;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s ease;
+}
+
+/* Slim visible scrollbar on hover */
+.leftToolbar:hover .toolsScrollArea {
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.toolsScrollArea::-webkit-scrollbar {
+  width: 4px;
+}
+
+.toolsScrollArea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.toolsScrollArea::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+.leftToolbar:hover .toolsScrollArea::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+}
+
+.toolsScrollArea::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+.toolGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.groupDivider {
+  width: 28px;
+  height: 1px;
+  background: #ede9fe;
+  margin: 4px 0;
+  flex-shrink: 0;
+}
+
+.toolButton {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  padding: 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.toolButton:hover:not(:disabled) {
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.toolButtonActive {
+  background: #f5f0ff !important;
+  color: #7c3aed !important;
+  border-color: rgba(124, 58, 237, 0.35) !important;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.15);
+}
+
+.toolButtonDisabled {
+  color: #94a3b8 !important;
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.toolIcon {
+  flex-shrink: 0;
+}
+
+/* Bottom Color Swatches */
+.colorPaletteSection {
+  margin-top: auto;
+  padding-top: 0.4rem;
+  border-top: 1px solid #ede9fe;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.colorSectionDisabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.swatchStack {
+  position: relative;
+  width: 34px;
+  height: 34px;
+}
+
+.swatchBox {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s ease;
+}
+
+.swatchBox:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.swatchBox:disabled {
+  cursor: not-allowed;
+}
+
+.swatchFg {
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.swatchBg {
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+  border-color: #cbd5e1;
+}
+
+.swapColorsBtn {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 15px;
+  height: 15px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid #ede9fe;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  z-index: 3;
+  transition: all 0.15s ease;
+}
+
+.swapColorsBtn:hover:not(:disabled) {
+  color: #7c3aed;
+  border-color: #c4b5fd;
+  transform: rotate(180deg);
+}
+
+.swapColorsBtn:disabled {
+  cursor: not-allowed;
+}
+
+.hiddenColorInput {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}

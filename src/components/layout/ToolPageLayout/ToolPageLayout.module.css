@@ -1,45 +1,30 @@
 /* =============================================================================
-   ToolPageLayout
+   ToolPageLayout — Standardized Responsive Tool Page Shell
    ========================================================================== */
 
+.toolPageRoot {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.embeddedRoot {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ---------------------------------------------------------------------------
-   Hero — each tool page starts here. A gentle gradient distinguishes it from
-   the plain background and creates visual hierarchy above the workspace.
+   Page Header (Centered H1 & Subtitle)
    ------------------------------------------------------------------------ */
-.hero {
-  position: relative;
-  overflow: hidden;
-  padding-block: clamp(var(--space-10), 5vw, var(--space-16))
-    clamp(var(--space-6), 3vw, var(--space-10));
-  background: linear-gradient(
-    160deg,
-    var(--color-bg-subtle) 0%,
-    var(--color-bg) 60%
-  );
-  border-bottom: var(--border-width) solid var(--color-border);
-}
-
-/* Decorative radial glow behind the title */
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse 60% 120% at 50% -20%,
-    color-mix(in srgb, var(--color-accent) 10%, transparent),
-    transparent 70%
-  );
-  pointer-events: none;
-}
-
-.heroInner {
-  position: relative;
-  z-index: 1;
+.pageHeader {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: var(--space-3);
+  gap: 0.45rem;
+  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  width: 100%;
 }
 
 .badge {
@@ -56,54 +41,57 @@
   text-transform: uppercase;
 }
 
-.title {
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: var(--letter-spacing-tight);
-  max-width: 22ch;
-  animation: slideUp var(--duration-normal) var(--ease-out) both;
+.pageTitle {
+  font-size: clamp(1.625rem, 3vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
 }
 
-.subtitle {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-secondary);
-  max-width: 52ch;
-  line-height: var(--line-height-relaxed);
+.pageSubtitle {
+  font-size: 0.95rem;
+  color: #64748b;
+  max-width: 620px;
+  line-height: 1.45;
   margin: 0;
-  animation: slideUp var(--duration-slow) var(--ease-out) both;
-  animation-delay: 60ms;
+  text-align: center;
 }
 
 /* ---------------------------------------------------------------------------
    Tool workspace
    ------------------------------------------------------------------------ */
 .workspace {
-  padding-block: var(--space-8) var(--space-12);
-  padding-top: clamp(1.75rem, 3vw, 2.5rem) !important;
+  width: 100%;
+  max-width: var(--tool-max-width, 1140px);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3vw, 1.5rem);
+  padding-top: var(--page-top-spacing, clamp(1.75rem, 3.5vw, 2.5rem));
+  padding-bottom: clamp(2rem, 4vw, 3.5rem);
+  box-sizing: border-box;
+}
+
+.workspaceEmbedded {
+  padding-top: 1rem;
+}
+
+.workspaceFullWidth {
+  max-width: 1680px;
 }
 
 /* ---------------------------------------------------------------------------
    Content / SEO section
    ------------------------------------------------------------------------ */
 .content {
-  padding-block: var(--space-12) var(--space-16);
+  padding-block: clamp(2rem, 4vw, 3.5rem);
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3vw, 1.5rem);
 }
 
 .contentFullWidth {
-  padding-block: var(--space-12) var(--space-16);
+  padding-block: clamp(2rem, 4vw, 3.5rem);
   width: 100%;
-}
-
-/* ---------------------------------------------------------------------------
-   Keyframes
-   ------------------------------------------------------------------------ */
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }

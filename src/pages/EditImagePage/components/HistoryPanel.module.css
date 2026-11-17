@@ -1,0 +1,197 @@
+/* History Panel Styles */
+
+.historyContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem 0.65rem 1rem;
+  border-bottom: 1px solid #f1eff8;
+  gap: 0.5rem;
+}
+
+.titleWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.panelTitle {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.historyBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  background: #f1f0f7;
+  color: #64748b;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.historyActions {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid #e2dfec;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  padding: 0;
+}
+
+.actionBtn:hover:not(:disabled) {
+  border-color: #7c3aed;
+  color: #7c3aed;
+  background: #f5f0ff;
+}
+
+.actionBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.historyList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  box-sizing: border-box;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.emptyIcon {
+  margin-bottom: 0.5rem;
+  opacity: 0.6;
+}
+
+.emptyState p {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #eef0f4;
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.12s ease;
+  width: 100%;
+}
+
+.historyItem:hover {
+  background: #faf8ff;
+  border-color: #c4b5fd;
+}
+
+.itemCurrent {
+  background: #f5f0ff !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.12);
+}
+
+.itemFuture {
+  opacity: 0.5;
+  background: #f8fafc;
+}
+
+.stepIndicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #eef2f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stepNum {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.activeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7c3aed;
+}
+
+.itemMeta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  overflow: hidden;
+}
+
+.itemLabel {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemCurrent .itemLabel {
+  color: #7c3aed;
+}
+
+.itemDimensions {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.6875rem;
+  color: #64748b;
+}
+
+.currentCheck {
+  color: #7c3aed;
+  flex-shrink: 0;
+}
+

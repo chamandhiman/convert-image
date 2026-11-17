@@ -304,7 +304,7 @@ export function ResizePage({ embedded, embeddedOnly }) {
       contentFullWidth
       embedded={embedded}
       embeddedOnly={embeddedOnly}
-      showHero={false}
+      showHero={true}
     >
       <div id="tool" className={styles.toolContainer}>
         {/* Hidden Native File Input */}
@@ -338,10 +338,7 @@ export function ResizePage({ embedded, embeddedOnly }) {
             <div className={styles.uploadIconCircle}>
               <Upload size={32} className={styles.uploadIcon} />
             </div>
-            <h2 className={styles.uploadTitle}>Select an image to resize</h2>
-            <p className={styles.uploadSubtitle}>
-              Drag and drop your image here, or browse from your device
-            </p>
+            <p className={styles.uploadPrompt}>Drag and drop an image here, or browse from your device</p>
             <span className={styles.uploadHint}>
               Supports JPG, PNG, WebP, SVG, GIF, AVIF up to 50 MB
             </span>

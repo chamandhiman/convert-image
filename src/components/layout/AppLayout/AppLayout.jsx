@@ -1,4 +1,4 @@
-import { Outlet, useNavigation } from 'react-router-dom';
+import { Outlet, useNavigation, useLocation } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -7,16 +7,23 @@ import BackToTopButton from '@/components/layout/BackToTopButton';
 import { DragProvider } from '@/hooks/useDragOverlay';
 import DragOverlay from '@/components/ui/DragOverlay';
 import CookieConsentModal from '@/components/ui/CookieConsentModal';
+import { ROUTES } from '@/routes/paths';
 
 import styles from './AppLayout.module.css';
 
 function AppLayout() {
   const navigation = useNavigation();
+  const location = useLocation();
   const isNavigating = navigation.state === 'loading';
+  const isFullBleedEditor = location.pathname === ROUTES.edit;
 
   return (
     <DragProvider>
-      <div className={styles.shell}>
+      <div
+        className={`${styles.shell} ${
+          isFullBleedEditor ? styles.shellEditor : ''
+        }`}
+      >
         <RouteScrollReset />
 
         <a className="skip-link" href="#main-content">
@@ -27,12 +34,14 @@ function AppLayout() {
 
         <main
           id="main-content"
-          className={`${styles.main} ${isNavigating ? styles.mainLoading : ''}`}
+          className={`${styles.main} ${isNavigating ? styles.mainLoading : ''} ${
+            isFullBleedEditor ? styles.mainEditor : ''
+          }`}
         >
           <Outlet />
         </main>
 
-        <Footer />
+        {!isFullBleedEditor && <Footer />}
 
         <BackToTopButton />
         <DragOverlay />

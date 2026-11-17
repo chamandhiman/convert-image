@@ -11,29 +11,29 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-4);
-  padding: var(--space-12) var(--space-6);
-  border: 2px dashed var(--color-border-strong);
-  border-radius: var(--radius-xl);
-  background-color: var(--color-bg-subtle);
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3rem);
+  background: linear-gradient(180deg, #ffffff 0%, #faf8ff 100%);
+  border: 2px dashed #c4b5fd;
+  border-radius: 22px;
   cursor: pointer;
-  transition:
-    border-color var(--duration-fast) var(--ease-standard),
-    background-color var(--duration-fast) var(--ease-standard),
-    box-shadow var(--duration-fast) var(--ease-standard);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px -2px rgba(124, 58, 237, 0.05);
+  box-sizing: border-box;
 }
 
 .dropZone:hover,
 .dropZone:focus-visible {
-  border-color: var(--color-primary);
-  background-color: var(--color-primary-subtle);
-  box-shadow: var(--shadow-glow-primary);
+  border-color: #7c3aed;
+  background: #fbf9ff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px -4px rgba(124, 58, 237, 0.12);
   outline: none;
 }
 
 .dropZoneActive {
-  border-color: var(--color-primary);
-  background-color: var(--color-primary-subtle);
-  box-shadow: var(--shadow-glow-primary);
+  border-color: #7c3aed;
+  background-color: #f5f0ff;
+  box-shadow: 0 12px 32px -4px rgba(124, 58, 237, 0.18);
   animation: dashedPulse 0.8s ease-in-out infinite alternate;
 }
 

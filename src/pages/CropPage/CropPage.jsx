@@ -287,17 +287,12 @@ export function CropPage({ embedded, embeddedOnly }) {
       contentFullWidth
       embedded={embedded}
       embeddedOnly={embeddedOnly}
-      showHero={false}
+      showHero={true}
     >
       <div id="tool" className={styles.converterSurface}>
         {!file && (
           <div className={styles.uploadSurface}>
-            <div className={styles.uploadHeader}>
-              <h2 className={styles.uploadTitle}>Crop your image</h2>
-              <p className={styles.uploadDesc}>
-                Select an image and crop to standard aspect ratios or custom pixel dimensions. Everything stays private on your device.
-              </p>
-            </div>
+            
             <FileUploader
               onFileSelect={(selectedFile) => setFile(selectedFile)}
               accept="image/jpeg,image/png,image/webp,image/gif"

@@ -221,20 +221,11 @@ function CompressPage({ embedded, embeddedOnly }) {
       contentFullWidth
       embedded={embedded}
       embeddedOnly={embeddedOnly}
-      showHero={false}
+      showHero={true}
     >
       <div id="tool" className={styles.converterSurface}>
         {!hasImages ? (
           <div className={styles.uploadSurface}>
-            <div className={styles.uploadHeader}>
-              <div>
-                <h2 className={styles.uploadTitle}>Compress your images</h2>
-                <p className={styles.uploadDesc}>
-                  Select images and reduce their file size while keeping quality.
-                </p>
-              </div>
-            </div>
-
             <MultiImageUploader
               onFilesChange={handleFilesChange}
               onFileSelect={handleFileSelect}

@@ -2,51 +2,15 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Upload,
-  Undo2,
-  Redo2,
-  RotateCcw,
-  Download,
+  AlertCircle,
   Sliders,
-  Crop as CropIcon,
   RotateCw,
-  Layout,
   Type,
   Eraser,
   Shapes as ShapesIcon,
-  Lock,
-  Unlock,
-  ZoomIn,
-  ZoomOut,
-  Check,
-  AlertCircle,
-  FlipHorizontal,
-  FlipVertical,
-  Bold,
-  Italic,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  Copy,
-  Trash2,
-  Plus,
-  Square,
-  Circle,
-  Minus,
-  ArrowRight,
-  Triangle,
-  Star,
-  Info,
-  Layers,
-  Eye,
-  EyeOff,
-  GripVertical,
-  ChevronUp,
-  ChevronDown,
-  Image as ImageIcon,
 } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import ToolPageLayout from '@/components/layout/ToolPageLayout';
-import { formatFileSize } from '@/utils/formatFileSize';
 import {
   downloadBlob,
   ACCEPT_STRING,
@@ -58,148 +22,23 @@ import { consumePendingToolInput } from '@/utils/toolStateBridge';
 import { trackImageUpload, trackImageConvert, trackImageDownload } from '@/utils/analytics';
 import { isExternalFileDrag } from '@/utils/dragDropHelpers';
 import EditImageContent from './EditImageContent';
+import { EditorTopBar } from './components/EditorTopBar';
+import { CanvasRulers } from './components/CanvasRulers';
+import { ContextualToolbar } from './components/ContextualToolbar';
+import { RightWorkspace } from './components/RightWorkspace';
+import { EditorStartScreen, CanvasSetupModal } from './components/EditorStartScreen';
+import { calculateTextDimensions, computeTextWrapLines } from './utils/textLayout';
 import styles from './EditImagePage.module.css';
 
-// -----------------------------------------------------------------------------
-// FONT SIZE INPUT (Smooth arrow-key stepping, non-blocking, typed input support)
-// -----------------------------------------------------------------------------
-function FontSizeInput({ value, onChange, onCommit, className }) {
-  const [localVal, setLocalVal] = useState(String(value || 24));
-
-  useEffect(() => {
-    setLocalVal(String(value || 24));
-  }, [value]);
-
-  const stepVal = (delta) => {
-    const current = parseInt(localVal, 10) || 24;
-    const next = Math.max(8, Math.min(240, current + delta));
-    setLocalVal(String(next));
-    onChange(next);
-  };
-
-  const handleKeyDown = (e) => {
-    // Stop propagation so global editor shortcuts (e.g. undo, delete, spacebar) do not intercept
-    e.stopPropagation();
-
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      const step = e.shiftKey ? 5 : 1;
-      stepVal(step);
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      const step = e.shiftKey ? -5 : -1;
-      stepVal(step);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      const num = parseInt(localVal, 10);
-      const clamped = Math.max(8, Math.min(240, isNaN(num) ? 24 : num));
-      setLocalVal(String(clamped));
-      onChange(clamped);
-      if (onCommit) onCommit(clamped);
-      e.currentTarget.blur();
-    }
-  };
-
-  const handleChange = (e) => {
-    const text = e.target.value;
-    setLocalVal(text);
-    const num = parseInt(text, 10);
-    if (!isNaN(num)) {
-      const clamped = Math.max(8, Math.min(240, num));
-      onChange(clamped);
-    }
-  };
-
-  const handleBlur = () => {
-    const num = parseInt(localVal, 10);
-    const clamped = Math.max(8, Math.min(240, isNaN(num) ? 24 : num));
-    setLocalVal(String(clamped));
-    onChange(clamped);
-    if (onCommit) onCommit(clamped);
-  };
-
-  return (
-    <input
-      type="number"
-      min="8"
-      max="240"
-      value={localVal}
-      onChange={handleChange}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      className={className}
-    />
-  );
-}
-
-// -----------------------------------------------------------------------------
-// CONSTANTS & PRESETS
-// -----------------------------------------------------------------------------
-const CROP_PRESETS = [
-  { id: 'free', label: 'Freeform', ratio: null },
-  { id: '1:1', label: '1:1 Square', ratio: 1 },
-  { id: '16:9', label: '16:9 Landscape', ratio: 16 / 9 },
-  { id: '4:3', label: '4:3 Standard', ratio: 4 / 3 },
-  { id: '9:16', label: '9:16 Story', ratio: 9 / 16 },
-  { id: '3:2', label: '3:2 Photo', ratio: 3 / 2 },
-  { id: 'custom', label: 'Custom', ratio: 'custom' },
-];
-
-const ANCHORS = [
-  { id: 'tl', label: '↖ Top-Left' },
-  { id: 'tc', label: '↑ Top-Center' },
-  { id: 'tr', label: '↗ Top-Right' },
-  { id: 'ml', label: '← Middle-Left' },
-  { id: 'mc', label: '• Center' },
-  { id: 'mr', label: '→ Middle-Right' },
-  { id: 'bl', label: '↙ Bottom-Left' },
-  { id: 'bc', label: '↓ Bottom-Center' },
-  { id: 'br', label: '↘ Bottom-Right' },
-];
-
-const CANVAS_BG_OPTIONS = [
-  { id: 'transparent', label: 'Transparent' },
-  { id: '#FFFFFF', label: 'White' },
-  { id: '#000000', label: 'Black' },
-  { id: 'custom', label: 'Custom Color' },
-];
-
-const FONT_FAMILIES = [
-  { id: 'Instrument Sans', label: 'Instrument Sans' },
-  { id: 'IBM Plex Mono', label: 'IBM Plex Mono' },
-  { id: 'Arial', label: 'Arial' },
-  { id: 'Inter', label: 'Inter' },
-  { id: 'Helvetica', label: 'Helvetica' },
-  { id: 'Georgia', label: 'Georgia' },
-  { id: 'Times New Roman', label: 'Times New Roman' },
-  { id: 'Impact', label: 'Impact' },
-  { id: 'Courier New', label: 'Courier New' },
-  { id: 'Trebuchet MS', label: 'Trebuchet MS' },
-  { id: 'Verdana', label: 'Verdana' },
-];
-
-const PRESET_COLORS = [
-  '#FFFFFF',
-  '#000000',
-  '#7C3AED',
-  '#D84697',
-  '#F27E4B',
-  '#EF4444',
-  '#F59E0B',
-  '#10B981',
-  '#3B82F6',
-  '#64748B',
-];
-
 const SHAPE_TYPES = [
-  { id: 'rect', label: 'Rectangle', icon: Square },
-  { id: 'rounded-rect', label: 'Rounded Rect', icon: Square },
-  { id: 'circle', label: 'Circle', icon: Circle },
-  { id: 'ellipse', label: 'Ellipse', icon: Circle },
-  { id: 'line', label: 'Line', icon: Minus },
-  { id: 'arrow', label: 'Arrow', icon: ArrowRight },
-  { id: 'triangle', label: 'Triangle', icon: Triangle },
-  { id: 'star', label: 'Star', icon: Star },
+  { id: 'rect', label: 'Rectangle' },
+  { id: 'rounded-rect', label: 'Rounded Rect' },
+  { id: 'circle', label: 'Circle' },
+  { id: 'ellipse', label: 'Ellipse' },
+  { id: 'line', label: 'Line' },
+  { id: 'arrow', label: 'Arrow' },
+  { id: 'triangle', label: 'Triangle' },
+  { id: 'star', label: 'Star' },
 ];
 
 export function EditImagePage({ embedded, embeddedOnly }) {
@@ -207,15 +46,94 @@ export function EditImagePage({ embedded, embeddedOnly }) {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const validTabs = ['resize', 'crop', 'rotate', 'canvas', 'text', 'erase', 'shapes'];
-  const initialTab = searchParams.get('tab') || 'resize';
+  const initialTab = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState(
-    validTabs.includes(initialTab) ? initialTab : 'resize'
+    initialTab && validTabs.includes(initialTab) ? initialTab : null
   );
+
+  // Active Left Toolbar tool (null in empty state)
+  const [activeTool, setActiveTool] = useState(null);
+  const [foregroundColor, setForegroundColor] = useState('#7C3AED');
+  const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
+  const [isPanActive, setIsPanActive] = useState(false);
+
+  // Shape drawing state and refs
+  const [drawingShapePreview, setDrawingShapePreview] = useState(null);
+  const drawingShapePreviewRef = useRef(null);
+  drawingShapePreviewRef.current = drawingShapePreview;
+  const shapeDrawRef = useRef({ active: false });
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setSidePanelTab('properties');
     setSearchParams({ tab });
+    if (tab === 'crop') {
+      setActiveTool('crop');
+      if (activeCanvas) {
+        setCropBox({
+          x: 0,
+          y: 0,
+          width: activeCanvas.width,
+          height: activeCanvas.height,
+        });
+        setCropPreset('free');
+      }
+    } else if (tab === 'resize') {
+      setActiveTool('resize');
+    } else if (tab === 'rotate') {
+      setActiveTool('rotate');
+    } else if (tab === 'canvas') {
+      setActiveTool('canvas');
+    } else if (tab === 'text') {
+      setActiveTool('text');
+    } else if (tab === 'shapes') {
+      setActiveTool('rect');
+    } else if (tab === 'brush') {
+      setActiveTool('brush');
+    } else if (tab === 'erase') {
+      setActiveTool('eraser');
+    } else if (tab === 'move') {
+      setActiveTool('move');
+    }
+  };
+
+  const handleToolSelect = (toolId) => {
+    setActiveTool(toolId);
+    if (toolId === 'crop') {
+      setActiveTab('crop');
+      setSidePanelTab('properties');
+      if (activeCanvas) {
+        setCropBox({
+          x: 0,
+          y: 0,
+          width: activeCanvas.width,
+          height: activeCanvas.height,
+        });
+        setCropPreset('free');
+      }
+    } else if (['resize', 'rotate', 'canvas', 'text'].includes(toolId)) {
+      setActiveTab(toolId);
+      setSidePanelTab('properties');
+    } else if (['rect', 'circle', 'ellipse', 'triangle', 'line', 'star', 'shapes'].includes(toolId)) {
+      setActiveTab('shapes');
+      setSidePanelTab('properties');
+    } else if (toolId === 'brush') {
+      setActiveTab('brush');
+      setSidePanelTab('properties');
+    } else if (toolId === 'eraser') {
+      setActiveTab('erase');
+      setSidePanelTab('properties');
+    } else if (toolId === 'move') {
+      setActiveTab('move');
+      setSidePanelTab('properties');
+    }
+  };
+
+  const handleSwapColors = () => {
+    setForegroundColor((prevFg) => {
+      setBackgroundColor(prevFg);
+      return backgroundColor;
+    });
   };
 
   // Original file state
@@ -235,6 +153,9 @@ export function EditImagePage({ embedded, embeddedOnly }) {
   // Overlay Layers: Array of TextLayer | ShapeLayer
   const [layers, setLayers] = useState([]);
   const [selectedLayerId, setSelectedLayerId] = useState(null);
+  const [editingTextLayerId, setEditingTextLayerId] = useState(null);
+  const [rotatingLayerId, setRotatingLayerId] = useState(null);
+  const [rotatingAngle, setRotatingAngle] = useState(null);
 
   // Side Panel Tab: 'properties' | 'layers'
   const [sidePanelTab, setSidePanelTab] = useState('properties');
@@ -312,12 +233,33 @@ export function EditImagePage({ embedded, embeddedOnly }) {
   const [error, setError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isBlankModalOpen, setIsBlankModalOpen] = useState(false);
   const fileInputRef = useRef(null);
+  const layerImageInputRef = useRef(null);
 
-  // Active Canvas from History
-  const activeCanvas = history[historyIndex]?.canvas || null;
-  const currentWidth = history[historyIndex]?.width || 0;
-  const currentHeight = history[historyIndex]?.height || 0;
+  // Active Canvas from History (Protected against index out of bounds)
+  const safeHistoryIndex =
+    history.length > 0
+      ? Math.max(0, Math.min(history.length - 1, historyIndex >= 0 ? historyIndex : 0))
+      : -1;
+  const activeCanvas = safeHistoryIndex >= 0 ? history[safeHistoryIndex]?.canvas || null : null;
+  const currentWidth = safeHistoryIndex >= 0 ? history[safeHistoryIndex]?.width || 0 : 0;
+  const currentHeight = safeHistoryIndex >= 0 ? history[safeHistoryIndex]?.height || 0 : 0;
+  const hasImage = Boolean(activeCanvas);
+
+  const historyRef = useRef(history);
+  useEffect(() => {
+    historyRef.current = history;
+  }, [history]);
+
+  const historyIndexRef = useRef(historyIndex);
+  useEffect(() => {
+    historyIndexRef.current = historyIndex;
+  }, [historyIndex]);
+
+  // Live Display Dimensions for Canvas Stage (Synchronized with Resize inputs & handles)
+  const displayWidth = parseInt(resizeWidth, 10) || currentWidth;
+  const displayHeight = parseInt(resizeHeight, 10) || currentHeight;
 
   // Selected Layer
   const selectedLayer = useMemo(() => {
@@ -338,20 +280,13 @@ export function EditImagePage({ embedded, embeddedOnly }) {
     setCanvasWidth(activeCanvas.width);
     setCanvasHeight(activeCanvas.height);
 
-    // Reset crop box
-    setCropBox({
-      x: 0,
-      y: 0,
-      width: activeCanvas.width,
-      height: activeCanvas.height,
-    });
-
     // Sync layers from history snapshot
     const entryLayers = history[historyIndex]?.layers;
     if (entryLayers) {
       setLayers(entryLayers.map((l) => ({ ...l })));
+      layersRef.current = entryLayers.map((l) => ({ ...l }));
     }
-  }, [activeCanvas, history, historyIndex]);
+  }, [activeCanvas, historyIndex]);
 
   // Push new state to History Stack
   const pushHistory = useCallback(
@@ -369,32 +304,64 @@ export function EditImagePage({ embedded, embeddedOnly }) {
         timestamp: Date.now(),
       };
 
-      setHistory((prev) => {
-        const sliced = prev.slice(0, historyIndex + 1);
-        return [...sliced, entry];
-      });
-      setHistoryIndex((prev) => prev + 1);
+      const curIdx = historyIndexRef.current;
+      const curHistory = historyRef.current;
+      const sliced = curHistory.slice(0, Math.max(0, curIdx + 1));
+      const nextHistory = [...sliced, entry];
+      const nextIndex = nextHistory.length - 1;
+
+      historyRef.current = nextHistory;
+      historyIndexRef.current = nextIndex;
+      setHistory(nextHistory);
+      setHistoryIndex(nextIndex);
       setError('');
     },
-    [activeCanvas, historyIndex]
+    [activeCanvas]
   );
 
   const handleUpdateLayer = useCallback(
     (id, updates, commitHistory = false) => {
-      setLayers((prev) => {
-        const next = prev.map((l) => (l.id === id ? { ...l, ...updates } : l));
-        layersRef.current = next;
-        return next;
-      });
+      const current = layersRef.current || [];
+      const targetLayer = current.find((l) => l.id === id);
+
+      let finalUpdates = { ...updates };
+      if (targetLayer && targetLayer.type === 'text') {
+        const merged = { ...targetLayer, ...updates };
+        const textToMeasure = (merged.text !== undefined ? merged.text : targetLayer.text) || targetLayer.placeholder || 'Type your text here';
+        const maxCanvasWidth = Math.max(100, (currentWidth || 1000) - (merged.x || 0) - 20);
+        const textDims = calculateTextDimensions(textToMeasure, {
+          fontSize: merged.fontSize,
+          fontFamily: merged.fontFamily,
+          fontWeight: merged.fontWeight,
+          fontStyle: merged.fontStyle,
+          letterSpacing: merged.letterSpacing,
+          lineHeight: merged.lineHeight,
+          width: merged.width,
+          autoWidth: merged.autoWidth,
+          maxCanvasWidth,
+        });
+
+        if (merged.autoWidth) {
+          finalUpdates.width = textDims.width;
+        }
+        finalUpdates.height = updates.height !== undefined ? Math.max(textDims.height, updates.height) : textDims.height;
+      }
+
+      const nextLayers = current.map((l) =>
+        l.id === id ? { ...l, ...finalUpdates } : l
+      );
+      layersRef.current = nextLayers;
+      setLayers(nextLayers);
       if (commitHistory) {
-        pushHistory(null, layersRef.current, 'Update Layer');
+        pushHistory(null, nextLayers, 'Update Layer');
       }
     },
-    [pushHistory]
+    [pushHistory, currentWidth]
   );
 
   const handleDeleteLayer = useCallback(
     (id) => {
+      if (id === 'background') return;
       const nextLayers = layersRef.current.filter((l) => l.id !== id);
       setLayers(nextLayers);
       layersRef.current = nextLayers;
@@ -495,6 +462,19 @@ export function EditImagePage({ embedded, embeddedOnly }) {
     [handleUpdateLayer]
   );
 
+  // Calculate optimal zoom to fit an image inside the visible canvas workspace
+  const calculateFitZoom = useCallback((imgWidth, imgHeight) => {
+    if (!imgWidth || !imgHeight) return 1;
+    const vp = viewportRef.current;
+    const rulerOffset = 24;
+    const margin = 48; // comfortable margin around canvas stage
+    const availW = Math.max(100, (vp?.clientWidth || (window.innerWidth - 370)) - rulerOffset - margin);
+    const availH = Math.max(100, (vp?.clientHeight || (window.innerHeight - 110)) - rulerOffset - margin);
+
+    const scale = Math.min(availW / imgWidth, availH / imgHeight, 1);
+    return Math.max(0.05, Math.min(1, Math.round(scale * 100) / 100));
+  }, []);
+
   // Load and initialize uploaded file
   const handleLoadFile = useCallback((selectedFile) => {
     if (!selectedFile) return;
@@ -541,7 +521,12 @@ export function EditImagePage({ embedded, embeddedOnly }) {
       setHistoryIndex(0);
       setLayers([]);
       setSelectedLayerId(null);
-      setZoom(1);
+      setActiveTab('move');
+      setActiveTool('move');
+
+      // Auto-fit image to workspace on upload (never overflows, maintains aspect ratio)
+      const initialZoom = calculateFitZoom(w, h);
+      setZoom(initialZoom);
       setPan({ x: 0, y: 0 });
       setRotateAngle(0);
       setFlipH(false);
@@ -558,7 +543,147 @@ export function EditImagePage({ embedded, embeddedOnly }) {
     };
 
     img.src = objectUrl;
+  }, [calculateFitZoom]);
+
+  // Create blank canvas
+  const handleCreateBlankCanvas = useCallback(({ width, height, bgColor, isTransparent }) => {
+    const w = Math.max(10, width || 400);
+    const h = Math.max(10, height || 300);
+
+    const blankCanvas = document.createElement('canvas');
+    blankCanvas.width = w;
+    blankCanvas.height = h;
+    const ctx = blankCanvas.getContext('2d');
+
+    if (!isTransparent && bgColor && bgColor !== 'transparent') {
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    const syntheticFile = {
+      name: 'blank-canvas.png',
+      type: 'image/png',
+      size: 0,
+    };
+
+    setOriginalFile(syntheticFile);
+    setOrigWidth(w);
+    setOrigHeight(h);
+    setOrigSize(0);
+
+    setHistory([
+      {
+        canvas: blankCanvas,
+        width: w,
+        height: h,
+        layers: [],
+        label: `New Canvas (${w}×${h})`,
+        timestamp: Date.now(),
+      },
+    ]);
+    setHistoryIndex(0);
+    setLayers([]);
+    layersRef.current = [];
+    setSelectedLayerId(null);
+    setActiveTab('resize');
+    setActiveTool('move');
+
+    const initialZoom = calculateFitZoom(w, h);
+    setZoom(initialZoom);
+    setPan({ x: 0, y: 0 });
+    setRotateAngle(0);
+    setFlipH(false);
+    setFlipV(false);
+    setError('');
+    setIsBlankModalOpen(false);
+
+    trackImageUpload({ tool: 'edit_image', format: 'canvas/blank' });
+  }, [calculateFitZoom]);
+
+  // Trigger layer image picker
+  const handleTriggerAddImageLayer = useCallback(() => {
+    if (layerImageInputRef.current) {
+      layerImageInputRef.current.value = '';
+      layerImageInputRef.current.click();
+    }
   }, []);
+
+  // Load and insert image as layer
+  const handleAddImageLayerFile = useCallback((file) => {
+    if (!file) return;
+
+    const isValidType =
+      ACCEPTED_INPUT_TYPES.includes(file.type) ||
+      /\.(jpe?g|png|webp|gif|svg|avif|bmp|ico)$/i.test(file.name);
+
+    if (!isValidType) {
+      setError('Please select a valid image file (JPG, PNG, WebP, SVG, GIF, AVIF).');
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      const imgW = img.naturalWidth || img.width || 100;
+      const imgH = img.naturalHeight || img.height || 100;
+
+      // Draw onto temporary canvas to convert to persistent dataURL
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = imgW;
+      tempCanvas.height = imgH;
+      const tCtx = tempCanvas.getContext('2d');
+      tCtx.drawImage(img, 0, 0);
+      const persistentDataUrl = tempCanvas.toDataURL('image/png');
+      URL.revokeObjectURL(objectUrl);
+
+      // Fit into canvas with max 80% boundary
+      const canvasW = currentWidth || 400;
+      const canvasH = currentHeight || 300;
+      const maxAllowedW = Math.max(50, Math.round(canvasW * 0.8));
+      const maxAllowedH = Math.max(50, Math.round(canvasH * 0.8));
+
+      const scale = Math.min(maxAllowedW / imgW, maxAllowedH / imgH, 1);
+      const finalW = Math.max(20, Math.round(imgW * scale));
+      const finalH = Math.max(20, Math.round(imgH * scale));
+
+      const posX = Math.max(0, Math.round((canvasW - finalW) / 2));
+      const posY = Math.max(0, Math.round((canvasH - finalH) / 2));
+
+      const newId = 'image_' + Date.now();
+      const cleanName = file.name.replace(/\.[^.]+$/, '') || 'Image Layer';
+
+      const newImageLayer = {
+        id: newId,
+        name: cleanName,
+        type: 'image',
+        dataUrl: persistentDataUrl,
+        x: posX,
+        y: posY,
+        width: finalW,
+        height: finalH,
+        origWidth: imgW,
+        origHeight: imgH,
+        opacity: 100,
+        rotation: 0,
+        locked: false,
+        hidden: false,
+      };
+
+      const nextLayers = [...layersRef.current, newImageLayer];
+      setLayers(nextLayers);
+      layersRef.current = nextLayers;
+      setSelectedLayerId(newId);
+      pushHistory(null, nextLayers, `Add Image Layer (${cleanName})`);
+    };
+
+    img.onerror = () => {
+      setError('Could not decode image file to add as layer.');
+      URL.revokeObjectURL(objectUrl);
+    };
+
+    img.src = objectUrl;
+  }, [currentWidth, currentHeight, pushHistory]);
 
   // Consume staged file if bridged from another tool
   useEffect(() => {
@@ -568,39 +693,151 @@ export function EditImagePage({ embedded, embeddedOnly }) {
     }
   }, [handleLoadFile]);
 
-  // Keyboard Shortcuts: Undo, Redo, Delete, Spacebar Pan
+  // ---------------------------------------------------------------------------
+  // HISTORY ACTIONS: UNDO, REDO, RESET
+  // ---------------------------------------------------------------------------
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
+  const canReset = historyIndex > 0 || layers.length > 0;
+
+  const handleUndo = useCallback(() => {
+    if (canUndo) setHistoryIndex((prev) => prev - 1);
+  }, [canUndo]);
+
+  const handleRedo = useCallback(() => {
+    if (canRedo) setHistoryIndex((prev) => prev + 1);
+  }, [canRedo]);
+
+  // Fit canvas into visible workspace
+  const handleFitScreen = useCallback(() => {
+    if (!currentWidth || !currentHeight) return;
+    const fitZoom = calculateFitZoom(currentWidth, currentHeight);
+    setZoom(fitZoom);
+    setPan({ x: 0, y: 0 });
+  }, [calculateFitZoom, currentWidth, currentHeight]);
+
+  // ---------------------------------------------------------------------------
+  // NATIVE NON-PASSIVE WHEEL LISTENER FOR CANVAS VIEWPORT
+  // - Ctrl + Wheel: Zoom toward mouse cursor position
+  // - Shift + Wheel: Horizontal pan
+  // - Normal Wheel: Natural vertical and horizontal workspace scrolling
+  // - Prevents page scroll & browser zoom while hovering over canvas
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (!vp) return;
+
+    const handleWheel = (e) => {
+      e.preventDefault();
+
+      if (e.ctrlKey || e.metaKey) {
+        const zoomMultiplier = e.deltaY < 0 ? 1.15 : (1 / 1.15);
+
+        setZoom((prevZoom) => {
+          const nextZoom = Math.max(0.05, Math.min(10, Math.round(prevZoom * zoomMultiplier * 100) / 100));
+          if (nextZoom === prevZoom) return prevZoom;
+
+          // Stable cursor-centered zoom:
+          const rect = vp.getBoundingClientRect();
+          const cursorX = e.clientX - (rect.left + rect.width / 2);
+          const cursorY = e.clientY - (rect.top + rect.height / 2);
+
+          setPan((prevPan) => ({
+            x: Math.round(cursorX - (cursorX - prevPan.x) * (nextZoom / prevZoom)),
+            y: Math.round(cursorY - (cursorY - prevPan.y) * (nextZoom / prevZoom)),
+          }));
+
+          return nextZoom;
+        });
+      } else if (e.shiftKey) {
+        setPan((prevPan) => ({
+          ...prevPan,
+          x: prevPan.x - e.deltaY,
+        }));
+      } else {
+        setPan((prevPan) => ({
+          x: prevPan.x - (e.deltaX || 0),
+          y: prevPan.y - e.deltaY,
+        }));
+      }
+    };
+
+    vp.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      vp.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
+  // ---------------------------------------------------------------------------
+  // KEYBOARD SHORTCUTS: Undo, Redo, Zoom Fit, 100% Zoom, Delete, Spacebar Pan
+  // ---------------------------------------------------------------------------
   useEffect(() => {
     const handleKeyDown = (e) => {
       // Don't intercept when user is typing in input or textarea
-      const tag = document.activeElement?.tagName;
-      const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+      const activeEl = document.activeElement;
+      const tag = activeEl?.tagName;
+      const isInput =
+        tag === 'INPUT' ||
+        tag === 'TEXTAREA' ||
+        tag === 'SELECT' ||
+        activeEl?.isContentEditable ||
+        activeEl?.getAttribute('contenteditable') === 'true';
 
-      if (e.code === 'Space' && !isInput && !isSpacePressedRef.current) {
+      if (isInput) return;
+
+      if (e.code === 'Space' && !isSpacePressedRef.current) {
         isSpacePressedRef.current = true;
       }
 
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      // Undo: Ctrl + Z
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
         e.preventDefault();
-        if (e.shiftKey) {
-          // Redo
-          if (historyIndex < history.length - 1) setHistoryIndex((p) => p + 1);
-        } else {
-          // Undo
-          if (historyIndex > 0) setHistoryIndex((p) => p - 1);
-        }
+        handleUndo();
+        return;
       }
 
-      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+      // Redo: Ctrl + Y or Ctrl + Shift + Z
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        ((e.key === 'y' || e.key === 'Y') || ((e.key === 'z' || e.key === 'Z') && e.shiftKey))
+      ) {
         e.preventDefault();
-        if (historyIndex < history.length - 1) setHistoryIndex((p) => p + 1);
+        handleRedo();
+        return;
       }
 
-      if ((e.key === 'Delete' || e.key === 'Backspace') && !isInput && selectedLayerId) {
+      // Ctrl + 0: Fit canvas to screen
+      if ((e.ctrlKey || e.metaKey) && (e.key === '0' || e.code === 'Digit0' || e.code === 'Numpad0')) {
+        e.preventDefault();
+        handleFitScreen();
+        return;
+      }
+
+      // Ctrl + 1: 100% zoom
+      if ((e.ctrlKey || e.metaKey) && (e.key === '1' || e.code === 'Digit1' || e.code === 'Numpad1')) {
+        e.preventDefault();
+        setZoom(1);
+        setPan({ x: 0, y: 0 });
+        return;
+      }
+
+      // Delete selected layer
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedLayerId) {
         e.preventDefault();
         handleDeleteLayer(selectedLayerId);
+        return;
       }
 
       if (e.key === 'Escape') {
+        if (shapeDrawRef.current?.active) {
+          shapeDrawRef.current = { active: false };
+          setDrawingShapePreview(null);
+          return;
+        }
+        if (['rect', 'circle', 'ellipse', 'triangle', 'line', 'star', 'rounded-rect'].includes(activeTool)) {
+          setActiveTool('move');
+          return;
+        }
         setSelectedLayerId(null);
       }
     };
@@ -618,34 +855,147 @@ export function EditImagePage({ embedded, embeddedOnly }) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [historyIndex, history.length, selectedLayerId, handleDeleteLayer]);
-
-  // ---------------------------------------------------------------------------
-  // HISTORY ACTIONS: UNDO, REDO, RESET
-  // ---------------------------------------------------------------------------
-  const canUndo = historyIndex > 0;
-  const canRedo = historyIndex < history.length - 1;
-  const canReset = historyIndex > 0 || layers.length > 0;
-
-  const handleUndo = () => {
-    if (canUndo) setHistoryIndex((prev) => prev - 1);
-  };
-
-  const handleRedo = () => {
-    if (canRedo) setHistoryIndex((prev) => prev + 1);
-  };
+  }, [handleUndo, handleRedo, handleFitScreen, selectedLayerId, handleDeleteLayer]);
 
   const handleResetToOriginal = () => {
     if (canReset && history.length > 0) {
       setHistoryIndex(0);
       setLayers([]);
       setSelectedLayerId(null);
+      setActiveTab('move');
+      setActiveTool('move');
       setZoom(1);
       setPan({ x: 0, y: 0 });
       setRotateAngle(0);
       setFlipH(false);
       setFlipV(false);
     }
+  };
+
+  const handleJumpToHistory = (index) => {
+    if (index >= 0 && index < history.length) {
+      setHistoryIndex(index);
+    }
+  };
+
+  const handleDuplicateBaseImage = () => {
+    if (!activeCanvas) return;
+    const newLayer = {
+      id: 'layer_' + Date.now(),
+      name: 'Image Copy',
+      type: 'image',
+      x: 30,
+      y: 30,
+      width: currentWidth,
+      height: currentHeight,
+      dataUrl: currentDataUrl,
+      opacity: 100,
+      locked: false,
+      hidden: false,
+    };
+    const nextLayers = [...layersRef.current, newLayer];
+    setLayers(nextLayers);
+    layersRef.current = nextLayers;
+    setSelectedLayerId(newLayer.id);
+    pushHistory(null, nextLayers, 'Duplicate Image');
+  };
+
+  const handleDeleteBaseImage = () => {
+    setOriginalFile(null);
+    setOrigWidth(0);
+    setOrigHeight(0);
+    setOrigSize(0);
+    setHistory([]);
+    setHistoryIndex(-1);
+    setCurrentDataUrl('');
+    setLayers([]);
+    layersRef.current = [];
+    setSelectedLayerId(null);
+    setActiveTool(null);
+    setActiveTab(null);
+    setError('');
+  };
+
+  const handleBaseResizeStart = (e, handleType) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!currentWidth || !currentHeight) return;
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startW = parseInt(resizeWidth, 10) || currentWidth;
+    const startH = parseInt(resizeHeight, 10) || currentHeight;
+    const ratio = (currentWidth && currentHeight) ? currentWidth / currentHeight : (startW / startH);
+
+    const onPointerMove = (moveEvt) => {
+      const z = zoomRef.current || 1;
+      const dx = (moveEvt.clientX - startX) / z;
+      const dy = (moveEvt.clientY - startY) / z;
+
+      let newW = startW;
+      let newH = startH;
+
+      if (handleType === 'e') {
+        newW = Math.max(20, Math.round(startW + dx));
+        newH = lockAspectRatio ? Math.max(20, Math.round(newW / ratio)) : startH;
+      } else if (handleType === 'w') {
+        newW = Math.max(20, Math.round(startW - dx));
+        newH = lockAspectRatio ? Math.max(20, Math.round(newW / ratio)) : startH;
+      } else if (handleType === 's') {
+        newH = Math.max(20, Math.round(startH + dy));
+        newW = lockAspectRatio ? Math.max(20, Math.round(newH * ratio)) : startW;
+      } else if (handleType === 'n') {
+        newH = Math.max(20, Math.round(startH - dy));
+        newW = lockAspectRatio ? Math.max(20, Math.round(newH * ratio)) : startW;
+      } else if (handleType === 'se') {
+        if (lockAspectRatio) {
+          const delta = Math.abs(dx) > Math.abs(dy) ? dx : dy * ratio;
+          newW = Math.max(20, Math.round(startW + delta));
+          newH = Math.max(20, Math.round(newW / ratio));
+        } else {
+          newW = Math.max(20, Math.round(startW + dx));
+          newH = Math.max(20, Math.round(startH + dy));
+        }
+      } else if (handleType === 'sw') {
+        if (lockAspectRatio) {
+          const delta = Math.abs(-dx) > Math.abs(dy) ? -dx : dy * ratio;
+          newW = Math.max(20, Math.round(startW + delta));
+          newH = Math.max(20, Math.round(newW / ratio));
+        } else {
+          newW = Math.max(20, Math.round(startW - dx));
+          newH = Math.max(20, Math.round(startH + dy));
+        }
+      } else if (handleType === 'ne') {
+        if (lockAspectRatio) {
+          const delta = Math.abs(dx) > Math.abs(-dy) ? dx : -dy * ratio;
+          newW = Math.max(20, Math.round(startW + delta));
+          newH = Math.max(20, Math.round(newW / ratio));
+        } else {
+          newW = Math.max(20, Math.round(startW + dx));
+          newH = Math.max(20, Math.round(startH - dy));
+        }
+      } else if (handleType === 'nw') {
+        if (lockAspectRatio) {
+          const delta = Math.abs(-dx) > Math.abs(-dy) ? -dx : -dy * ratio;
+          newW = Math.max(20, Math.round(startW + delta));
+          newH = Math.max(20, Math.round(newW / ratio));
+        } else {
+          newW = Math.max(20, Math.round(startW - dx));
+          newH = Math.max(20, Math.round(startH - dy));
+        }
+      }
+
+      setResizeWidth(newW);
+      setResizeHeight(newH);
+    };
+
+    const onPointerUp = () => {
+      window.removeEventListener('mousemove', onPointerMove);
+      window.removeEventListener('mouseup', onPointerUp);
+    };
+
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
   };
 
   // ---------------------------------------------------------------------------
@@ -684,8 +1034,8 @@ export function EditImagePage({ embedded, embeddedOnly }) {
         ctx.drawImage(activeCanvas, 0, 0, targetW, targetH);
 
         // Scale layers proportionally
-        const scaleX = targetW / currentWidth;
-        const scaleY = targetH / currentHeight;
+        const scaleX = targetW / (currentWidth || targetW);
+        const scaleY = targetH / (currentHeight || targetH);
         const scaledLayers = layers.map((l) => ({
           ...l,
           x: Math.round(l.x * scaleX),
@@ -713,7 +1063,7 @@ export function EditImagePage({ embedded, embeddedOnly }) {
   };
 
   const handleResizeWidthChange = (e) => {
-    const val = e.target.value;
+    const val = typeof e === 'object' && e?.target ? e.target.value : e;
     setResizeWidth(val);
     const num = parseInt(val, 10);
     if (lockAspectRatio && currentWidth > 0 && currentHeight > 0 && !isNaN(num) && num > 0) {
@@ -723,7 +1073,7 @@ export function EditImagePage({ embedded, embeddedOnly }) {
   };
 
   const handleResizeHeightChange = (e) => {
-    const val = e.target.value;
+    const val = typeof e === 'object' && e?.target ? e.target.value : e;
     setResizeHeight(val);
     const num = parseInt(val, 10);
     if (lockAspectRatio && currentWidth > 0 && currentHeight > 0 && !isNaN(num) && num > 0) {
@@ -795,7 +1145,14 @@ export function EditImagePage({ embedded, embeddedOnly }) {
           });
 
         setLayers(shiftedLayers);
+        layersRef.current = shiftedLayers;
         pushHistory(cropCanvas, shiftedLayers, `Crop (${cropW}×${cropH})`);
+
+        // Exit crop mode completely and return to Move mode
+        setActiveTool('move');
+        setActiveTab('move');
+        setCropBox({ x: 0, y: 0, width: cropW, height: cropH });
+        setCropPreset('free');
         setIsProcessing(false);
 
         trackImageConvert({
@@ -812,13 +1169,18 @@ export function EditImagePage({ embedded, embeddedOnly }) {
   };
 
   const handleCancelCrop = () => {
-    if (!activeCanvas) return;
-    setCropBox({
-      x: 0,
-      y: 0,
-      width: activeCanvas.width,
-      height: activeCanvas.height,
-    });
+    setActiveTool('move');
+    setActiveTab('move');
+    if (activeCanvas) {
+      setCropBox({
+        x: 0,
+        y: 0,
+        width: activeCanvas.width,
+        height: activeCanvas.height,
+      });
+    } else {
+      setCropBox({ x: 0, y: 0, width: 0, height: 0 });
+    }
     setCropPreset('free');
   };
 
@@ -885,6 +1247,9 @@ export function EditImagePage({ embedded, embeddedOnly }) {
     setFlipH(false);
     setFlipV(false);
   };
+
+  const handleFlipH = () => setFlipH((prev) => !prev);
+  const handleFlipV = () => setFlipV((prev) => !prev);
 
   // Calculate live bounding dimensions when rotated
   const rotatedDimensions = useMemo(() => {
@@ -1050,26 +1415,37 @@ export function EditImagePage({ embedded, embeddedOnly }) {
   const handleAddTextLayer = () => {
     if (!currentWidth || !currentHeight) return;
 
-    const defaultFontSize = Math.max(24, Math.round(currentWidth / 24));
+    const defaultFontSize = 32;
+    const defaultWidth = Math.min(180, Math.max(100, currentWidth - 40));
+    const dims = calculateTextDimensions('Type your text here', {
+      fontSize: defaultFontSize,
+      fontFamily: 'Poppins',
+      fontWeight: 'bold',
+      width: defaultWidth,
+      autoWidth: false,
+    });
+
     const newText = {
       id: 'text_' + Date.now(),
-      name: 'Text – Heading',
+      name: 'Text Layer',
       type: 'text',
-      text: 'Add your text here',
-      x: Math.max(20, Math.round(currentWidth / 4)),
+      text: '',
+      placeholder: 'Type your text here',
+      x: Math.max(20, Math.round((currentWidth - defaultWidth) / 2)),
       y: Math.max(20, Math.round(currentHeight / 3)),
-      width: Math.min(currentWidth - 40, Math.round(currentWidth * 0.5)),
-      height: Math.max(50, Math.round(defaultFontSize * 1.5)),
+      width: defaultWidth,
+      height: dims.height,
+      autoWidth: false,
       fontSize: defaultFontSize,
-      fontFamily: 'Instrument Sans',
+      fontFamily: 'Poppins',
       fontWeight: 'bold',
       fontStyle: 'normal',
-      color: '#FFFFFF',
-      align: 'center',
+      color: foregroundColor || '#1e293b',
+      align: 'left',
       bgColor: 'transparent',
       strokeColor: '#000000',
       strokeWidth: 0,
-      shadowColor: 'rgba(0,0,0,0.6)',
+      shadowColor: 'rgba(0,0,0,0.5)',
       shadowBlur: 0,
       shadowOffsetX: 2,
       shadowOffsetY: 2,
@@ -1085,7 +1461,76 @@ export function EditImagePage({ embedded, embeddedOnly }) {
     setLayers(nextLayers);
     layersRef.current = nextLayers;
     setSelectedLayerId(newText.id);
+    setEditingTextLayerId(newText.id);
+    setActiveTool('move');
+    setActiveTab('text');
     pushHistory(null, nextLayers, 'Add Text');
+  };
+
+  const handleStageClick = (e) => {
+    if (activeTool === 'text') {
+      if (!stageRef.current) return;
+      const rect = stageRef.current.getBoundingClientRect();
+      const effZoom = zoomRef.current || 1;
+      const clickX = Math.round((e.clientX - rect.left) / effZoom);
+      const clickY = Math.round((e.clientY - rect.top) / effZoom);
+
+      const newId = 'text_' + Date.now();
+      const defaultColor = foregroundColor || '#1e293b';
+      const defaultFontSize = 32;
+      const defaultWidth = Math.min(180, Math.max(100, displayWidth - clickX - 20));
+      const dims = calculateTextDimensions('Type your text here', {
+        fontSize: defaultFontSize,
+        fontFamily: 'Poppins',
+        fontWeight: 'bold',
+        width: defaultWidth,
+        autoWidth: false,
+      });
+
+      const newTextLayer = {
+        id: newId,
+        name: 'Text Layer',
+        type: 'text',
+        text: '',
+        placeholder: 'Type your text here',
+        x: Math.max(0, Math.min(Math.max(0, displayWidth - 100), clickX)),
+        y: Math.max(0, Math.min(Math.max(0, displayHeight - 40), clickY)),
+        width: defaultWidth,
+        height: dims.height,
+        autoWidth: false,
+        fontFamily: 'Poppins',
+        fontSize: defaultFontSize,
+        fontWeight: 'bold',
+        fontStyle: 'normal',
+        color: defaultColor,
+        align: 'left',
+        bgColor: 'transparent',
+        strokeColor: '#000000',
+        strokeWidth: 0,
+        shadowColor: 'rgba(0,0,0,0.5)',
+        shadowBlur: 0,
+        shadowOffsetX: 2,
+        shadowOffsetY: 2,
+        letterSpacing: 0,
+        lineHeight: 1.2,
+        locked: false,
+        hidden: false,
+        opacity: 100,
+      };
+
+      const nextLayers = [...layersRef.current, newTextLayer];
+      setLayers(nextLayers);
+      layersRef.current = nextLayers;
+      setSelectedLayerId(newId);
+      setEditingTextLayerId(newId);
+      setActiveTool('move');
+      setActiveTab('text');
+      pushHistory(null, nextLayers, 'Add Text');
+      return;
+    }
+
+    setSelectedLayerId(null);
+    setEditingTextLayerId(null);
   };
 
   // ---------------------------------------------------------------------------
@@ -1183,6 +1628,54 @@ export function EditImagePage({ embedded, embeddedOnly }) {
   };
 
   // ---------------------------------------------------------------------------
+  // PHOTOSHOP-STYLE BLANK LAYER CREATION
+  // ---------------------------------------------------------------------------
+  const handleAddBlankLayer = useCallback(() => {
+    // Determine next automatic layer name: Layer 1, Layer 2, Layer 3...
+    let maxNum = 0;
+    layersRef.current.forEach((l) => {
+      const match = (l.name || '').match(/^Layer\s+(\d+)$/i);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNum) maxNum = num;
+      }
+    });
+    const layerName = `Layer ${maxNum + 1}`;
+
+    const newLayer = {
+      id: 'layer_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      name: layerName,
+      type: 'blank',
+      x: 0,
+      y: 0,
+      width: currentWidth || 800,
+      height: currentHeight || 600,
+      opacity: 100,
+      rotation: 0,
+      hidden: false,
+      locked: false,
+    };
+
+    const nextLayers = [...layersRef.current];
+    let insertIdx = nextLayers.length;
+    if (selectedLayerId && selectedLayerId !== 'background') {
+      const foundIdx = nextLayers.findIndex((l) => l.id === selectedLayerId);
+      if (foundIdx !== -1) {
+        insertIdx = foundIdx + 1; // Insert directly above currently selected layer
+      }
+    } else if (selectedLayerId === 'background') {
+      insertIdx = 0;
+    }
+    nextLayers.splice(insertIdx, 0, newLayer);
+
+    setLayers(nextLayers);
+    layersRef.current = nextLayers;
+    setSelectedLayerId(newLayer.id);
+    setActiveTool('move');
+    pushHistory(null, nextLayers, `Add ${layerName}`);
+  }, [currentWidth, currentHeight, selectedLayerId, pushHistory]);
+
+  // ---------------------------------------------------------------------------
   // TAB 7: SHAPES ENGINE
   // ---------------------------------------------------------------------------
   const handleAddShape = (shapeType) => {
@@ -1199,8 +1692,8 @@ export function EditImagePage({ embedded, embeddedOnly }) {
       y: Math.max(20, Math.round((currentHeight - baseDim) / 2)),
       width: shapeType === 'line' ? Math.round(baseDim * 1.5) : baseDim,
       height: shapeType === 'line' ? 24 : baseDim,
-      fillColor: shapeType === 'line' ? 'transparent' : '#7C3AED',
-      strokeColor: '#FFFFFF',
+      fillColor: shapeType === 'line' ? 'transparent' : (foregroundColor || '#7C3AED'),
+      strokeColor: backgroundColor || '#FFFFFF',
       strokeWidth: 3,
       borderRadius: 16,
       opacity: 100,
@@ -1217,11 +1710,237 @@ export function EditImagePage({ embedded, embeddedOnly }) {
   };
 
   // ---------------------------------------------------------------------------
+  // INTERACTIVE PHOTOSHOP-STYLE SHAPE DRAWING (Pointer Down, Drag, Up)
+  // ---------------------------------------------------------------------------
+  const isShapeDrawingTool = Boolean(
+    hasImage && ['rect', 'circle', 'ellipse', 'triangle', 'line', 'star', 'rounded-rect'].includes(activeTool)
+  );
+
+  const handleShapeDrawStart = (e) => {
+    if (!stageRef.current) return;
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const rect = stageRef.current.getBoundingClientRect();
+    const effZoom = zoomRef.current || 1;
+    const rawX = Math.round((e.clientX - rect.left) / effZoom);
+    const rawY = Math.round((e.clientY - rect.top) / effZoom);
+
+    const startX = Math.max(0, Math.min(displayWidth, rawX));
+    const startY = Math.max(0, Math.min(displayHeight, rawY));
+
+    shapeDrawRef.current = {
+      active: true,
+      startX,
+      startY,
+      shapeType: activeTool,
+      pointerId: e.pointerId,
+    };
+
+    if (e.currentTarget?.setPointerCapture && e.pointerId !== undefined) {
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch {}
+    }
+
+    setDrawingShapePreview({
+      active: true,
+      shapeType: activeTool,
+      left: startX,
+      top: startY,
+      width: 0,
+      height: 0,
+      startX,
+      startY,
+      endX: startX,
+      endY: startY,
+      fillColor: activeTool === 'line' ? 'transparent' : (foregroundColor || '#7C3AED'),
+      strokeColor: activeTool === 'line' ? (foregroundColor || '#7C3AED') : (backgroundColor || '#FFFFFF'),
+      strokeWidth: activeTool === 'line' ? 3 : 2,
+      shiftKey: Boolean(e.shiftKey),
+      altKey: Boolean(e.altKey),
+    });
+  };
+
+  const handleShapeDrawMove = (e) => {
+    if (!shapeDrawRef.current?.active) return;
+    if (!stageRef.current) return;
+
+    const rect = stageRef.current.getBoundingClientRect();
+    const effZoom = zoomRef.current || 1;
+    const rawX = Math.round((e.clientX - rect.left) / effZoom);
+    const rawY = Math.round((e.clientY - rect.top) / effZoom);
+
+    const currentX = Math.max(0, Math.min(displayWidth, rawX));
+    const currentY = Math.max(0, Math.min(displayHeight, rawY));
+
+    const { startX, startY, shapeType } = shapeDrawRef.current;
+    const shiftKey = Boolean(e.shiftKey);
+    const altKey = Boolean(e.altKey);
+
+    let left, top, width, height;
+
+    if (shapeType === 'line') {
+      let endX = currentX;
+      let endY = currentY;
+
+      if (shiftKey) {
+        // Constrain line to 45-degree angle increments
+        const dx = endX - startX;
+        const dy = endY - startY;
+        const dist = Math.hypot(dx, dy);
+        const angle = Math.atan2(dy, dx);
+        const snapAngle = Math.round(angle / (Math.PI / 4)) * (Math.PI / 4);
+        endX = Math.max(0, Math.min(displayWidth, Math.round(startX + dist * Math.cos(snapAngle))));
+        endY = Math.max(0, Math.min(displayHeight, Math.round(startY + dist * Math.sin(snapAngle))));
+      }
+
+      left = Math.min(startX, endX);
+      top = Math.min(startY, endY);
+      width = Math.max(2, Math.abs(endX - startX));
+      height = Math.max(2, Math.abs(endY - startY));
+
+    const previewObj = {
+      active: true,
+      shapeType: 'line',
+      left,
+      top,
+      width,
+      height,
+      startX,
+      startY,
+      endX,
+      endY,
+      fillColor: 'transparent',
+      strokeColor: foregroundColor || '#7C3AED',
+      strokeWidth: 3,
+      shiftKey,
+      altKey,
+    };
+    shapeDrawRef.current.preview = previewObj;
+    setDrawingShapePreview(previewObj);
+    return;
+  }
+
+  // Shapes: rect, circle, ellipse, triangle, star, rounded-rect
+  let rawW = Math.abs(currentX - startX);
+  let rawH = Math.abs(currentY - startY);
+
+  if (shiftKey) {
+    // Shift: 1:1 square / perfect circle
+    const side = Math.max(rawW, rawH);
+    rawW = side;
+    rawH = side;
+  }
+
+  if (altKey) {
+    // Alt: Draw from center
+    left = startX - rawW;
+    top = startY - rawH;
+    width = rawW * 2;
+    height = rawH * 2;
+    if (left < 0) { width += left * 2; left = 0; }
+    if (top < 0) { height += top * 2; top = 0; }
+    if (left + width > displayWidth) width = displayWidth - left;
+    if (top + height > displayHeight) height = displayHeight - top;
+  } else {
+    left = currentX >= startX ? startX : startX - rawW;
+    top = currentY >= startY ? startY : startY - rawH;
+    width = rawW;
+    height = rawH;
+    if (left < 0) { width += left; left = 0; }
+    if (top < 0) { height += top; top = 0; }
+    if (left + width > displayWidth) width = displayWidth - left;
+    if (top + height > displayHeight) height = displayHeight - top;
+  }
+
+  const previewObj = {
+    active: true,
+    shapeType,
+    left: Math.round(left),
+    top: Math.round(top),
+    width: Math.round(width),
+    height: Math.round(height),
+    fillColor: foregroundColor || '#7C3AED',
+    strokeColor: backgroundColor || '#FFFFFF',
+    strokeWidth: 2,
+    shiftKey,
+    altKey,
+  };
+  shapeDrawRef.current.preview = previewObj;
+  setDrawingShapePreview(previewObj);
+};
+
+const handleShapeDrawEnd = (e) => {
+  if (!shapeDrawRef.current?.active) return;
+  const preview = shapeDrawRef.current.preview || drawingShapePreviewRef.current;
+  shapeDrawRef.current = { active: false, preview: null };
+
+    if (e.currentTarget?.releasePointerCapture && e.pointerId !== undefined) {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {}
+    }
+
+    setDrawingShapePreview(null);
+
+    // Ignore accidental clicks that produce zero-size or near-zero shapes (< 5px)
+    if (!preview || (preview.width < 5 && preview.height < 5)) {
+      return;
+    }
+
+    const shapeType = preview.shapeType;
+    const shapeLabel = SHAPE_TYPES.find((s) => s.id === shapeType)?.label || 'Shape';
+
+    const newShape = {
+      id: 'shape_' + Date.now(),
+      name: shapeLabel,
+      type: 'shape',
+      shapeType,
+      x: preview.left,
+      y: preview.top,
+      width: Math.max(10, preview.width),
+      height: Math.max(10, preview.height),
+      fillColor: preview.fillColor,
+      strokeColor: preview.strokeColor,
+      strokeWidth: preview.strokeWidth,
+      borderRadius: 16,
+      opacity: 100,
+      rotation: 0,
+      hidden: false,
+      locked: false,
+    };
+
+    const nextLayers = [...layersRef.current, newShape];
+    setLayers(nextLayers);
+    layersRef.current = nextLayers;
+    setSelectedLayerId(newShape.id);
+    pushHistory(null, nextLayers, `Draw ${shapeLabel}`);
+
+    // Switch to move tool so user can immediately transform / position the shape
+    setActiveTool('move');
+    setActiveTab('shapes');
+  };
+
+  const handleCancelShapeDraw = () => {
+    if (shapeDrawRef.current?.active) {
+      shapeDrawRef.current = { active: false };
+      setDrawingShapePreview(null);
+    }
+  };
+
+  // ---------------------------------------------------------------------------
   // INTERACTIVE OBJECT (TEXT & SHAPE) DRAG, RESIZE & ROTATE (Mouse + Touch)
   // ---------------------------------------------------------------------------
   const handleLayerPointerDown = (e, layerId, action = 'move') => {
+    if (activeTool === 'text' && layerId === 'background') {
+      return;
+    }
     e.stopPropagation();
     if (activeTab === 'erase') return;
+    if (editingTextLayerId === layerId && action === 'move') return;
 
     const layer = layersRef.current.find((l) => l.id === layerId);
     if (!layer || layer.hidden || layer.locked) return;
@@ -1236,6 +1955,23 @@ export function EditImagePage({ embedded, embeddedOnly }) {
     const startY = clientY;
     const startLayer = { ...layer };
     const effZoom = zoomRef.current || 1;
+
+    let centerScreenX = 0;
+    let centerScreenY = 0;
+    let startAngleRad = 0;
+    const startRotation = startLayer.rotation || 0;
+
+    if (action === 'rotate' && stageRef.current) {
+      const rect = stageRef.current.getBoundingClientRect();
+      const layerCenterX = startLayer.x + (startLayer.width || 50) / 2;
+      const layerCenterY = startLayer.y + (startLayer.height || 20) / 2;
+      centerScreenX = rect.left + layerCenterX * effZoom;
+      centerScreenY = rect.top + layerCenterY * effZoom;
+      startAngleRad = Math.atan2(startY - centerScreenY, startX - centerScreenX);
+
+      setRotatingLayerId(layerId);
+      setRotatingAngle(startRotation);
+    }
 
     let hasMoved = false;
 
@@ -1259,90 +1995,140 @@ export function EditImagePage({ embedded, embeddedOnly }) {
           },
           false
         );
-      } else if (action === 'resize-se') {
-        const newW = Math.max(20, Math.round(startLayer.width + dx));
-        const newH = Math.max(20, Math.round(startLayer.height + dy));
+      } else if (action === 'resize-e') {
+        const newW = Math.max(30, Math.round(startLayer.width + dx));
         if (layer.type === 'text') {
-          const fontScale = newW / (startLayer.width || 1);
+          handleUpdateLayer(layerId, { width: newW, autoWidth: false }, false);
+        } else {
+          handleUpdateLayer(layerId, { width: newW }, false);
+        }
+      } else if (action === 'resize-w') {
+        const newW = Math.max(30, Math.round(startLayer.width - dx));
+        const newX = Math.round(startLayer.x + (startLayer.width - newW));
+        if (layer.type === 'text') {
+          handleUpdateLayer(layerId, { width: newW, x: newX, autoWidth: false }, false);
+        } else {
+          handleUpdateLayer(layerId, { width: newW, x: newX }, false);
+        }
+      } else if (action === 'resize-s') {
+        const newH = Math.max(20, Math.round(startLayer.height + dy));
+        handleUpdateLayer(layerId, { height: newH }, false);
+      } else if (action === 'resize-n') {
+        const newH = Math.max(20, Math.round(startLayer.height - dy));
+        const newY = Math.round(startLayer.y + dy);
+        handleUpdateLayer(layerId, { height: newH, y: newY }, false);
+      } else if (action === 'resize-se') {
+        const newW = Math.max(30, Math.round(startLayer.width + dx));
+        if (layer.type === 'text') {
+          const fontScale = Math.max(0.15, newW / (startLayer.width || 1));
+          const newFontSize = Math.max(6, Math.min(300, Math.round((startLayer.fontSize || 32) * fontScale)));
           handleUpdateLayer(
             layerId,
             {
               width: newW,
-              height: newH,
-              fontSize: Math.max(8, Math.min(240, Math.round((startLayer.fontSize || 24) * fontScale))),
+              fontSize: newFontSize,
+              autoWidth: false,
             },
             false
           );
         } else {
+          const newH = Math.max(20, Math.round(startLayer.height + dy));
           handleUpdateLayer(layerId, { width: newW, height: newH }, false);
         }
       } else if (action === 'resize-ne') {
-        const newW = Math.max(20, Math.round(startLayer.width + dx));
-        const newH = Math.max(20, Math.round(startLayer.height - dy));
-        const newY = Math.round(startLayer.y + dy);
+        const newW = Math.max(30, Math.round(startLayer.width + dx));
         if (layer.type === 'text') {
-          const fontScale = newW / (startLayer.width || 1);
+          const fontScale = Math.max(0.15, newW / (startLayer.width || 1));
+          const newFontSize = Math.max(6, Math.min(300, Math.round((startLayer.fontSize || 32) * fontScale)));
+          const textDims = calculateTextDimensions(layer.text || layer.placeholder || 'Type your text here', {
+            ...layer,
+            fontSize: newFontSize,
+            width: newW,
+            autoWidth: false,
+          });
+          const newY = Math.round(startLayer.y + (startLayer.height - textDims.height));
           handleUpdateLayer(
             layerId,
             {
               width: newW,
-              height: newH,
+              height: textDims.height,
               y: newY,
-              fontSize: Math.max(8, Math.min(240, Math.round((startLayer.fontSize || 24) * fontScale))),
+              fontSize: newFontSize,
+              autoWidth: false,
             },
             false
           );
         } else {
+          const newH = Math.max(20, Math.round(startLayer.height - dy));
+          const newY = Math.round(startLayer.y + dy);
           handleUpdateLayer(layerId, { width: newW, height: newH, y: newY }, false);
         }
       } else if (action === 'resize-sw') {
-        const newW = Math.max(20, Math.round(startLayer.width - dx));
-        const newH = Math.max(20, Math.round(startLayer.height + dy));
-        const newX = Math.round(startLayer.x + dx);
+        const newW = Math.max(30, Math.round(startLayer.width - dx));
+        const newX = Math.round(startLayer.x + (startLayer.width - newW));
         if (layer.type === 'text') {
-          const fontScale = newW / (startLayer.width || 1);
+          const fontScale = Math.max(0.15, newW / (startLayer.width || 1));
+          const newFontSize = Math.max(6, Math.min(300, Math.round((startLayer.fontSize || 32) * fontScale)));
           handleUpdateLayer(
             layerId,
             {
               width: newW,
-              height: newH,
               x: newX,
-              fontSize: Math.max(8, Math.min(240, Math.round((startLayer.fontSize || 24) * fontScale))),
+              fontSize: newFontSize,
+              autoWidth: false,
             },
             false
           );
         } else {
+          const newH = Math.max(20, Math.round(startLayer.height + dy));
           handleUpdateLayer(layerId, { width: newW, height: newH, x: newX }, false);
         }
       } else if (action === 'resize-nw') {
-        const newW = Math.max(20, Math.round(startLayer.width - dx));
-        const newH = Math.max(20, Math.round(startLayer.height - dy));
-        const newX = Math.round(startLayer.x + dx);
-        const newY = Math.round(startLayer.y + dy);
+        const newW = Math.max(30, Math.round(startLayer.width - dx));
+        const newX = Math.round(startLayer.x + (startLayer.width - newW));
         if (layer.type === 'text') {
-          const fontScale = newW / (startLayer.width || 1);
+          const fontScale = Math.max(0.15, newW / (startLayer.width || 1));
+          const newFontSize = Math.max(6, Math.min(300, Math.round((startLayer.fontSize || 32) * fontScale)));
+          const textDims = calculateTextDimensions(layer.text || layer.placeholder || 'Type your text here', {
+            ...layer,
+            fontSize: newFontSize,
+            width: newW,
+            autoWidth: false,
+          });
+          const newY = Math.round(startLayer.y + (startLayer.height - textDims.height));
           handleUpdateLayer(
             layerId,
             {
               width: newW,
-              height: newH,
+              height: textDims.height,
               x: newX,
               y: newY,
-              fontSize: Math.max(8, Math.min(240, Math.round((startLayer.fontSize || 24) * fontScale))),
+              fontSize: newFontSize,
+              autoWidth: false,
             },
             false
           );
         } else {
+          const newH = Math.max(20, Math.round(startLayer.height - dy));
+          const newX = Math.round(startLayer.x + dx);
+          const newY = Math.round(startLayer.y + dy);
           handleUpdateLayer(layerId, { width: newW, height: newH, x: newX, y: newY }, false);
         }
       } else if (action === 'rotate') {
-        if (!stageRef.current) return;
-        const rect = stageRef.current.getBoundingClientRect();
-        const centerScreenX = rect.left + (startLayer.x + (startLayer.width || 50) / 2) * effZoom;
-        const centerScreenY = rect.top + (startLayer.y + (startLayer.height || 20) / 2) * effZoom;
-        const angleRad = Math.atan2(curY - centerScreenY, curX - centerScreenX);
-        const deg = Math.round((angleRad * 180) / Math.PI + 90);
-        handleUpdateLayer(layerId, { rotation: deg }, false);
+        const curAngleRad = Math.atan2(curY - centerScreenY, curX - centerScreenX);
+        let deltaDeg = ((curAngleRad - startAngleRad) * 180) / Math.PI;
+        let newDeg = startRotation + deltaDeg;
+
+        // Shift key snaps to 15-degree increments
+        if (moveEvt.shiftKey) {
+          newDeg = Math.round(newDeg / 15) * 15;
+        } else {
+          newDeg = Math.round(newDeg);
+        }
+
+        const normalized = ((newDeg % 360) + 360) % 360;
+        handleUpdateLayer(layerId, { rotation: normalized }, false);
+        setRotatingAngle(normalized);
       }
     };
 
@@ -1351,6 +2137,11 @@ export function EditImagePage({ embedded, embeddedOnly }) {
       window.removeEventListener('mouseup', handlePointerUp);
       window.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('touchend', handlePointerUp);
+
+      if (action === 'rotate') {
+        setRotatingLayerId(null);
+        setRotatingAngle(null);
+      }
 
       if (hasMoved) {
         pushHistory(
@@ -1372,10 +2163,10 @@ export function EditImagePage({ embedded, embeddedOnly }) {
   };
 
   // ---------------------------------------------------------------------------
-  // DOWNLOAD / EXPORT ENGINE (Flattens raster base + text & shapes)
+  // DOWNLOAD / EXPORT ENGINE (Flattens raster base + image layers + text & shapes)
   // ---------------------------------------------------------------------------
-  const handleDownload = () => {
-    if (!activeCanvas || !originalFile) return;
+  const handleDownload = async (targetFormat = null) => {
+    if (!activeCanvas) return;
 
     const exportCanvas = document.createElement('canvas');
     exportCanvas.width = currentWidth;
@@ -1387,7 +2178,28 @@ export function EditImagePage({ embedded, embeddedOnly }) {
     // 1. Draw base raster image
     ctx.drawImage(activeCanvas, 0, 0);
 
-    // 2. Draw Vector Layers (Shapes & Text) in order (bottom to top)
+    // 2. Pre-load any image layers
+    const loadedImageElements = await Promise.all(
+      layers.map((layer) => {
+        if (layer.type === 'image' && layer.dataUrl) {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => resolve({ id: layer.id, img });
+            img.onerror = () => resolve({ id: layer.id, img: null });
+            img.src = layer.dataUrl;
+          });
+        }
+        return Promise.resolve(null);
+      })
+    );
+
+    const imgMap = {};
+    loadedImageElements.forEach((item) => {
+      if (item && item.img) imgMap[item.id] = item.img;
+    });
+
+    // 3. Draw Layers (Shapes, Image Layers, Text) in order (bottom to top)
     layers.forEach((layer) => {
       if (layer.hidden) return;
       ctx.save();
@@ -1405,15 +2217,20 @@ export function EditImagePage({ embedded, embeddedOnly }) {
         drawShapeOnCanvas(ctx, layer, -halfW, -halfH, layer.width, layer.height);
       } else if (layer.type === 'text') {
         drawTextOnCanvas(ctx, layer, -halfW, -halfH, layer.width, layer.height);
+      } else if (layer.type === 'image' && imgMap[layer.id]) {
+        ctx.drawImage(imgMap[layer.id], -halfW, -halfH, layer.width, layer.height);
       }
 
       ctx.restore();
     });
 
-    const originalType = originalFile.type || 'image/png';
+    const originalType = originalFile?.type || 'image/png';
     const isTransparent = canvasBgOption === 'transparent';
-    const exportType =
-      isTransparent || originalType === 'image/svg+xml' ? 'image/png' : originalType;
+    let exportType = targetFormat;
+    if (!exportType) {
+      exportType =
+        isTransparent || originalType === 'image/svg+xml' ? 'image/png' : originalType;
+    }
 
     exportCanvas.toBlob(
       (blob) => {
@@ -1421,7 +2238,8 @@ export function EditImagePage({ embedded, embeddedOnly }) {
           setError('Failed to generate export file.');
           return;
         }
-        const baseName = originalFile.name.replace(/\.[^.]+$/, '') || 'edited-image';
+        const rawName = originalFile?.name ? originalFile.name.replace(/\.[^.]+$/, '') : 'canvas-export';
+        const baseName = rawName || 'edited-image';
         const ext =
           exportType === 'image/jpeg' ? '.jpg' : exportType === 'image/webp' ? '.webp' : '.png';
         const filename = `${baseName}-smart-edited-${currentWidth}x${currentHeight}${ext}`;
@@ -1505,6 +2323,7 @@ export function EditImagePage({ embedded, embeddedOnly }) {
   const drawTextOnCanvas = (ctx, layer, x, y, w, h) => {
     const {
       text,
+      placeholder,
       fontSize,
       fontFamily,
       fontWeight,
@@ -1542,15 +2361,24 @@ export function EditImagePage({ embedded, embeddedOnly }) {
       ctx.shadowOffsetY = shadowOffsetY || 2;
     }
 
-    const lines = (text || '').split('\n');
-    const lineH = fontSize * (lineHeight || 1.2);
+    const { wrappedLines } = computeTextWrapLines(text || placeholder || '', {
+      fontSize,
+      fontFamily,
+      fontWeight,
+      fontStyle,
+      letterSpacing,
+      width: w,
+      padding: 8,
+    });
 
-    let textAnchorX = x;
+    const lineH = Math.round(fontSize * (lineHeight || 1.2));
+
+    let textAnchorX = x + 4;
     if (align === 'center') textAnchorX = x + w / 2;
-    else if (align === 'right') textAnchorX = x + w;
+    else if (align === 'right') textAnchorX = x + w - 4;
 
-    lines.forEach((line, idx) => {
-      const lineY = y + idx * lineH;
+    wrappedLines.forEach((line, idx) => {
+      const lineY = y + 4 + idx * lineH;
       if (strokeWidth > 0 && strokeColor && strokeColor !== 'transparent') {
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = strokeWidth;
@@ -1558,6 +2386,19 @@ export function EditImagePage({ embedded, embeddedOnly }) {
       }
       ctx.fillStyle = color || '#FFFFFF';
       ctx.fillText(line, textAnchorX, lineY);
+
+      if (layer.underline) {
+        const m = ctx.measureText(line);
+        let startX = textAnchorX;
+        if (align === 'center') startX = textAnchorX - m.width / 2;
+        else if (align === 'right') startX = textAnchorX - m.width;
+        ctx.beginPath();
+        ctx.lineWidth = Math.max(1, Math.round(fontSize / 16));
+        ctx.strokeStyle = color || '#FFFFFF';
+        ctx.moveTo(startX, lineY + fontSize + 2);
+        ctx.lineTo(startX + m.width, lineY + fontSize + 2);
+        ctx.stroke();
+      }
     });
   };
 
@@ -1570,17 +2411,9 @@ export function EditImagePage({ embedded, embeddedOnly }) {
     setZoom(1);
     setPan({ x: 0, y: 0 });
   };
-  const handleFitScreen = () => {
-    if (!viewportRef.current || !currentWidth || !currentHeight) return;
-    const vpW = viewportRef.current.clientWidth - 64;
-    const vpH = viewportRef.current.clientHeight - 64;
-    const scale = Math.min(vpW / currentWidth, vpH / currentHeight, 1);
-    setZoom(+scale.toFixed(2));
-    setPan({ x: 0, y: 0 });
-  };
 
   const handleMouseDownViewport = (e) => {
-    if (isSpacePressedRef.current || e.button === 1 || e.shiftKey || e.altKey) {
+    if (isPanActive || activeTool === 'hand' || isSpacePressedRef.current || e.button === 1) {
       e.preventDefault();
       setIsPanning(true);
       panStartRef.current = {
@@ -1740,19 +2573,8 @@ export function EditImagePage({ embedded, embeddedOnly }) {
     return Math.round(origSize * Math.pow(ratio, 0.9));
   }, [origSize, origWidth, origHeight, currentWidth, currentHeight]);
 
-  const hasImage = Boolean(activeCanvas && originalFile);
-
   return (
-    <ToolPageLayout
-      badge="Smart Image Editor · All-in-One Studio"
-      title="Smart Image Editor Online"
-      subtitle="Complete in-browser image editor: Resize, Crop, Rotate, Canvas, Add Text, Erase & Shapes. 100% private."
-      content={<EditImageContent />}
-      contentFullWidth
-      embedded={embedded}
-      embeddedOnly={embeddedOnly}
-      showHero={false}
-    >
+    <ToolPageLayout embeddedOnly>
       <div
         id="tool"
         className={styles.editorRoot}
@@ -1786,254 +2608,116 @@ export function EditImagePage({ embedded, embeddedOnly }) {
           style={{ display: 'none' }}
         />
 
-        {!hasImage ? (
-          /* =================================================================
-             COMPACT INTRODUCTORY HERO + UPLOAD BOX
-             ================================================================= */
-          <div className={styles.compactUploadHero}>
+        {/* Hidden File Input for Image Layers */}
+        <input
+          ref={layerImageInputRef}
+          type="file"
+          data-testid="layer-image-input"
+          accept={ACCEPT_STRING}
+          onChange={(e) => {
+            if (e.target.files && e.target.files.length > 0) {
+              handleAddImageLayerFile(e.target.files[0]);
+            }
+          }}
+          style={{ display: 'none' }}
+        />
+
+        {/* Canvas Setup Modal for "New Blank Canvas" triggered from menu */}
+        <CanvasSetupModal
+          isOpen={isBlankModalOpen}
+          onClose={() => setIsBlankModalOpen(false)}
+          onCreateCanvas={handleCreateBlankCanvas}
+        />
+
+        {/* =================================================================
+           MAIN PHOTOSHOP-INSPIRED WORKSPACE (Always Visible)
+           ================================================================= */}
+        <div className={styles.workspaceContainer}>
+          <EditorTopBar
+            hasImage={hasImage}
+            activeTool={hasImage ? activeTool : null}
+            onToolSelect={handleToolSelect}
+            onCloseDocument={handleDeleteBaseImage}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            zoom={zoom}
+            onZoomChange={setZoom}
+            onFitScreen={handleFitScreen}
+            isPanActive={isPanActive}
+            onTogglePan={() => setIsPanActive((p) => !p)}
+            onTriggerUpload={handleTriggerUpload}
+            onDownload={handleDownload}
+            onResetOriginal={handleResetToOriginal}
+            canReset={canReset}
+            onNewBlankCanvas={() => setIsBlankModalOpen(true)}
+            onAddImageLayer={handleTriggerAddImageLayer}
+          />
+
+          {/* Error Banner */}
+          {error && (
+            <div className={styles.workspaceAlert} role="alert">
+              <AlertCircle size={16} />
+              <span>{error}</span>
+              <button
+                type="button"
+                onClick={() => setError('')}
+                className={styles.alertCloseBtn}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* -------------------------------------------------------------
+              MAIN BODY: Central Viewport + Right Workspace
+              ------------------------------------------------------------- */}
+          <div className={styles.editorMainArea}>
+
+            {/* Central Canvas Viewport */}
             <div
-              className={`${styles.compactUploadBox} ${isDragOver ? styles.compactUploadBoxDrag : ''}`}
+              ref={viewportRef}
+              data-testid="canvas-viewport"
+              className={`${styles.canvasViewport} ${
+                activeTab === 'erase' ? styles.viewportEraser : ''
+              } ${isPanActive || activeTool === 'hand' ? styles.viewportPan : ''}`}
+              onMouseDown={handleMouseDownViewport}
+              onMouseMove={handleMouseMoveViewport}
+              onMouseUp={handleMouseUpViewport}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
-              <h1 className={styles.compactHeading}>
-                Smart Image Editor – <span className={styles.titleGradient}>Edit Images Your Way</span>
-              </h1>
-              <p className={styles.compactDesc}>
-                Resize, crop, rotate, add text and erase image areas — all in one place.
-              </p>
+              {/* Pixel Coordinate Rulers (Always Visible) */}
+              <CanvasRulers
+                width={currentWidth || 1200}
+                height={currentHeight || 800}
+                zoom={hasImage ? zoom : 1}
+                pan={hasImage ? pan : { x: 0, y: 0 }}
+              />
 
-              {/* Compact feature strip pills */}
-              <div className={styles.compactFeatureStrip}>
-                <span className={styles.compactPill}>
-                  <Sliders size={12} className={styles.pillIcon} /> Resize
-                </span>
-                <span className={styles.compactPill}>
-                  <RotateCw size={12} className={styles.pillIcon} /> Crop & Rotate
-                </span>
-                <span className={styles.compactPill}>
-                  <Type size={12} className={styles.pillIcon} /> Add Text
-                </span>
-                <span className={styles.compactPill}>
-                  <Eraser size={12} className={styles.pillIcon} /> Erase Objects
-                </span>
-                <span className={styles.compactPill}>
-                  <ShapesIcon size={12} className={styles.pillIcon} /> Create Shapes
-                </span>
-              </div>
-
-              {/* Upload Actions inside box */}
-              <div className={styles.compactActionRow}>
-                <button
-                  type="button"
-                  className={styles.compactUploadBtn}
-                  onClick={handleTriggerUpload}
-                >
-                  <Upload size={18} />
-                  <span>Upload Image</span>
-                </button>
-                <span className={styles.compactDropText}>or drag and drop image here</span>
-              </div>
-
-              <p className={styles.compactFormats}>
-                Supports JPG, PNG, WebP, SVG, GIF, AVIF up to 50 MB · 100% Client-Side Private
-              </p>
-
-              {error && (
-                <div className={styles.errorAlert} role="alert">
-                  <AlertCircle size={16} />
-                  <span>{error}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        ) : (
-          /* =================================================================
-             MAIN PHOTOSHOP-INSPIRED WORKSPACE
-             ================================================================= */
-          <div className={styles.workspaceContainer}>
-            {/* -------------------------------------------------------------
-                TOP TOOLBAR: 7 Main Tools Tabs + Actions + Download
-                ------------------------------------------------------------- */}
-            <header className={styles.topToolbar}>
-              <div className={styles.toolbarLeft}>
-                <div className={styles.editorBrand}>
-                  <Sliders size={16} className={styles.brandIcon} />
-                  <span className={styles.editorHeading}>Smart Image Editor</span>
-                </div>
-
-                {/* 7 Main Tool Tabs */}
-                <nav className={styles.tabsNav} aria-label="Editor Modes">
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('resize')}
-                    className={`${styles.tabButton} ${activeTab === 'resize' ? styles.tabButtonActive : ''}`}
-                    title="Resize Dimensions"
-                  >
-                    <Sliders size={15} />
-                    <span>Resize</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('crop')}
-                    className={`${styles.tabButton} ${activeTab === 'crop' ? styles.tabButtonActive : ''}`}
-                    title="Crop Composition"
-                  >
-                    <CropIcon size={15} />
-                    <span>Crop</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('rotate')}
-                    className={`${styles.tabButton} ${activeTab === 'rotate' ? styles.tabButtonActive : ''}`}
-                    title="Rotate & Flip"
-                  >
-                    <RotateCw size={15} />
-                    <span>Rotate</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('canvas')}
-                    className={`${styles.tabButton} ${activeTab === 'canvas' ? styles.tabButtonActive : ''}`}
-                    title="Canvas Boundary"
-                  >
-                    <Layout size={15} />
-                    <span>Canvas</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('text')}
-                    className={`${styles.tabButton} ${activeTab === 'text' ? styles.tabButtonActive : ''}`}
-                    title="Add Text Layers"
-                  >
-                    <Type size={15} />
-                    <span>Add Text</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('erase')}
-                    className={`${styles.tabButton} ${activeTab === 'erase' ? styles.tabButtonActive : ''}`}
-                    title="Erase Brush"
-                  >
-                    <Eraser size={15} />
-                    <span>Erase</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('shapes')}
-                    className={`${styles.tabButton} ${activeTab === 'shapes' ? styles.tabButtonActive : ''}`}
-                    title="Shapes & Elements"
-                  >
-                    <ShapesIcon size={15} />
-                    <span>Shapes</span>
-                  </button>
-                </nav>
-              </div>
-
-              {/* History & Action Buttons */}
-              <div className={styles.toolbarRight}>
-                <button
-                  type="button"
-                  onClick={handleTriggerUpload}
-                  className={styles.toolBtn}
-                  title="Upload another image"
-                >
-                  <Upload size={14} />
-                  <span>Change Image</span>
-                </button>
-
-                <div className={styles.divider} />
-
-                <button
-                  type="button"
-                  onClick={handleUndo}
-                  disabled={!canUndo}
-                  className={styles.iconBtn}
-                  title="Undo (Ctrl+Z)"
-                  aria-label="Undo"
-                >
-                  <Undo2 size={16} />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleRedo}
-                  disabled={!canRedo}
-                  className={styles.iconBtn}
-                  title="Redo (Ctrl+Y)"
-                  aria-label="Redo"
-                >
-                  <Redo2 size={16} />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleResetToOriginal}
-                  disabled={!canReset}
-                  className={styles.toolBtn}
-                  title="Reset to Original Image"
-                >
-                  <RotateCcw size={14} />
-                  <span>Reset</span>
-                </button>
-
-                <div className={styles.divider} />
-
-                <button
-                  type="button"
-                  onClick={handleDownload}
-                  className={styles.downloadBtn}
-                  title="Download Edited Image"
-                >
-                  <Download size={15} />
-                  <span>Download Image</span>
-                </button>
-              </div>
-            </header>
-
-            {/* Error Banner */}
-            {error && (
-              <div className={styles.workspaceAlert} role="alert">
-                <AlertCircle size={16} />
-                <span>{error}</span>
-                <button
-                  type="button"
-                  onClick={() => setError('')}
-                  className={styles.alertCloseBtn}
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-
-            {/* -------------------------------------------------------------
-                MAIN BODY: Central Dark Viewport + Right Contextual Panel
-                ------------------------------------------------------------- */}
-            <div className={styles.editorMainArea}>
-              {/* Central Dark Viewport */}
-              <div
-                ref={viewportRef}
-                className={`${styles.canvasViewport} ${activeTab === 'erase' ? styles.viewportEraser : ''
-                  }`}
-                onMouseDown={handleMouseDownViewport}
-                onMouseMove={handleMouseMoveViewport}
-                onMouseUp={handleMouseUpViewport}
-              >
+              {!hasImage ? (
+                /* Empty Initial Start Screen: Create Blank Canvas or Open Image */
+                <EditorStartScreen
+                  onOpenImage={handleTriggerUpload}
+                  onCreateBlankCanvas={handleCreateBlankCanvas}
+                  isDragOver={isDragOver}
+                />
+              ) : (
+                /* Loaded State — Active Canvas Stage */
                 <div
                   ref={stageRef}
-                  className={styles.imageStage}
+                  data-canvas-stage="true"
+                  className={`${styles.imageStage} ${
+                    activeTool === 'text' ? styles.stageTextTool : ''
+                  } ${isShapeDrawingTool ? styles.stageShapeTool : ''}`}
                   style={{
-                    width: currentWidth,
-                    height: currentHeight,
+                    width: displayWidth,
+                    height: displayHeight,
                     transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
                   }}
+                  onClick={handleStageClick}
                 >
                   {/* The Active Base Image */}
                   <img
@@ -2041,7 +2725,20 @@ export function EditImagePage({ embedded, embeddedOnly }) {
                     alt="Active Canvas"
                     className={styles.stageImage}
                     draggable={false}
+                    data-layer-id="background"
+                    onClick={(e) => {
+                      if (activeTool === 'text') {
+                        handleStageClick(e);
+                        return;
+                      }
+                      e.stopPropagation();
+                      setSelectedLayerId('background');
+                      setEditingTextLayerId(null);
+                    }}
                     style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'fill',
                       transform:
                         activeTab === 'rotate'
                           ? `rotate(${rotateAngle}deg) scale(${flipH ? -1 : 1}, ${flipV ? -1 : 1})`
@@ -2050,8 +2747,65 @@ export function EditImagePage({ embedded, embeddedOnly }) {
                     }}
                   />
 
+                  {/* Base Image Selection Box and 8 Handles when base image is selected */}
+                  {selectedLayerId === 'background' && activeTab !== 'crop' && (
+                    <div className={styles.baseSelectionFrame} data-layer-id="background" data-selection-frame="background">
+                      {/* 8 Bounding / Resize Handles */}
+                      <div
+                        className={`${styles.baseHandle} ${styles.baseHandleNW}`}
+                        title="Resize Top-Left"
+                        onMouseDown={(e) => handleBaseResizeStart(e, 'nw')}
+                      />
+                      <div
+                        className={`${styles.baseHandle} ${styles.baseHandleN}`}
+                        title="Resize Top"
+                        onMouseDown={(e) => handleBaseResizeStart(e, 'n')}
+                      />
+                      <div
+                        className={`${styles.baseHandle} ${styles.baseHandleNE}`}
+                        title="Resize Top-Right"
+                        onMouseDown={(e) => handleBaseResizeStart(e, 'ne')}
+                      />
+                      <div
+                        className={`${styles.baseHandle} ${styles.baseHandleE}`}
+                        title="Resize Right"
+                        onMouseDown={(e) => handleBaseResizeStart(e, 'e')}
+                      />
+                      <div
+                        className={`${styles.baseHandle} ${styles.baseHandleSE}`}
+                        title="Resize Bottom-Right"
+                        onMouseDown={(e) => handleBaseResizeStart(e, 'se')}
+                      />
+                      <div
+                        className={`${styles.baseHandle} ${styles.baseHandleS}`}
+                        title="Resize Bottom"
+                        onMouseDown={(e) => handleBaseResizeStart(e, 's')}
+                      />
+                      <div
+                        className={`${styles.baseHandle} ${styles.baseHandleSW}`}
+                        title="Resize Bottom-Left"
+                        onMouseDown={(e) => handleBaseResizeStart(e, 'sw')}
+                      />
+                      <div
+                        className={`${styles.baseHandle} ${styles.baseHandleW}`}
+                        title="Resize Left"
+                        onMouseDown={(e) => handleBaseResizeStart(e, 'w')}
+                      />
+
+                      {/* Floating Quick Action Toolbar above the image */}
+                      <ContextualToolbar
+                        layer={{ id: 'background', name: 'Background', locked: false }}
+                        onDuplicate={handleDuplicateBaseImage}
+                        onDelete={handleDeleteBaseImage}
+                        onToggleLock={() => {}}
+                        onMoveUp={() => {}}
+                        onMoveDown={() => {}}
+                      />
+                    </div>
+                  )}
+
                   {/* =======================================================
-                      OVERLAY: Vector Layers (Shapes & Text)
+                      OVERLAY: Vector & Image Layers
                       ======================================================= */}
                   {layers.map((layer) => {
                     if (layer.hidden) return null;
@@ -2060,7 +2814,10 @@ export function EditImagePage({ embedded, embeddedOnly }) {
                     return (
                       <div
                         key={layer.id}
-                        className={`${styles.stageLayerWrapper} ${isSelected ? styles.stageLayerSelected : ''} ${layer.locked ? styles.stageLayerLocked : ''}`}
+                        data-layer-id={layer.id}
+                        data-layer-type={layer.type}
+                        data-layer-selected={isSelected ? 'true' : 'false'}
+                        className={`${styles.stageLayerWrapper} ${isSelected && layer.type !== 'blank' ? styles.stageLayerSelected : ''} ${layer.locked ? styles.stageLayerLocked : ''}`}
                         style={{
                           left: layer.x,
                           top: layer.y,
@@ -2069,11 +2826,34 @@ export function EditImagePage({ embedded, embeddedOnly }) {
                           transform: layer.rotation ? `rotate(${layer.rotation}deg)` : 'none',
                           opacity: (layer.opacity || 100) / 100,
                           cursor: activeTab === 'erase' ? 'none' : layer.locked ? 'default' : 'move',
-                          pointerEvents: activeTab === 'erase' ? 'none' : 'auto',
+                          pointerEvents: activeTab === 'erase' || layer.type === 'blank' ? 'none' : 'auto',
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedLayerId(layer.id);
+                          if (layer.type !== 'text') {
+                            setEditingTextLayerId(null);
+                          }
                         }}
                         onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'move')}
                         onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'move')}
                       >
+                        {/* Render Image Layer */}
+                        {layer.type === 'image' && (
+                          <img
+                            src={layer.dataUrl}
+                            alt={layer.name || 'Image Layer'}
+                            draggable={false}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'fill',
+                              pointerEvents: 'none',
+                              display: 'block',
+                              userSelect: 'none',
+                            }}
+                          />
+                        )}
                         {/* Render Shape */}
                         {layer.type === 'shape' && (
                           <svg
@@ -2181,121 +2961,199 @@ export function EditImagePage({ embedded, embeddedOnly }) {
 
                         {/* Render Text */}
                         {layer.type === 'text' && (
-                          <div
-                            className={styles.stageTextContent}
-                            style={{
-                              fontFamily: layer.fontFamily,
-                              fontSize: `${layer.fontSize}px`,
-                              fontWeight: layer.fontWeight,
-                              fontStyle: layer.fontStyle,
-                              color: layer.color,
-                              textAlign: layer.align,
-                              backgroundColor:
-                                layer.bgColor && layer.bgColor !== 'transparent'
-                                  ? layer.bgColor
-                                  : 'transparent',
-                              WebkitTextStroke:
-                                layer.strokeWidth > 0
-                                  ? `${layer.strokeWidth}px ${layer.strokeColor}`
-                                  : 'none',
-                              textShadow:
-                                layer.shadowBlur > 0
-                                  ? `${layer.shadowOffsetX}px ${layer.shadowOffsetY}px ${layer.shadowBlur}px ${layer.shadowColor}`
-                                  : 'none',
-                              letterSpacing: `${layer.letterSpacing || 0}px`,
-                              lineHeight: layer.lineHeight || 1.2,
-                              whiteSpace: 'pre-wrap',
-                              userSelect: 'none',
-                            }}
-                          >
-                            {layer.text}
-                          </div>
+                          editingTextLayerId === layer.id ? (
+                            <textarea
+                              autoFocus
+                              data-text-editor="true"
+                              value={layer.text}
+                              placeholder={layer.placeholder || 'Type your text here'}
+                              onChange={(e) => handleUpdateLayer(layer.id, { text: e.target.value })}
+                              onBlur={() => {
+                                setEditingTextLayerId(null);
+                                if (!layer.text || !layer.text.trim()) {
+                                  handleUpdateLayer(layer.id, { text: 'Type your text here' }, false);
+                                }
+                                pushHistory(null, layersRef.current, 'Edit Text');
+                              }}
+                              onKeyDown={(e) => {
+                                e.stopPropagation();
+                                if (e.key === 'Escape') {
+                                  setEditingTextLayerId(null);
+                                  if (!layer.text || !layer.text.trim()) {
+                                    handleUpdateLayer(layer.id, { text: 'Type your text here' }, false);
+                                  }
+                                  pushHistory(null, layersRef.current, 'Edit Text');
+                                }
+                              }}
+                              className={styles.inlineEditTextarea}
+                              style={{
+                                fontFamily: layer.fontFamily,
+                                fontSize: `${layer.fontSize}px`,
+                                fontWeight: layer.fontWeight,
+                                fontStyle: layer.fontStyle,
+                                color: layer.color,
+                                textAlign: layer.align,
+                                backgroundColor:
+                                  layer.bgColor && layer.bgColor !== 'transparent'
+                                    ? layer.bgColor
+                                    : 'transparent',
+                                letterSpacing: `${layer.letterSpacing || 0}px`,
+                                lineHeight: layer.lineHeight || 1.2,
+                                wordBreak: 'break-word',
+                                whiteSpace: 'pre-wrap',
+                              }}
+                            />
+                          ) : (
+                            <div
+                              data-text-content="true"
+                              className={styles.stageTextContent}
+                              onDoubleClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTextLayerId(layer.id);
+                              }}
+                              style={{
+                                fontFamily: layer.fontFamily,
+                                fontSize: `${layer.fontSize}px`,
+                                fontWeight: layer.fontWeight,
+                                fontStyle: layer.fontStyle,
+                                color: layer.color,
+                                textAlign: layer.align,
+                                backgroundColor:
+                                  layer.bgColor && layer.bgColor !== 'transparent'
+                                    ? layer.bgColor
+                                    : 'transparent',
+                                WebkitTextStroke:
+                                  layer.strokeWidth > 0
+                                    ? `${layer.strokeWidth}px ${layer.strokeColor}`
+                                    : 'none',
+                                textShadow:
+                                  layer.shadowBlur > 0
+                                    ? `${layer.shadowOffsetX}px ${layer.shadowOffsetY}px ${layer.shadowBlur}px ${layer.shadowColor}`
+                                    : 'none',
+                                textDecoration: layer.underline ? 'underline' : 'none',
+                                letterSpacing: `${layer.letterSpacing || 0}px`,
+                                lineHeight: layer.lineHeight || 1.2,
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                                overflowWrap: 'break-word',
+                                userSelect: 'none',
+                              }}
+                            >
+                              {layer.text || (
+                                <span className={styles.emptyTextPlaceholder}>
+                                  {layer.placeholder || 'Type your text here'}
+                                </span>
+                              )}
+                            </div>
+                          )
                         )}
 
                         {/* Interactive Selection Frame & Handles */}
-                        {isSelected && !layer.locked && (
+                        {isSelected && !layer.locked && layer.type !== 'blank' && (
                           <>
-                            {/* 4 Corner Handles for Smooth Grabbing */}
+                            {/* 8 Bounding & Resize Handles */}
                             <div
                               className={`${styles.layerHandle} ${styles.layerHandleNW}`}
+                              data-handle-pos="nw"
                               onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'resize-nw')}
                               onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'resize-nw')}
                               title="Resize Top-Left"
                             />
                             <div
+                              className={`${styles.layerHandle} ${styles.layerHandleN}`}
+                              data-handle-pos="n"
+                              onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'resize-n')}
+                              onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'resize-n')}
+                              title="Resize Top"
+                            />
+                            <div
                               className={`${styles.layerHandle} ${styles.layerHandleNE}`}
+                              data-handle-pos="ne"
                               onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'resize-ne')}
                               onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'resize-ne')}
                               title="Resize Top-Right"
                             />
                             <div
+                              className={`${styles.layerHandle} ${styles.layerHandleE}`}
+                              data-handle-pos="e"
+                              onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'resize-e')}
+                              onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'resize-e')}
+                              title="Adjust Box Width (Right)"
+                            />
+                            <div
+                              className={`${styles.layerHandle} ${styles.layerHandleSE}`}
+                              data-handle-pos="se"
+                              onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'resize-se')}
+                              onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'resize-se')}
+                              title="Resize Bottom-Right"
+                            />
+                            <div
+                              className={`${styles.layerHandle} ${styles.layerHandleS}`}
+                              data-handle-pos="s"
+                              onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'resize-s')}
+                              onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'resize-s')}
+                              title="Resize Bottom"
+                            />
+                            <div
                               className={`${styles.layerHandle} ${styles.layerHandleSW}`}
+                              data-handle-pos="sw"
                               onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'resize-sw')}
                               onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'resize-sw')}
                               title="Resize Bottom-Left"
                             />
                             <div
-                              className={`${styles.layerHandle} ${styles.layerHandleSE}`}
-                              onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'resize-se')}
-                              onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'resize-se')}
-                              title="Resize Bottom-Right"
+                              className={`${styles.layerHandle} ${styles.layerHandleW}`}
+                              data-handle-pos="w"
+                              onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'resize-w')}
+                              onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'resize-w')}
+                              title="Adjust Box Width (Left)"
                             />
 
                             {/* Rotation Stalk Handle (Top) */}
                             <div
-                              className={styles.layerRotateStalk}
+                              className={`${styles.layerRotateStalk} ${rotatingLayerId === layer.id ? styles.layerRotateStalkGrabbing : ''}`}
+                              data-rotation-handle="true"
                               onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'rotate')}
                               onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'rotate')}
-                              title="Drag to rotate"
+                              title="Drag to rotate (Hold Shift to snap to 15°)"
                             >
-                              <div className={styles.layerRotateKnob} />
+                              <div
+                                className={styles.layerRotateKnob}
+                                data-rotation-knob="true"
+                                onMouseDown={(e) => handleLayerPointerDown(e, layer.id, 'rotate')}
+                                onTouchStart={(e) => handleLayerPointerDown(e, layer.id, 'rotate')}
+                              >
+                                <RotateCw className={styles.rotateKnobIcon} />
+                              </div>
+                              {rotatingLayerId === layer.id && (
+                                <div className={styles.rotationAngleTooltip} data-rotation-tooltip="true">
+                                  {rotatingAngle ?? layer.rotation ?? 0}°
+                                </div>
+                              )}
                             </div>
 
-                            {/* Floating Quick Action Badge */}
-                            <div className={styles.layerActionBadge}>
-                              <button
-                                type="button"
-                                className={styles.layerBadgeBtn}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDuplicateLayer(layer.id);
-                                }}
-                                title="Duplicate Layer"
-                              >
-                                <Copy size={12} />
-                              </button>
-                              <button
-                                type="button"
-                                className={styles.layerBadgeBtn}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleToggleLockLayer(layer.id);
-                                }}
-                                title="Lock Layer"
-                              >
-                                <Lock size={12} />
-                              </button>
-                              <button
-                                type="button"
-                                className={styles.layerBadgeBtn}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteLayer(layer.id);
-                                }}
-                                title="Delete Layer"
-                              >
-                                <Trash2 size={12} />
-                              </button>
-                            </div>
+                            {/* Floating Contextual Quick Actions (Duplicate, Delete, More) */}
+                            {rotatingLayerId !== layer.id && (
+                              <ContextualToolbar
+                                layer={layer}
+                                isNearBottom={(layer.y + (layer.height || 40)) > (displayHeight - 50)}
+                                onDuplicate={handleDuplicateLayer}
+                                onDelete={handleDeleteLayer}
+                                onToggleLock={handleToggleLockLayer}
+                                onMoveUp={(id) => handleMoveLayer(id, 'up')}
+                                onMoveDown={(id) => handleMoveLayer(id, 'down')}
+                              />
+                            )}
                           </>
                         )}
                       </div>
                     );
                   })}
 
-                  {/* Interactive Crop Overlay (Activated in Crop Tab) */}
-                  {activeTab === 'crop' && (
+                  {/* Interactive Crop Overlay (Activated in Crop Tab & Tool) */}
+                  {activeTab === 'crop' && activeTool === 'crop' && cropBox.width > 0 && cropBox.height > 0 && (
                     <div
+                      data-crop-overlay="true"
                       className={styles.cropOverlay}
                       style={{
                         left: cropBox.x,
@@ -2312,7 +3170,7 @@ export function EditImagePage({ embedded, embeddedOnly }) {
                       <div className={styles.gridLineV2} />
 
                       {/* Live Crop Dimensions Badge */}
-                      <div className={styles.cropDimensionsBadge}>
+                      <div data-crop-badge="true" className={styles.cropDimensionsBadge}>
                         {Math.round(cropBox.width)} × {Math.round(cropBox.height)} px
                       </div>
 
@@ -2366,7 +3224,132 @@ export function EditImagePage({ embedded, embeddedOnly }) {
                         }}
                       />
                     )}
+
+                  {/* Interactive Shape Drawing Surface Overlay */}
+                  {isShapeDrawingTool && (
+                    <div
+                      className={styles.shapeDrawingSurface}
+                      data-shape-drawing-surface="true"
+                      onPointerDown={handleShapeDrawStart}
+                      onPointerMove={handleShapeDrawMove}
+                      onPointerUp={handleShapeDrawEnd}
+                      onPointerCancel={handleCancelShapeDraw}
+                    />
+                  )}
+
+                  {/* Live Shape Dragging Preview */}
+                  {drawingShapePreview?.active && (
+                    <div
+                      className={styles.shapePreviewContainer}
+                      data-shape-preview="true"
+                      style={{
+                        position: 'absolute',
+                        left: drawingShapePreview.left,
+                        top: drawingShapePreview.top,
+                        width: Math.max(1, drawingShapePreview.width),
+                        height: Math.max(1, drawingShapePreview.height),
+                        pointerEvents: 'none',
+                        zIndex: 130,
+                      }}
+                    >
+                      <svg
+                        width="100%"
+                        height="100%"
+                        viewBox={`0 0 ${Math.max(1, drawingShapePreview.width)} ${Math.max(1, drawingShapePreview.height)}`}
+                        style={{ overflow: 'visible' }}
+                      >
+                        {drawingShapePreview.shapeType === 'rect' && (
+                          <rect
+                            x="0"
+                            y="0"
+                            width={drawingShapePreview.width}
+                            height={drawingShapePreview.height}
+                            fill={drawingShapePreview.fillColor === 'transparent' ? 'none' : drawingShapePreview.fillColor}
+                            stroke={drawingShapePreview.strokeColor}
+                            strokeWidth={drawingShapePreview.strokeWidth}
+                          />
+                        )}
+                        {drawingShapePreview.shapeType === 'rounded-rect' && (
+                          <rect
+                            x="0"
+                            y="0"
+                            width={drawingShapePreview.width}
+                            height={drawingShapePreview.height}
+                            rx="16"
+                            fill={drawingShapePreview.fillColor === 'transparent' ? 'none' : drawingShapePreview.fillColor}
+                            stroke={drawingShapePreview.strokeColor}
+                            strokeWidth={drawingShapePreview.strokeWidth}
+                          />
+                        )}
+                        {drawingShapePreview.shapeType === 'circle' && (
+                          <circle
+                            cx={drawingShapePreview.width / 2}
+                            cy={drawingShapePreview.height / 2}
+                            r={Math.max(1, Math.min(drawingShapePreview.width, drawingShapePreview.height) / 2 - (drawingShapePreview.strokeWidth || 0) / 2)}
+                            fill={drawingShapePreview.fillColor === 'transparent' ? 'none' : drawingShapePreview.fillColor}
+                            stroke={drawingShapePreview.strokeColor}
+                            strokeWidth={drawingShapePreview.strokeWidth}
+                          />
+                        )}
+                        {drawingShapePreview.shapeType === 'ellipse' && (
+                          <ellipse
+                            cx={drawingShapePreview.width / 2}
+                            cy={drawingShapePreview.height / 2}
+                            rx={Math.max(1, drawingShapePreview.width / 2 - (drawingShapePreview.strokeWidth || 0) / 2)}
+                            ry={Math.max(1, drawingShapePreview.height / 2 - (drawingShapePreview.strokeWidth || 0) / 2)}
+                            fill={drawingShapePreview.fillColor === 'transparent' ? 'none' : drawingShapePreview.fillColor}
+                            stroke={drawingShapePreview.strokeColor}
+                            strokeWidth={drawingShapePreview.strokeWidth}
+                          />
+                        )}
+                        {drawingShapePreview.shapeType === 'line' && (
+                          <line
+                            x1="0"
+                            y1={drawingShapePreview.height / 2}
+                            x2={drawingShapePreview.width}
+                            y2={drawingShapePreview.height / 2}
+                            stroke={drawingShapePreview.strokeColor}
+                            strokeWidth={drawingShapePreview.strokeWidth || 3}
+                            strokeLinecap="round"
+                          />
+                        )}
+                        {drawingShapePreview.shapeType === 'triangle' && (
+                          <polygon
+                            points={`${drawingShapePreview.width / 2},0 ${drawingShapePreview.width},${drawingShapePreview.height} 0,${drawingShapePreview.height}`}
+                            fill={drawingShapePreview.fillColor === 'transparent' ? 'none' : drawingShapePreview.fillColor}
+                            stroke={drawingShapePreview.strokeColor}
+                            strokeWidth={drawingShapePreview.strokeWidth}
+                            strokeLinejoin="round"
+                          />
+                        )}
+                        {drawingShapePreview.shapeType === 'star' && (
+                          <polygon
+                            points={Array.from({ length: 10 }, (_, i) => {
+                              const r = i % 2 === 0 ? drawingShapePreview.width / 2 : drawingShapePreview.width * 0.22;
+                              const a = (i * Math.PI) / 5 - Math.PI / 2;
+                              return `${drawingShapePreview.width / 2 + r * Math.cos(a)},${drawingShapePreview.height / 2 + r * Math.sin(a)}`;
+                            }).join(' ')}
+                            fill={drawingShapePreview.fillColor === 'transparent' ? 'none' : drawingShapePreview.fillColor}
+                            stroke={drawingShapePreview.strokeColor}
+                            strokeWidth={drawingShapePreview.strokeWidth}
+                            strokeLinejoin="round"
+                          />
+                        )}
+                      </svg>
+
+                      {/* Bounding Guide Box */}
+                      <div className={styles.shapePreviewBoundingBox} />
+
+                      {/* Live Dimensions Tooltip */}
+                      <div className={styles.shapeDimensionBadge} data-shape-dimension-badge="true">
+                        {Math.round(drawingShapePreview.width)} × {Math.round(drawingShapePreview.height)} px
+                        {drawingShapePreview.shiftKey ? ' (1:1)' : ''}
+                        {drawingShapePreview.altKey ? ' (Center)' : ''}
+                      </div>
+                    </div>
+                  )}
                 </div>
+              )}
 
                 {/* Floating Circular Eraser Cursor */}
                 {activeTab === 'erase' && cursorPos.visible && (
@@ -2381,1454 +3364,92 @@ export function EditImagePage({ embedded, embeddedOnly }) {
                   />
                 )}
 
-                {/* Floating Zoom Controls Bar */}
-                <div className={styles.floatingZoomBar}>
-                  <button
-                    type="button"
-                    onClick={handleZoomOut}
-                    className={styles.zoomBtn}
-                    title="Zoom Out"
-                  >
-                    <ZoomOut size={15} />
-                  </button>
-                  <span className={styles.zoomBadge}>{Math.round(zoom * 100)}%</span>
-                  <button
-                    type="button"
-                    onClick={handleZoomIn}
-                    className={styles.zoomBtn}
-                    title="Zoom In"
-                  >
-                    <ZoomIn size={15} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleFitScreen}
-                    className={styles.zoomTextBtn}
-                    title="Fit to Screen"
-                  >
-                    Fit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleZoom100}
-                    className={styles.zoomTextBtn}
-                    title="100% Actual Size"
-                  >
-                    100%
-                  </button>
-                </div>
               </div>
 
-              {/* -----------------------------------------------------------
-                  RIGHT CONTEXTUAL SETTINGS PANEL (Tab-specific)
-                  ----------------------------------------------------------- */}
-              <aside className={styles.contextualPanel}>
-                {/* Side Panel Tabs: Properties vs Layers */}
-                <div className={styles.sidePanelTabs}>
-                  <button
-                    type="button"
-                    className={`${styles.sidePanelTabBtn} ${sidePanelTab === 'properties' ? styles.sidePanelTabActive : ''}`}
-                    onClick={() => setSidePanelTab('properties')}
-                  >
-                    <Sliders size={14} />
-                    <span>Properties</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.sidePanelTabBtn} ${sidePanelTab === 'layers' ? styles.sidePanelTabActive : ''}`}
-                    onClick={() => setSidePanelTab('layers')}
-                  >
-                    <Layers size={14} />
-                    <span>Layers</span>
-                    <span className={styles.layersTabBadge}>{layers.length + 1}</span>
-                  </button>
-                </div>
-
-                {sidePanelTab === 'layers' ? (
-                  <div className={styles.panelContent}>
-                    <div className={styles.panelHeaderRow}>
-                      <div>
-                        <h2 className={styles.panelTitle}>Layers</h2>
-                        <p className={styles.panelDesc}>
-                          Stacking order, visibility and locking.
-                        </p>
-                      </div>
-                      <div className={styles.layersQuickAddGroup}>
-                        <button
-                          type="button"
-                          className={styles.layersAddBtn}
-                          onClick={() => {
-                            handleAddTextLayer();
-                            setSidePanelTab('properties');
-                            setActiveTab('text');
-                          }}
-                          title="Add Text Layer"
-                        >
-                          <Type size={13} /> Text
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.layersAddBtn}
-                          onClick={() => {
-                            handleAddShape('rect');
-                            setSidePanelTab('properties');
-                            setActiveTab('shapes');
-                          }}
-                          title="Add Shape Layer"
-                        >
-                          <Square size={13} /> Shape
-                        </button>
-                      </div>
-                    </div>
-
-                    <div
-                      className={styles.layersList}
-                      onDragOver={(e) => {
-                        e.stopPropagation();
-                      }}
-                      onDrop={(e) => {
-                        e.stopPropagation();
-                      }}
-                    >
-                      {layers.length === 0 ? (
-                        <div className={styles.emptyLayersState}>
-                          <p>No overlay layers yet</p>
-                          <span className={styles.emptyLayersHint}>
-                            Add text or shapes from the top toolbar to create editable layers.
-                          </span>
-                        </div>
-                      ) : (
-                        [...layers]
-                          .map((layer, index) => ({ layer, index }))
-                          .reverse()
-                          .map(({ layer, index }) => {
-                            const isSelected = layer.id === selectedLayerId;
-                            const isTop = index === layers.length - 1;
-                            const isBottom = index === 0;
-
-                            return (
-                              <div
-                                key={layer.id}
-                                data-layer-index={index}
-                                className={`${styles.layerRowItem} ${isSelected ? styles.layerRowSelected : ''} ${layer.hidden ? styles.layerRowHidden : ''} ${layer.locked ? styles.layerRowLocked : ''} ${dragOverLayerIndex === index ? styles.layerRowDragOver : ''}`}
-                                draggable={!layer.locked}
-                                onDragStart={(e) => {
-                                  e.stopPropagation();
-                                  if (typeof window !== 'undefined') {
-                                    window.__isInternalLayerDrag = true;
-                                  }
-                                  e.dataTransfer.effectAllowed = 'move';
-                                  e.dataTransfer.setData('application/x-image-editor-layer', String(index));
-                                  e.dataTransfer.setData('text/plain', String(index));
-                                  setDraggedLayerIndex(index);
-                                }}
-                                onDragEnd={(e) => {
-                                  e.stopPropagation();
-                                  if (typeof window !== 'undefined') {
-                                    window.__isInternalLayerDrag = false;
-                                  }
-                                  setDraggedLayerIndex(null);
-                                  setDragOverLayerIndex(null);
-                                }}
-                                onDragOver={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  e.dataTransfer.dropEffect = 'move';
-                                  if (dragOverLayerIndex !== index) {
-                                    setDragOverLayerIndex(index);
-                                  }
-                                }}
-                                onDragEnter={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (dragOverLayerIndex !== index) {
-                                    setDragOverLayerIndex(index);
-                                  }
-                                }}
-                                onDragLeave={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                }}
-                                onDrop={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (typeof window !== 'undefined') {
-                                    window.__isInternalLayerDrag = false;
-                                  }
-                                  const rawIdx =
-                                    e.dataTransfer.getData('application/x-image-editor-layer') ||
-                                    e.dataTransfer.getData('text/plain');
-                                  const srcIdx =
-                                    rawIdx !== '' ? parseInt(rawIdx, 10) : draggedLayerIndex;
-                                  if (srcIdx !== null && !isNaN(srcIdx) && srcIdx !== index) {
-                                    handleReorderLayers(srcIdx, index);
-                                  }
-                                  setDraggedLayerIndex(null);
-                                  setDragOverLayerIndex(null);
-                                }}
-                                onClick={() => setSelectedLayerId(layer.id)}
-                              >
-                                {/* Drag Grip Handle (Mouse HTML5 drag + Touch Drag Support) */}
-                                <div
-                                  className={styles.layerDragGrip}
-                                  title="Drag to reorder layer"
-                                  onTouchStart={(e) => {
-                                    if (layer.locked) return;
-                                    touchDragStartRef.current = {
-                                      startIndex: index,
-                                      startY: e.touches[0].clientY,
-                                    };
-                                    setDraggedLayerIndex(index);
-                                  }}
-                                  onTouchMove={(e) => {
-                                    if (!touchDragStartRef.current) return;
-                                    const touch = e.touches[0];
-                                    const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
-                                    const rowEl = targetEl?.closest('[data-layer-index]');
-                                    if (rowEl) {
-                                      const targetIdx = parseInt(rowEl.getAttribute('data-layer-index'), 10);
-                                      if (!isNaN(targetIdx) && targetIdx !== dragOverLayerIndex) {
-                                        setDragOverLayerIndex(targetIdx);
-                                      }
-                                    }
-                                  }}
-                                  onTouchEnd={() => {
-                                    if (touchDragStartRef.current) {
-                                      const srcIdx = touchDragStartRef.current.startIndex;
-                                      if (dragOverLayerIndex !== null && dragOverLayerIndex !== srcIdx) {
-                                        handleReorderLayers(srcIdx, dragOverLayerIndex);
-                                      }
-                                      touchDragStartRef.current = null;
-                                      setDraggedLayerIndex(null);
-                                      setDragOverLayerIndex(null);
-                                    }
-                                  }}
-                                >
-                                  <GripVertical size={14} />
-                                </div>
-
-                                {/* Layer Type Icon */}
-                                <div className={styles.layerTypeIconWrap}>
-                                  {layer.type === 'text' ? (
-                                    <Type size={14} className={styles.layerTypeIcon} />
-                                  ) : (
-                                    <Square size={14} className={styles.layerTypeIcon} />
-                                  )}
-                                </div>
-
-                                {/* Layer Title / Inline Rename */}
-                                <div className={styles.layerNameCol}>
-                                  {renamingLayerId === layer.id ? (
-                                    <input
-                                      type="text"
-                                      value={renameValue}
-                                      autoFocus
-                                      onChange={(e) => setRenameValue(e.target.value)}
-                                      onKeyDown={(e) => {
-                                        e.stopPropagation();
-                                        if (e.key === 'Enter') {
-                                          handleRenameLayer(layer.id, renameValue);
-                                          setRenamingLayerId(null);
-                                        } else if (e.key === 'Escape') {
-                                          setRenamingLayerId(null);
-                                        }
-                                      }}
-                                      onBlur={() => {
-                                        handleRenameLayer(layer.id, renameValue);
-                                        setRenamingLayerId(null);
-                                      }}
-                                      className={styles.layerRenameInput}
-                                    />
-                                  ) : (
-                                    <span
-                                      className={styles.layerNameText}
-                                      onDoubleClick={(e) => {
-                                        e.stopPropagation();
-                                        setRenamingLayerId(layer.id);
-                                        setRenameValue(layer.name || (layer.type === 'text' ? 'Text' : 'Shape'));
-                                      }}
-                                      title="Double-click to rename"
-                                    >
-                                      {layer.name || (layer.type === 'text' ? (layer.text?.slice(0, 16) || 'Text') : 'Shape')}
-                                    </span>
-                                  )}
-                                </div>
-
-                                {/* Layer Actions: Move Up, Move Down, Hide, Lock, Duplicate, Delete */}
-                                <div className={styles.layerActionsCol} onClick={(e) => e.stopPropagation()}>
-                                  <button
-                                    type="button"
-                                    className={styles.layerMiniBtn}
-                                    disabled={isTop}
-                                    onClick={() => handleMoveLayer(layer.id, 'up')}
-                                    title="Move layer up (higher in stack)"
-                                  >
-                                    <ChevronUp size={13} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={styles.layerMiniBtn}
-                                    disabled={isBottom}
-                                    onClick={() => handleMoveLayer(layer.id, 'down')}
-                                    title="Move layer down (lower in stack)"
-                                  >
-                                    <ChevronDown size={13} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={`${styles.layerMiniBtn} ${layer.hidden ? styles.layerMiniBtnOff : ''}`}
-                                    onClick={() => handleToggleHideLayer(layer.id)}
-                                    title={layer.hidden ? 'Show layer' : 'Hide layer'}
-                                  >
-                                    {layer.hidden ? <EyeOff size={13} /> : <Eye size={13} />}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={`${styles.layerMiniBtn} ${layer.locked ? styles.layerMiniBtnActive : ''}`}
-                                    onClick={() => handleToggleLockLayer(layer.id)}
-                                    title={layer.locked ? 'Unlock layer' : 'Lock layer'}
-                                  >
-                                    {layer.locked ? <Lock size={13} /> : <Unlock size={13} />}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={styles.layerMiniBtn}
-                                    onClick={() => handleDuplicateLayer(layer.id)}
-                                    title="Duplicate layer"
-                                  >
-                                    <Copy size={13} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={`${styles.layerMiniBtn} ${styles.layerMiniBtnDanger}`}
-                                    onClick={() => handleDeleteLayer(layer.id)}
-                                    title="Delete layer"
-                                  >
-                                    <Trash2 size={13} />
-                                  </button>
-                                </div>
-                              </div>
-                            );
-                          })
-                      )}
-
-                      {/* Base Layer: Original Image (Always at bottom) */}
-                      <div className={styles.baseLayerRow}>
-                        <div className={styles.baseLayerIconWrap}>
-                          <ImageIcon size={14} />
-                        </div>
-                        <div className={styles.baseLayerInfo}>
-                          <strong className={styles.baseLayerTitle}>Original Image</strong>
-                          <span className={styles.baseLayerSub}>
-                            {currentWidth} × {currentHeight} px · Base Layer
-                          </span>
-                        </div>
-                        <div className={styles.baseLayerLockedBadge} title="Base image layer is locked at the bottom">
-                          <Lock size={12} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {/* =========================================================
-                    TAB 1: RESIZE SETTINGS
-                    ========================================================= */}
-                    {activeTab === 'resize' && (
-                      <div className={styles.panelContent}>
-                        <h2 className={styles.panelTitle}>Resize Dimensions</h2>
-                        <p className={styles.panelDesc}>
-                          Scale actual pixel dimensions while maintaining sharpness.
-                        </p>
-
-                        <div className={styles.controlsBlock}>
-                          <div className={styles.dimensionInputsRow}>
-                            <div className={styles.inputField}>
-                              <label htmlFor="edit-resize-w" className={styles.fieldLabel}>
-                                Width (px)
-                              </label>
-                              <div className={styles.inputWrapper}>
-                                <input
-                                  id="edit-resize-w"
-                                  type="number"
-                                  min="1"
-                                  max={MAX_CANVAS_DIMENSION}
-                                  value={resizeWidth}
-                                  onChange={handleResizeWidthChange}
-                                  className={styles.numInput}
-                                />
-                                <span className={styles.unitTag}>px</span>
-                              </div>
-                            </div>
-
-                            <div className={styles.lockButtonWrap}>
-                              <button
-                                type="button"
-                                onClick={toggleResizeLock}
-                                className={lockAspectRatio ? styles.lockActive : styles.lockInactive}
-                                title={lockAspectRatio ? 'Aspect ratio locked' : 'Aspect ratio unlocked'}
-                              >
-                                {lockAspectRatio ? <Lock size={16} /> : <Unlock size={16} />}
-                              </button>
-                            </div>
-
-                            <div className={styles.inputField}>
-                              <label htmlFor="edit-resize-h" className={styles.fieldLabel}>
-                                Height (px)
-                              </label>
-                              <div className={styles.inputWrapper}>
-                                <input
-                                  id="edit-resize-h"
-                                  type="number"
-                                  min="1"
-                                  max={MAX_CANVAS_DIMENSION}
-                                  value={resizeHeight}
-                                  onChange={handleResizeHeightChange}
-                                  className={styles.numInput}
-                                />
-                                <span className={styles.unitTag}>px</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className={styles.presetButtonsRow}>
-                            <span className={styles.presetLabel}>Scale:</span>
-                            {[25, 50, 75, 100, 200].map((pct) => (
-                              <button
-                                key={pct}
-                                type="button"
-                                onClick={() => handleScalePreset(pct)}
-                                className={styles.scalePresetBtn}
-                              >
-                                {pct}%
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className={styles.statsBox}>
-                          <div className={styles.statRow}>
-                            <span className={styles.statKey}>Original Size:</span>
-                            <span className={styles.statVal}>
-                              {origWidth} × {origHeight} px
-                            </span>
-                          </div>
-                          <div className={styles.statRow}>
-                            <span className={styles.statKey}>New Dimensions:</span>
-                            <span className={styles.statValHighlight}>
-                              {resizeWidth || 0} × {resizeHeight || 0} px
-                            </span>
-                          </div>
-                          <div className={styles.statRow}>
-                            <span className={styles.statKey}>Estimated File:</span>
-                            <span className={styles.statVal}>
-                              ~{formatFileSize(estimatedCurrentBytes)}
-                            </span>
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={handleApplyResize}
-                          disabled={isProcessing || !resizeWidth || !resizeHeight}
-                          className={styles.applyBtn}
-                        >
-                          <Check size={16} />
-                          <span>Apply Resize</span>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* =========================================================
-                    TAB 2: CROP SETTINGS
-                    ========================================================= */}
-                    {activeTab === 'crop' && (
-                      <div className={styles.panelContent}>
-                        <h2 className={styles.panelTitle}>Crop Composition</h2>
-                        <p className={styles.panelDesc}>
-                          Drag the box or corner handles to re-frame your image.
-                        </p>
-
-                        <div className={styles.presetGroup}>
-                          <label className={styles.fieldLabel}>Aspect Ratio Presets</label>
-                          <div className={styles.presetPillsGrid}>
-                            {CROP_PRESETS.map((p) => (
-                              <button
-                                key={p.id}
-                                type="button"
-                                onClick={() => handleSelectCropPreset(p.id)}
-                                className={`${styles.presetPill} ${cropPreset === p.id ? styles.presetPillActive : ''}`}
-                              >
-                                {p.label}
-                              </button>
-                            ))}
-                          </div>
-
-                          {cropPreset === 'custom' && (
-                            <div className={styles.customRatioRow}>
-                              <input
-                                type="number"
-                                min="1"
-                                value={customRatioW}
-                                onChange={(e) => {
-                                  setCustomRatioW(e.target.value);
-                                  handleSelectCropPreset('custom');
-                                }}
-                                className={styles.ratioInput}
-                                placeholder="W"
-                              />
-                              <span>:</span>
-                              <input
-                                type="number"
-                                min="1"
-                                value={customRatioH}
-                                onChange={(e) => {
-                                  setCustomRatioH(e.target.value);
-                                  handleSelectCropPreset('custom');
-                                }}
-                                className={styles.ratioInput}
-                                placeholder="H"
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        <div className={styles.statsBox}>
-                          <div className={styles.statRow}>
-                            <span className={styles.statKey}>Crop Width:</span>
-                            <span className={styles.statValHighlight}>
-                              {Math.round(cropBox.width)} px
-                            </span>
-                          </div>
-                          <div className={styles.statRow}>
-                            <span className={styles.statKey}>Crop Height:</span>
-                            <span className={styles.statValHighlight}>
-                              {Math.round(cropBox.height)} px
-                            </span>
-                          </div>
-                          <div className={styles.statRow}>
-                            <span className={styles.statKey}>Position (X, Y):</span>
-                            <span className={styles.statVal}>
-                              {Math.round(cropBox.x)}, {Math.round(cropBox.y)}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className={styles.buttonStack}>
-                          <button
-                            type="button"
-                            onClick={handleApplyCrop}
-                            disabled={isProcessing}
-                            className={styles.applyBtn}
-                          >
-                            <Check size={16} />
-                            <span>Apply Crop</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={handleCancelCrop}
-                            className={styles.secondaryBtn}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* =========================================================
-                    TAB 3: ROTATE SETTINGS
-                    ========================================================= */}
-                    {activeTab === 'rotate' && (
-                      <div className={styles.panelContent}>
-                        <h2 className={styles.panelTitle}>Rotate & Flip</h2>
-                        <p className={styles.panelDesc}>
-                          Rotate by exact degrees, snap 90° intervals, or mirror horizontally and vertically.
-                        </p>
-
-                        {/* 90-degree Snap Buttons */}
-                        <div className={styles.rotateActionsGroup}>
-                          <label className={styles.fieldLabel}>Quick Rotations</label>
-                          <div className={styles.rotateBtnGrid}>
-                            <button
-                              type="button"
-                              onClick={handleRotateLeft90}
-                              className={styles.quickToolBtn}
-                              title="Rotate Left 90°"
-                            >
-                              <RotateCcw size={16} />
-                              <span>-90° Left</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleRotateRight90}
-                              className={styles.quickToolBtn}
-                              title="Rotate Right 90°"
-                            >
-                              <RotateCw size={16} />
-                              <span>+90° Right</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleRotate180}
-                              className={styles.quickToolBtn}
-                              title="Rotate 180°"
-                            >
-                              <RotateCw size={16} />
-                              <span>180°</span>
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Flip Controls */}
-                        <div className={styles.rotateActionsGroup}>
-                          <label className={styles.fieldLabel}>Flip / Mirror</label>
-                          <div className={styles.flipBtnRow}>
-                            <button
-                              type="button"
-                              onClick={() => setFlipH((prev) => !prev)}
-                              className={`${styles.flipBtn} ${flipH ? styles.flipBtnActive : ''}`}
-                            >
-                              <FlipHorizontal size={16} />
-                              <span>Flip Horizontal</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setFlipV((prev) => !prev)}
-                              className={`${styles.flipBtn} ${flipV ? styles.flipBtnActive : ''}`}
-                            >
-                              <FlipVertical size={16} />
-                              <span>Flip Vertical</span>
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Custom Rotation Angle Slider */}
-                        <div className={styles.sliderGroup}>
-                          <div className={styles.sliderHeaderRow}>
-                            <label className={styles.fieldLabel}>Custom Angle</label>
-                            <div className={styles.angleInputWrap}>
-                              <input
-                                type="number"
-                                min="-180"
-                                max="180"
-                                value={rotateAngle}
-                                onChange={(e) =>
-                                  setRotateAngle(Math.min(180, Math.max(-180, parseInt(e.target.value, 10) || 0)))
-                                }
-                                className={styles.angleNumInput}
-                              />
-                              <span className={styles.unitTag}>°</span>
-                            </div>
-                          </div>
-                          <input
-                            type="range"
-                            min="-180"
-                            max="180"
-                            value={rotateAngle}
-                            onChange={(e) => setRotateAngle(parseInt(e.target.value, 10))}
-                            className={styles.rangeSlider}
-                          />
-                          <div className={styles.rangeLabelsRow}>
-                            <span>-180°</span>
-                            <span onClick={() => setRotateAngle(0)} className={styles.rangeCenterTick}>
-                              0°
-                            </span>
-                            <span>+180°</span>
-                          </div>
-                        </div>
-
-                        {/* Rotation Output Dimensions Stats */}
-                        <div className={styles.statsBox}>
-                          <div className={styles.statRow}>
-                            <span className={styles.statKey}>Current Angle:</span>
-                            <span className={styles.statValHighlight}>{rotateAngle}°</span>
-                          </div>
-                          <div className={styles.statRow}>
-                            <span className={styles.statKey}>New Bounding Box:</span>
-                            <span className={styles.statVal}>
-                              {rotatedDimensions.width} × {rotatedDimensions.height} px
-                            </span>
-                          </div>
-                          <div className={styles.statRow}>
-                            <span className={styles.statKey}>Background:</span>
-                            <span className={styles.statVal}>Transparent (No Clipping)</span>
-                          </div>
-                        </div>
-
-                        <div className={styles.buttonStack}>
-                          <button
-                            type="button"
-                            onClick={handleApplyRotate}
-                            disabled={isProcessing || (rotateAngle === 0 && !flipH && !flipV)}
-                            className={styles.applyBtn}
-                          >
-                            <Check size={16} />
-                            <span>Apply Rotation</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={handleResetRotation}
-                            className={styles.secondaryBtn}
-                          >
-                            Reset
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* =========================================================
-                    TAB 4: CANVAS SETTINGS
-                    ========================================================= */}
-                    {activeTab === 'canvas' && (
-                      <div className={styles.panelContent}>
-                        <h2 className={styles.panelTitle}>Canvas Size</h2>
-                        <p className={styles.panelDesc}>
-                          Expand or trim workspace area without stretching the subject.
-                        </p>
-
-                        <div className={styles.controlsBlock}>
-                          <div className={styles.dimensionInputsRow}>
-                            <div className={styles.inputField}>
-                              <label htmlFor="edit-canvas-w" className={styles.fieldLabel}>
-                                Canvas Width
-                              </label>
-                              <div className={styles.inputWrapper}>
-                                <input
-                                  id="edit-canvas-w"
-                                  type="number"
-                                  min="1"
-                                  max={MAX_CANVAS_DIMENSION}
-                                  value={canvasWidth}
-                                  onChange={(e) => setCanvasWidth(e.target.value)}
-                                  className={styles.numInput}
-                                />
-                                <span className={styles.unitTag}>px</span>
-                              </div>
-                            </div>
-
-                            <div className={styles.inputField}>
-                              <label htmlFor="edit-canvas-h" className={styles.fieldLabel}>
-                                Canvas Height
-                              </label>
-                              <div className={styles.inputWrapper}>
-                                <input
-                                  id="edit-canvas-h"
-                                  type="number"
-                                  min="1"
-                                  max={MAX_CANVAS_DIMENSION}
-                                  value={canvasHeight}
-                                  onChange={(e) => setCanvasHeight(e.target.value)}
-                                  className={styles.numInput}
-                                />
-                                <span className={styles.unitTag}>px</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className={styles.anchorSection}>
-                          <label className={styles.fieldLabel}>Anchor Position</label>
-                          <p className={styles.fieldSubtext}>
-                            Determines where the existing image stays when canvas size changes.
-                          </p>
-                          <div className={styles.anchorGrid}>
-                            {ANCHORS.map((a) => (
-                              <button
-                                key={a.id}
-                                type="button"
-                                onClick={() => setCanvasAnchor(a.id)}
-                                className={`${styles.anchorBtn} ${canvasAnchor === a.id ? styles.anchorBtnActive : ''}`}
-                                title={a.label}
-                              >
-                                <span className={styles.anchorIcon}>
-                                  {a.id === 'tl' && '↖'}
-                                  {a.id === 'tc' && '↑'}
-                                  {a.id === 'tr' && '↗'}
-                                  {a.id === 'ml' && '←'}
-                                  {a.id === 'mc' && '•'}
-                                  {a.id === 'mr' && '→'}
-                                  {a.id === 'bl' && '↙'}
-                                  {a.id === 'bc' && '↓'}
-                                  {a.id === 'br' && '↘'}
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className={styles.bgSection}>
-                          <label className={styles.fieldLabel}>Canvas Background</label>
-                          <div className={styles.bgOptionsRow}>
-                            {CANVAS_BG_OPTIONS.map((opt) => (
-                              <button
-                                key={opt.id}
-                                type="button"
-                                onClick={() => setCanvasBgOption(opt.id)}
-                                className={`${styles.bgOptionBtn} ${canvasBgOption === opt.id ? styles.bgOptionActive : ''}`}
-                              >
-                                {opt.id === 'transparent' ? (
-                                  <span className={styles.checkerThumb} />
-                                ) : opt.id === 'custom' ? (
-                                  <span
-                                    className={styles.colorThumb}
-                                    style={{ backgroundColor: canvasCustomColor }}
-                                  />
-                                ) : (
-                                  <span
-                                    className={styles.colorThumb}
-                                    style={{ backgroundColor: opt.id }}
-                                  />
-                                )}
-                                <span>{opt.label}</span>
-                              </button>
-                            ))}
-                          </div>
-
-                          {canvasBgOption === 'custom' && (
-                            <div className={styles.colorPickerRow}>
-                              <input
-                                type="color"
-                                value={canvasCustomColor}
-                                onChange={(e) => setCanvasCustomColor(e.target.value)}
-                                className={styles.colorInput}
-                              />
-                              <input
-                                type="text"
-                                value={canvasCustomColor}
-                                onChange={(e) => setCanvasCustomColor(e.target.value)}
-                                className={styles.hexInput}
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={handleApplyCanvas}
-                          disabled={isProcessing || !canvasWidth || !canvasHeight}
-                          className={styles.applyBtn}
-                        >
-                          <Check size={16} />
-                          <span>Apply Canvas</span>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* =========================================================
-                    TAB 5: ADD TEXT SETTINGS
-                    ========================================================= */}
-                    {activeTab === 'text' && (
-                      <div className={styles.panelContent}>
-                        <div className={styles.panelHeaderRow}>
-                          <div>
-                            <h2 className={styles.panelTitle}>Add Text</h2>
-                            <p className={styles.panelDesc}>
-                              Add multiple typographic layers with fonts, colors, stroke, and shadow.
-                            </p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={handleAddTextLayer}
-                            className={styles.addLayerBtn}
-                          >
-                            <Plus size={15} />
-                            <span>Add Text</span>
-                          </button>
-                        </div>
-
-                        {/* Text Layers Selector */}
-                        {layers.filter((l) => l.type === 'text').length > 0 && (
-                          <div className={styles.layerSelectorWrap}>
-                            <label className={styles.fieldLabel}>Text Layers</label>
-                            <div className={styles.layersPillList}>
-                              {layers
-                                .filter((l) => l.type === 'text')
-                                .map((tl, idx) => (
-                                  <button
-                                    key={tl.id}
-                                    type="button"
-                                    onClick={() => setSelectedLayerId(tl.id)}
-                                    className={`${styles.layerPill} ${tl.id === selectedLayerId ? styles.layerPillActive : ''}`}
-                                  >
-                                    <span>{tl.text.slice(0, 14) || `Text ${idx + 1}`}</span>
-                                  </button>
-                                ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {selectedLayer && selectedLayer.type === 'text' ? (
-                          <div className={styles.layerEditorBlock}>
-                            {/* Text Content */}
-                            <div className={styles.inputField}>
-                              <label className={styles.fieldLabel}>Text Content</label>
-                              <textarea
-                                rows={3}
-                                value={selectedLayer.text}
-                                onChange={(e) =>
-                                  handleUpdateLayer(selectedLayer.id, { text: e.target.value })
-                                }
-                                className={styles.textAreaInput}
-                                placeholder="Type text here..."
-                              />
-                            </div>
-
-                            {/* Font Family */}
-                            <div className={styles.inputField}>
-                              <label className={styles.fieldLabel}>Font Family</label>
-                              <select
-                                value={selectedLayer.fontFamily}
-                                onChange={(e) =>
-                                  handleUpdateLayer(selectedLayer.id, { fontFamily: e.target.value }, true)
-                                }
-                                className={styles.selectInput}
-                              >
-                                {FONT_FAMILIES.map((f) => (
-                                  <option key={f.id} value={f.id}>
-                                    {f.label}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-
-                            {/* Font Size & Weight / Style */}
-                            <div className={styles.twoColRow}>
-                              <div className={styles.inputField}>
-                                <label className={styles.fieldLabel}>Size (px)</label>
-                                <FontSizeInput
-                                  value={selectedLayer.fontSize || 24}
-                                  onChange={(newSize) => {
-                                    handleUpdateLayer(selectedLayer.id, { fontSize: newSize }, false);
-                                  }}
-                                  onCommit={(finalSize) => {
-                                    handleUpdateLayer(selectedLayer.id, { fontSize: finalSize }, true);
-                                  }}
-                                  className={styles.numInput}
-                                />
-                              </div>
-
-                              <div className={styles.inputField}>
-                                <label className={styles.fieldLabel}>Style & Align</label>
-                                <div className={styles.formatBtnGroup}>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleUpdateLayer(
-                                        selectedLayer.id,
-                                        {
-                                          fontWeight:
-                                            selectedLayer.fontWeight === 'bold' ? 'normal' : 'bold',
-                                        },
-                                        true
-                                      )
-                                    }
-                                    className={`${styles.formatIconBtn} ${selectedLayer.fontWeight === 'bold' ? styles.formatBtnActive : ''}`}
-                                    title="Bold"
-                                  >
-                                    <Bold size={14} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleUpdateLayer(
-                                        selectedLayer.id,
-                                        {
-                                          fontStyle:
-                                            selectedLayer.fontStyle === 'italic' ? 'normal' : 'italic',
-                                        },
-                                        true
-                                      )
-                                    }
-                                    className={`${styles.formatIconBtn} ${selectedLayer.fontStyle === 'italic' ? styles.formatBtnActive : ''}`}
-                                    title="Italic"
-                                  >
-                                    <Italic size={14} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleUpdateLayer(selectedLayer.id, { align: 'left' }, true)
-                                    }
-                                    className={`${styles.formatIconBtn} ${selectedLayer.align === 'left' ? styles.formatBtnActive : ''}`}
-                                    title="Align Left"
-                                  >
-                                    <AlignLeft size={14} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleUpdateLayer(selectedLayer.id, { align: 'center' }, true)
-                                    }
-                                    className={`${styles.formatIconBtn} ${selectedLayer.align === 'center' ? styles.formatBtnActive : ''}`}
-                                    title="Align Center"
-                                  >
-                                    <AlignCenter size={14} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleUpdateLayer(selectedLayer.id, { align: 'right' }, true)
-                                    }
-                                    className={`${styles.formatIconBtn} ${selectedLayer.align === 'right' ? styles.formatBtnActive : ''}`}
-                                    title="Align Right"
-                                  >
-                                    <AlignRight size={14} />
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Text Color Picker & Presets */}
-                            <div className={styles.inputField}>
-                              <label className={styles.fieldLabel}>Text Color</label>
-                              <div className={styles.colorPickerRow}>
-                                <input
-                                  type="color"
-                                  value={selectedLayer.color}
-                                  onChange={(e) =>
-                                    handleUpdateLayer(selectedLayer.id, { color: e.target.value })
-                                  }
-                                  className={styles.colorInput}
-                                />
-                                <input
-                                  type="text"
-                                  value={selectedLayer.color}
-                                  onChange={(e) =>
-                                    handleUpdateLayer(selectedLayer.id, { color: e.target.value })
-                                  }
-                                  className={styles.hexInput}
-                                />
-                                <div className={styles.miniColorSwatches}>
-                                  {PRESET_COLORS.slice(0, 5).map((col) => (
-                                    <button
-                                      key={col}
-                                      type="button"
-                                      onClick={() => handleUpdateLayer(selectedLayer.id, { color: col }, true)}
-                                      className={styles.miniSwatchBtn}
-                                      style={{ backgroundColor: col }}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Stroke & Outline */}
-                            <div className={styles.sliderGroup}>
-                              <div className={styles.sliderHeaderRow}>
-                                <label className={styles.fieldLabel}>Text Stroke / Outline</label>
-                                <span className={styles.sliderValBadge}>
-                                  {selectedLayer.strokeWidth} px
-                                </span>
-                              </div>
-                              <div className={styles.strokeControlRow}>
-                                <input
-                                  type="color"
-                                  value={selectedLayer.strokeColor || '#000000'}
-                                  onChange={(e) =>
-                                    handleUpdateLayer(selectedLayer.id, { strokeColor: e.target.value })
-                                  }
-                                  className={styles.colorInputMini}
-                                />
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="24"
-                                  value={selectedLayer.strokeWidth || 0}
-                                  onChange={(e) =>
-                                    handleUpdateLayer(selectedLayer.id, {
-                                      strokeWidth: parseInt(e.target.value, 10),
-                                    })
-                                  }
-                                  className={styles.rangeSlider}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Opacity */}
-                            <div className={styles.sliderGroup}>
-                              <div className={styles.sliderHeaderRow}>
-                                <label className={styles.fieldLabel}>Opacity</label>
-                                <span className={styles.sliderValBadge}>
-                                  {selectedLayer.opacity}%
-                                </span>
-                              </div>
-                              <input
-                                type="range"
-                                min="5"
-                                max="100"
-                                value={selectedLayer.opacity || 100}
-                                onChange={(e) =>
-                                  handleUpdateLayer(selectedLayer.id, {
-                                    opacity: parseInt(e.target.value, 10),
-                                  })
-                                }
-                                className={styles.rangeSlider}
-                              />
-                            </div>
-
-                            {/* Action buttons */}
-                            <div className={styles.layerActionFooter}>
-                              <button
-                                type="button"
-                                onClick={() => handleDuplicateLayer(selectedLayer.id)}
-                                className={styles.secondaryBtn}
-                              >
-                                <Copy size={14} /> Duplicate
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteLayer(selectedLayer.id)}
-                                className={styles.deleteLayerBtn}
-                              >
-                                <Trash2 size={14} /> Delete
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className={styles.emptyLayerPrompt}>
-                            <Type size={32} className={styles.promptIcon} />
-                            <p>Click "Add Text" or select a layer on the canvas to configure typography.</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* =========================================================
-                    TAB 6: ERASE SETTINGS (Real pixel eraser)
-                    ========================================================= */}
-                    {activeTab === 'erase' && (
-                      <div className={styles.panelContent}>
-                        <h2 className={styles.panelTitle}>Erase Tool</h2>
-                        <p className={styles.panelDesc}>
-                          Erase pixels directly on the image to reveal true transparency (checkerboard).
-                        </p>
-
-                        {/* Brush Size */}
-                        <div className={styles.sliderGroup}>
-                          <div className={styles.sliderHeaderRow}>
-                            <label className={styles.fieldLabel}>Brush Size</label>
-                            <span className={styles.sliderValBadge}>{brushSize} px</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="2"
-                            max="200"
-                            value={brushSize}
-                            onChange={(e) => setBrushSize(parseInt(e.target.value, 10))}
-                            className={styles.rangeSlider}
-                          />
-                        </div>
-
-                        {/* Brush Hardness */}
-                        <div className={styles.sliderGroup}>
-                          <div className={styles.sliderHeaderRow}>
-                            <label className={styles.fieldLabel}>Brush Hardness</label>
-                            <span className={styles.sliderValBadge}>{brushHardness}%</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="0"
-                            max="100"
-                            value={brushHardness}
-                            onChange={(e) => setBrushHardness(parseInt(e.target.value, 10))}
-                            className={styles.rangeSlider}
-                          />
-                          <div className={styles.rangeLabelsRow}>
-                            <span>Soft Feathered</span>
-                            <span>Hard Edge</span>
-                          </div>
-                        </div>
-
-                        {/* Brush Opacity */}
-                        <div className={styles.sliderGroup}>
-                          <div className={styles.sliderHeaderRow}>
-                            <label className={styles.fieldLabel}>Brush Opacity</label>
-                            <span className={styles.sliderValBadge}>{brushOpacity}%</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="1"
-                            max="100"
-                            value={brushOpacity}
-                            onChange={(e) => setBrushOpacity(parseInt(e.target.value, 10))}
-                            className={styles.rangeSlider}
-                          />
-                        </div>
-
-                        {/* Info Card */}
-                        <div className={styles.tipCard}>
-                          <Info size={16} className={styles.tipIcon} />
-                          <div className={styles.tipText}>
-                            <strong>Live Transparent Erasure</strong>
-                            <span>
-                              Drag over any image area. Removed pixels reveal the transparency checkerboard.
-                              Every stroke is undoable via Ctrl+Z.
-                            </span>
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={handleClearEraserChanges}
-                          className={styles.secondaryBtn}
-                        >
-                          Clear Eraser Changes
-                        </button>
-                      </div>
-                    )}
-
-                    {/* =========================================================
-                    TAB 7: SHAPES SETTINGS
-                    ========================================================= */}
-                    {activeTab === 'shapes' && (
-                      <div className={styles.panelContent}>
-                        <h2 className={styles.panelTitle}>Shapes & Elements</h2>
-                        <p className={styles.panelDesc}>
-                          Insert vector design shapes with customizable fill, border, and opacity.
-                        </p>
-
-                        {/* Shape Types Grid */}
-                        <div className={styles.shapeTypesGrid}>
-                          {SHAPE_TYPES.map((st) => {
-                            const IconComponent = st.icon;
-                            return (
-                              <button
-                                key={st.id}
-                                type="button"
-                                onClick={() => handleAddShape(st.id)}
-                                className={styles.shapeAddCard}
-                                title={`Add ${st.label}`}
-                              >
-                                <IconComponent size={18} />
-                                <span>{st.label}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        {/* Shapes Layer Selector */}
-                        {layers.filter((l) => l.type === 'shape').length > 0 && (
-                          <div className={styles.layerSelectorWrap}>
-                            <label className={styles.fieldLabel}>Shape Layers</label>
-                            <div className={styles.layersPillList}>
-                              {layers
-                                .filter((l) => l.type === 'shape')
-                                .map((sl, idx) => (
-                                  <button
-                                    key={sl.id}
-                                    type="button"
-                                    onClick={() => setSelectedLayerId(sl.id)}
-                                    className={`${styles.layerPill} ${sl.id === selectedLayerId ? styles.layerPillActive : ''}`}
-                                  >
-                                    <span>{`${sl.shapeType} #${idx + 1}`}</span>
-                                  </button>
-                                ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {selectedLayer && selectedLayer.type === 'shape' ? (
-                          <div className={styles.layerEditorBlock}>
-                            {/* Fill Color */}
-                            <div className={styles.inputField}>
-                              <div className={styles.labelWithAction}>
-                                <label className={styles.fieldLabel}>Fill Color</label>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    handleUpdateLayer(
-                                      selectedLayer.id,
-                                      {
-                                        fillColor:
-                                          selectedLayer.fillColor === 'transparent'
-                                            ? '#7C3AED'
-                                            : 'transparent',
-                                      },
-                                      true
-                                    )
-                                  }
-                                  className={styles.miniToggleBtn}
-                                >
-                                  {selectedLayer.fillColor === 'transparent' ? 'Enable Fill' : 'No Fill'}
-                                </button>
-                              </div>
-                              {selectedLayer.fillColor !== 'transparent' && (
-                                <div className={styles.colorPickerRow}>
-                                  <input
-                                    type="color"
-                                    value={selectedLayer.fillColor || '#7C3AED'}
-                                    onChange={(e) =>
-                                      handleUpdateLayer(selectedLayer.id, { fillColor: e.target.value })
-                                    }
-                                    className={styles.colorInput}
-                                  />
-                                  <input
-                                    type="text"
-                                    value={selectedLayer.fillColor || '#7C3AED'}
-                                    onChange={(e) =>
-                                      handleUpdateLayer(selectedLayer.id, { fillColor: e.target.value })
-                                    }
-                                    className={styles.hexInput}
-                                  />
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Border / Stroke Color & Width */}
-                            <div className={styles.inputField}>
-                              <label className={styles.fieldLabel}>Border Color & Width</label>
-                              <div className={styles.colorPickerRow}>
-                                <input
-                                  type="color"
-                                  value={selectedLayer.strokeColor || '#FFFFFF'}
-                                  onChange={(e) =>
-                                    handleUpdateLayer(selectedLayer.id, { strokeColor: e.target.value })
-                                  }
-                                  className={styles.colorInput}
-                                />
-                                <input
-                                  type="text"
-                                  value={selectedLayer.strokeColor || '#FFFFFF'}
-                                  onChange={(e) =>
-                                    handleUpdateLayer(selectedLayer.id, { strokeColor: e.target.value })
-                                  }
-                                  className={styles.hexInput}
-                                />
-                              </div>
-                            </div>
-
-                            <div className={styles.sliderGroup}>
-                              <div className={styles.sliderHeaderRow}>
-                                <label className={styles.fieldLabel}>Border Thickness</label>
-                                <span className={styles.sliderValBadge}>
-                                  {selectedLayer.strokeWidth} px
-                                </span>
-                              </div>
-                              <input
-                                type="range"
-                                min="0"
-                                max="32"
-                                value={selectedLayer.strokeWidth || 0}
-                                onChange={(e) =>
-                                  handleUpdateLayer(selectedLayer.id, {
-                                    strokeWidth: parseInt(e.target.value, 10),
-                                  })
-                                }
-                                className={styles.rangeSlider}
-                              />
-                            </div>
-
-                            {/* Border Radius (For Rounded Rect) */}
-                            {selectedLayer.shapeType === 'rounded-rect' && (
-                              <div className={styles.sliderGroup}>
-                                <div className={styles.sliderHeaderRow}>
-                                  <label className={styles.fieldLabel}>Corner Radius</label>
-                                  <span className={styles.sliderValBadge}>
-                                    {selectedLayer.borderRadius} px
-                                  </span>
-                                </div>
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="80"
-                                  value={selectedLayer.borderRadius || 16}
-                                  onChange={(e) =>
-                                    handleUpdateLayer(selectedLayer.id, {
-                                      borderRadius: parseInt(e.target.value, 10),
-                                    })
-                                  }
-                                  className={styles.rangeSlider}
-                                />
-                              </div>
-                            )}
-
-                            {/* Opacity */}
-                            <div className={styles.sliderGroup}>
-                              <div className={styles.sliderHeaderRow}>
-                                <label className={styles.fieldLabel}>Opacity</label>
-                                <span className={styles.sliderValBadge}>
-                                  {selectedLayer.opacity}%
-                                </span>
-                              </div>
-                              <input
-                                type="range"
-                                min="5"
-                                max="100"
-                                value={selectedLayer.opacity || 100}
-                                onChange={(e) =>
-                                  handleUpdateLayer(selectedLayer.id, {
-                                    opacity: parseInt(e.target.value, 10),
-                                  })
-                                }
-                                className={styles.rangeSlider}
-                              />
-                            </div>
-
-                            {/* Action buttons */}
-                            <div className={styles.layerActionFooter}>
-                              <button
-                                type="button"
-                                onClick={() => handleDuplicateLayer(selectedLayer.id)}
-                                className={styles.secondaryBtn}
-                              >
-                                <Copy size={14} /> Duplicate
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteLayer(selectedLayer.id)}
-                                className={styles.deleteLayerBtn}
-                              >
-                                <Trash2 size={14} /> Delete
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className={styles.emptyLayerPrompt}>
-                            <ShapesIcon size={32} className={styles.promptIcon} />
-                            <p>Click any shape above to insert it onto the canvas.</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-              </aside>
+              {/* Right Workspace (Properties, Docked Layers, History) - Always Visible */}
+              <RightWorkspace
+                activeTab={activeTab}
+                activeTool={activeTool}
+                selectedLayer={selectedLayer}
+                onUpdateLayer={handleUpdateLayer}
+                layers={layers}
+                selectedLayerId={selectedLayerId}
+                onSelectLayer={(id) => setSelectedLayerId(id)}
+                onAddBlankLayer={handleAddBlankLayer}
+                onAddTextLayer={handleAddTextLayer}
+                onAddShape={handleAddShape}
+                onAddImageLayer={handleTriggerAddImageLayer}
+                onDuplicateLayer={handleDuplicateLayer}
+                onDeleteLayer={handleDeleteLayer}
+                onMoveLayer={handleMoveLayer}
+                onToggleLock={handleToggleLockLayer}
+                onToggleHide={handleToggleHideLayer}
+                onRenameLayer={handleRenameLayer}
+                onReorderLayers={handleReorderLayers}
+                backgroundThumbnail={currentDataUrl}
+                history={history}
+                historyIndex={historyIndex}
+                onJumpToHistory={handleJumpToHistory}
+                canUndo={canUndo}
+                canRedo={canRedo}
+                onUndo={handleUndo}
+                onRedo={handleRedo}
+                onResetOriginal={handleResetToOriginal}
+                canReset={canReset}
+                resizeWidth={resizeWidth}
+                resizeHeight={resizeHeight}
+                onResizeWidthChange={handleResizeWidthChange}
+                onResizeHeightChange={handleResizeHeightChange}
+                lockAspectRatio={lockAspectRatio}
+                onToggleLockAspect={() => setLockAspectRatio((p) => !p)}
+                onScalePreset={handleScalePreset}
+                onApplyResize={handleApplyResize}
+                hasImage={hasImage}
+                currentWidth={currentWidth}
+                currentHeight={currentHeight}
+                cropPreset={cropPreset}
+                onSelectCropPreset={handleSelectCropPreset}
+                cropBox={cropBox}
+                onApplyCrop={handleApplyCrop}
+                onCancelCrop={handleCancelCrop}
+                rotateAngle={rotateAngle}
+                flipH={flipH}
+                flipV={flipV}
+                onRotateLeft90={handleRotateLeft90}
+                onRotateRight90={handleRotateRight90}
+                onRotate180={handleRotate180}
+                onResetRotation={handleResetRotation}
+                onFlipH={handleFlipH}
+                onFlipV={handleFlipV}
+                onAngleChange={setRotateAngle}
+                onApplyRotate={handleApplyRotate}
+                canvasWidth={canvasWidth}
+                canvasHeight={canvasHeight}
+                onCanvasWidthChange={setCanvasWidth}
+                onCanvasHeightChange={setCanvasHeight}
+                canvasAnchor={canvasAnchor}
+                onCanvasAnchorChange={setCanvasAnchor}
+                canvasBgOption={canvasBgOption}
+                onCanvasBgOptionChange={setCanvasBgOption}
+                canvasCustomColor={canvasCustomColor}
+                onCanvasCustomColorChange={setCanvasCustomColor}
+                onApplyCanvas={handleApplyCanvas}
+                brushSize={brushSize}
+                onBrushSizeChange={setBrushSize}
+                brushHardness={brushHardness}
+                onBrushHardnessChange={setBrushHardness}
+                brushOpacity={brushOpacity}
+                onBrushOpacityChange={setBrushOpacity}
+                onClearEraser={handleClearEraserChanges}
+                zoom={zoom}
+                foregroundColor={foregroundColor}
+                onForegroundColorChange={setForegroundColor}
+                backgroundColor={backgroundColor}
+                onBackgroundColorChange={setBackgroundColor}
+              />
             </div>
-
-            {/* -------------------------------------------------------------
-                BOTTOM STATUS BAR: Dimensions & File Size
-                ------------------------------------------------------------- */}
-            <footer className={styles.bottomStatusBar}>
-              <div className={styles.statusSection}>
-                <span className={styles.statusLabel}>Original:</span>
-                <span className={styles.statusValue}>
-                  {origWidth} × {origHeight} px ({formatFileSize(origSize)})
-                </span>
-              </div>
-
-              <div className={styles.statusHistory}>
-                <span className={styles.historyStepBadge}>
-                  Step {historyIndex + 1} of {history.length}: {history[historyIndex]?.label || 'Original'}
-                </span>
-                {layers.length > 0 && (
-                  <span className={styles.layersCountBadge}>
-                    {layers.length} {layers.length === 1 ? 'Layer' : 'Layers'}
-                  </span>
-                )}
-              </div>
-
-              <div className={styles.statusSection}>
-                <span className={styles.statusLabel}>Current Document:</span>
-                <span className={styles.statusValueHighlight}>
-                  {currentWidth} × {currentHeight} px (~{formatFileSize(estimatedCurrentBytes)})
-                </span>
-              </div>
-            </footer>
           </div>
-        )}
-      </div>
+        </div>
     </ToolPageLayout>
   );
 }

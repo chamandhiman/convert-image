@@ -162,17 +162,12 @@ export function RotatePage({ embedded, embeddedOnly }) {
       embeddedOnly={embeddedOnly}
       contentFullWidth
       content={!embeddedOnly ? <RotateContent /> : null}
-      showHero={false}
+      showHero={true}
     >
       <div id="tool" className={styles.converterSurface}>
         {!file || !imageEl ? (
           <div className={styles.uploadSurface}>
-            <div className={styles.uploadHeader}>
-              <h2 className={styles.uploadTitle}>Upload an Image to Rotate or Flip</h2>
-              <p className={styles.uploadDesc}>
-                Supports JPG, PNG, WebP, GIF, and BMP. Processing happens locally on your device.
-              </p>
-            </div>
+            
             <FileUploader
               onFileSelect={(selectedFile) => setFile(selectedFile)}
               accept="image/jpeg,image/png,image/webp,image/gif,image/bmp"

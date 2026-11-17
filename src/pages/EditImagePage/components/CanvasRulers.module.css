@@ -1,0 +1,136 @@
+/* Pixel Rulers Styles — Photoshop Theme (Light Palette matching reference) */
+
+.cornerBox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  background: #ffffff;
+  border-right: 1px solid #e8e5f2;
+  border-bottom: 1px solid #e8e5f2;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.cornerText {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Top Horizontal Ruler */
+.topRulerWrap {
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 0;
+  height: 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8e5f2;
+  overflow: hidden;
+  z-index: 25;
+  user-select: none;
+  pointer-events: none;
+}
+
+.topRulerTrack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+}
+
+.tick {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  background: #cbd5e1;
+}
+
+.minorTick {
+  height: 4px;
+  background: #e2e8f0;
+}
+
+.mediumTick {
+  height: 7px;
+  background: #cbd5e1;
+}
+
+.majorTick {
+  height: 11px;
+  background: #94a3b8;
+}
+
+.tickLabelH {
+  position: absolute;
+  top: -12px;
+  left: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 500;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+/* Left Vertical Ruler */
+.leftRulerWrap {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  bottom: 0;
+  width: 24px;
+  background: #ffffff;
+  border-right: 1px solid #e8e5f2;
+  overflow: hidden;
+  z-index: 25;
+  user-select: none;
+  pointer-events: none;
+}
+
+.leftRulerTrack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.tickV {
+  position: absolute;
+  right: 0;
+  height: 1px;
+  background: #cbd5e1;
+}
+
+.minorTickV {
+  width: 4px;
+  background: #e2e8f0;
+}
+
+.mediumTickV {
+  width: 7px;
+  background: #cbd5e1;
+}
+
+.majorTickV {
+  width: 11px;
+  background: #94a3b8;
+}
+
+.tickLabelV {
+  position: absolute;
+  left: 2px;
+  top: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 500;
+  color: #64748b;
+  white-space: nowrap;
+}

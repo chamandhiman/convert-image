@@ -1,0 +1,515 @@
+/* =============================================================================
+   EditorStartScreen — Clean White Photoshop-Style Two-Option Welcome Screen
+   Image Convert Design Theme
+   ========================================================================== */
+
+.startScreenWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 2rem 1.5rem;
+  box-sizing: border-box;
+  animation: fadeIn 0.2s ease-out;
+  z-index: 10;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Two Cards Grid */
+.cardsGrid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.optionCard {
+  background: #ffffff;
+  border: 1.5px solid #ede9fe;
+  border-radius: 20px;
+  width: 330px;
+  max-width: 340px;
+  height: 295px;
+  min-height: 295px;
+  padding: 1.75rem 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  box-shadow: 0 10px 28px -4px rgba(124, 58, 237, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.optionCard:hover {
+  transform: translateY(-2px);
+  border-color: #c4b5fd;
+  box-shadow: 0 14px 32px -4px rgba(124, 58, 237, 0.16), 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.optionCardDrag {
+  border-color: #7c3aed;
+  background: #faf8ff;
+  transform: scale(1.02);
+}
+
+.cardTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Organic Soft Purple Blob & Vector Graphic Container */
+.iconBlobContainer {
+  position: relative;
+  width: 88px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+.optionCard:hover .iconBlobContainer {
+  transform: scale(1.04);
+}
+
+.blobGlow {
+  position: absolute;
+  inset: 0;
+  background: #f3e8ff;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+}
+
+.blobGlowAlt {
+  position: absolute;
+  inset: 0;
+  background: #f3e8ff;
+  border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
+}
+
+.blobSvg {
+  position: relative;
+  z-index: 2;
+}
+
+.cardHeading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.35rem 0;
+  letter-spacing: -0.01em;
+}
+
+.cardDesc {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0 0 0.65rem 0;
+  line-height: 1.4;
+}
+
+.cardPillBadge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #7c3aed;
+  background: #f5f3ff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(124, 58, 237, 0.15);
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
+}
+
+.primaryActionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  height: 40px;
+  padding: 0 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 3px 12px rgba(124, 58, 237, 0.28);
+  width: 100%;
+  max-width: 170px;
+  font-family: inherit;
+}
+
+.primaryActionBtn:hover {
+  background: linear-gradient(135deg, #6d28d9 0%, #7e22ce 100%);
+  box-shadow: 0 5px 16px rgba(124, 58, 237, 0.38);
+  transform: translateY(-1px);
+}
+
+.primaryActionBtn:active {
+  transform: translateY(0);
+}
+
+/* =============================================================================
+   Compact Canvas Setup Dialog Modal
+   ========================================================================== */
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  animation: fadeIn 0.18s ease-out;
+}
+
+.modalCard {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(124, 58, 237, 0.1);
+  width: 100%;
+  max-width: 490px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.15rem 1.4rem;
+  border-bottom: 1px solid #f1eff8;
+  background: #faf9fd;
+}
+
+.modalHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.smallModalIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f5f0ff;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7c3aed;
+  flex-shrink: 0;
+}
+
+.modalTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.modalSubtitle {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0.15rem 0 0 0;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: #ede9fe;
+  color: #0f172a;
+}
+
+.modalBody {
+  padding: 1.25rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sectionLabel {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.presetsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .presetsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.presetBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.5rem 0.65rem;
+  border: 1.5px solid #e8e5f2;
+  border-radius: 9px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.presetBtn:hover {
+  border-color: #c4b5fd;
+  background: #fbfaff;
+}
+
+.presetBtnActive {
+  border-color: #7c3aed !important;
+  background: #f5f0ff !important;
+  box-shadow: 0 0 0 1px #7c3aed;
+}
+
+.presetLabel {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.presetSub {
+  font-size: 0.6875rem;
+  color: #64748b;
+  margin-top: 0.15rem;
+}
+
+.dimInputsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.dimInputGroup {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 0 0.65rem;
+  height: 38px;
+  transition: border-color 0.15s ease;
+}
+
+.dimInputGroup:focus-within {
+  border-color: #7c3aed;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.12);
+}
+
+.inputPrefix {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-right: 0.4rem;
+}
+
+.numInput {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  font-family: inherit;
+}
+
+.inputSuffix {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-left: 0.3rem;
+}
+
+.dimTimes {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.transparencyCheckRow {
+  margin-bottom: 0.25rem;
+}
+
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: #334155;
+  user-select: none;
+}
+
+.checkboxInput {
+  accent-color: #7c3aed;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.checkboxText {
+  font-weight: 500;
+}
+
+.swatchesRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.colorChip {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.12s ease;
+}
+
+.colorChip:hover {
+  transform: scale(1.15);
+}
+
+.colorChipActive {
+  box-shadow: 0 0 0 2px #7c3aed, 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.customColorWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+.customColorLabel {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.colorInput {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.hexCode {
+  font-family: ui-monospace, monospace;
+  font-size: 0.6875rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding: 0.95rem 1.4rem;
+  border-top: 1px solid #f1eff8;
+  background: #faf9fd;
+}
+
+.cancelBtn {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  color: #475569;
+  border-radius: 9px;
+  height: 36px;
+  padding: 0 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancelBtn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.submitBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  height: 36px;
+  padding: 0 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.28);
+}
+
+.submitBtn:hover {
+  background: linear-gradient(135deg, #6d28d9 0%, #7e22ce 100%);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.38);
+}

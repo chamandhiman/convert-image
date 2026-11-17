@@ -160,7 +160,10 @@
   --container-max: 1240px;
   --container-narrow: 48rem;
   --container-padding: clamp(var(--space-4), 4vw, var(--space-8));
-  --header-height: 4rem;
+  --header-height: 50px;
+  --page-top-spacing: clamp(1.75rem, 3.5vw, 2.5rem);
+  --tool-max-width: 1140px;
+  --tool-content-max-width: 1140px;
 
   /* Motion */
   --duration-instant: 80ms;

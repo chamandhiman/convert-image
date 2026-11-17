@@ -158,6 +158,46 @@ export async function upscaleImage(img, {
 
   const isTransparent = hasTransparency(srcCtx, srcWidth, srcHeight);
 
+  // If the image has transparency, extract original alpha and perform color dilation
+  // so transparent areas don't pass pitch black (0,0,0) into the neural network.
+  let originalAlphaData = null;
+  if (isTransparent) {
+    const rawData = srcCtx.getImageData(0, 0, srcWidth, srcHeight);
+    const d = rawData.data;
+
+    // Cache original alpha channel
+    originalAlphaData = new Uint8ClampedArray(srcWidth * srcHeight);
+    for (let i = 0; i < originalAlphaData.length; i++) {
+      originalAlphaData[i] = d[i * 4 + 3];
+    }
+
+    // 2-pass RGB dilation into transparent (alpha < 10) pixels
+    for (let p = 0; p < 2; p++) {
+      for (let y = 0; y < srcHeight; y++) {
+        for (let x = 0; x < srcWidth; x++) {
+          const idx = (y * srcWidth + x) * 4;
+          if (d[idx + 3] < 10) {
+            const neighbors = [
+              y > 0 ? ((y - 1) * srcWidth + x) * 4 : -1,
+              y < srcHeight - 1 ? ((y + 1) * srcWidth + x) * 4 : -1,
+              x > 0 ? (y * srcWidth + (x - 1)) * 4 : -1,
+              x < srcWidth - 1 ? (y * srcWidth + (x + 1)) * 4 : -1,
+            ];
+            for (const n of neighbors) {
+              if (n >= 0 && d[n + 3] >= 10) {
+                d[idx] = d[n];
+                d[idx + 1] = d[n + 1];
+                d[idx + 2] = d[n + 2];
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+    srcCtx.putImageData(rawData, 0, 0);
+  }
+
   // Real-ESRGAN natively outputs 4x resolution
   const MODEL_UPSCALE = 4;
   const out4xWidth = srcWidth * MODEL_UPSCALE;
@@ -295,21 +335,35 @@ export async function upscaleImage(img, {
     }
   }
 
-  // 4. Alpha Channel Preservation
-  if (isTransparent) {
+  // 4. Alpha Channel Preservation (Scaled without premultiplied alpha distortion)
+  if (isTransparent && originalAlphaData) {
+    const alphaSrcCanvas = document.createElement('canvas');
+    alphaSrcCanvas.width = srcWidth;
+    alphaSrcCanvas.height = srcHeight;
+    const alphaSrcCtx = alphaSrcCanvas.getContext('2d');
+    const alphaSrcImgData = alphaSrcCtx.createImageData(srcWidth, srcHeight);
+    for (let i = 0; i < originalAlphaData.length; i++) {
+      const a = originalAlphaData[i];
+      alphaSrcImgData.data[i * 4] = a;
+      alphaSrcImgData.data[i * 4 + 1] = a;
+      alphaSrcImgData.data[i * 4 + 2] = a;
+      alphaSrcImgData.data[i * 4 + 3] = 255;
+    }
+    alphaSrcCtx.putImageData(alphaSrcImgData, 0, 0);
+
     const alphaCanvas = document.createElement('canvas');
     alphaCanvas.width = out4xWidth;
     alphaCanvas.height = out4xHeight;
     const alphaCtx = alphaCanvas.getContext('2d');
     alphaCtx.imageSmoothingEnabled = true;
     alphaCtx.imageSmoothingQuality = 'high';
-    alphaCtx.drawImage(srcCanvas, 0, 0, out4xWidth, out4xHeight);
+    alphaCtx.drawImage(alphaSrcCanvas, 0, 0, out4xWidth, out4xHeight);
 
     const alphaData = alphaCtx.getImageData(0, 0, out4xWidth, out4xHeight).data;
     const outData = out4xCtx.getImageData(0, 0, out4xWidth, out4xHeight);
 
     for (let i = 0; i < outData.data.length; i += 4) {
-      outData.data[i + 3] = alphaData[i + 3];
+      outData.data[i + 3] = alphaData[i];
     }
     out4xCtx.putImageData(outData, 0, 0);
   }

@@ -1,0 +1,359 @@
+/* =============================================================================
+   Layers Panel Styles — Matches Photoshop & Reference Mockup
+   ========================================================================== */
+
+.layersContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   1. Header Row: "Layers (3)"
+   ------------------------------------------------------------------------ */
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.15rem 0.75rem 1.15rem;
+  border-bottom: 1px solid #f1eff8;
+}
+
+.titleWithBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.panelTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e1b4b;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   2. Layers Stack List
+   ------------------------------------------------------------------------ */
+.layersList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  box-sizing: border-box;
+}
+
+.emptyLayersState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.emptyLayersTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #64748b;
+  margin: 0 0 0.35rem 0;
+}
+
+.emptyLayersSubtext {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* Layer Row */
+.layerRow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.layerRow:hover {
+  border-color: #c4b5fd;
+  background: #faf8ff;
+}
+
+.layerRowSelected {
+  background: #f5f3ff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 1px #8b5cf6, 0 3px 12px rgba(124, 58, 237, 0.12);
+}
+
+.layerRowHidden {
+  opacity: 0.55;
+}
+
+.layerRowLocked {
+  background: #f8fafc;
+}
+
+.layerRowDragOver {
+  border-color: #7c3aed !important;
+  border-style: dashed;
+  background: #ede9fe;
+}
+
+.dragHandle {
+  color: #94a3b8;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.iconToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.12s ease;
+}
+
+.iconToggleBtn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1e1b4b;
+}
+
+.dimIcon {
+  color: #cbd5e1;
+}
+
+.activeIcon {
+  color: #475569;
+}
+
+.lockedIcon {
+  color: #7c3aed;
+}
+
+.unlockedIcon {
+  color: #cbd5e1;
+}
+
+/* ---------------------------------------------------------------------------
+   Thumbnail: Photoshop Checkerboard Pattern
+   ------------------------------------------------------------------------ */
+.layerThumbnail {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
+    linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e2e8f0 75%),
+    linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.blankThumbInner {
+  width: 100%;
+  height: 100%;
+}
+
+.circleThumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.rectThumb {
+  width: 20px;
+  height: 18px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.shapeSwatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.textBadgeIcon {
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #7c3aed;
+}
+
+.layerThumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Layer Name */
+.nameWrap {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layerNameText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.layerRowSelected .layerNameText {
+  color: #6d28d9;
+  font-weight: 700;
+}
+
+.renameInput {
+  width: 100%;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1.5px solid #7c3aed;
+  border-radius: 6px;
+  padding: 2px 6px;
+  outline: none;
+}
+
+/* ---------------------------------------------------------------------------
+   3. Bottom Toolbar — Exactly matching mockup
+   ------------------------------------------------------------------------ */
+.bottomToolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid #f1eff8;
+  background: #ffffff;
+  margin-top: auto;
+}
+
+.addBtnWrapper {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.addLayerBtn {
+  width: 44px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1.5px solid #7c3aed;
+  background: #faf8ff;
+  color: #7c3aed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.addLayerBtn:hover {
+  background: #f5f0ff;
+  border-color: #6d28d9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
+}
+
+.btnTooltip {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e1b4b;
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 50;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.addBtnWrapper:hover .btnTooltip,
+.addLayerBtn:focus-visible + .btnTooltip {
+  opacity: 1;
+}
+
+.toolbarBtn {
+  width: 44px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toolbarBtn:hover:not(:disabled) {
+  border-color: #c4b5fd;
+  color: #7c3aed;
+  background: #faf8ff;
+  transform: translateY(-1px);
+}
+
+.toolbarBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.toolbarDeleteBtn:hover:not(:disabled) {
+  border-color: #fecdd3;
+  color: #e11d48;
+  background: #fff1f2;
+}
+
+.toolbarDivider {
+  width: 1px;
+  height: 22px;
+  background: #e2e8f0;
+  margin: 0 0.25rem;
+  flex-shrink: 0;
+}

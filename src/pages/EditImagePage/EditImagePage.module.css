@@ -4,9 +4,12 @@
 
 .editorRoot {
   width: 100%;
-  max-width: 1320px;
-  margin: 0 auto;
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* =============================================================================
@@ -69,6 +72,7 @@
 .titleGradient {
   background: linear-gradient(135deg, #7c3aed 0%, #d84697 50%, #f27e4b 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -156,10 +160,14 @@
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border: 1px solid #e2dfec;
-  border-radius: 18px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.06);
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 /* Top Toolbar */
@@ -329,11 +337,20 @@
    3. Main Body: Central Dark Viewport + Right Contextual Panel
    ========================================================================== */
 .editorMainArea {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  min-height: 640px;
-  background: #18181b;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  background: #f8fafc;
   position: relative;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .editorMainArea {
+    flex-direction: column;
+    overflow-y: auto;
+  }
 }
 
 /* Central Viewport */
@@ -341,15 +358,96 @@
   position: relative;
   overflow: hidden;
   display: flex;
+  flex: 1;
   align-items: center;
   justify-content: center;
-  background: #18181b;
+  background: #e8ecf4;
   user-select: none;
   cursor: default;
+  min-height: 0;
+  height: 100%;
+}
+
+.viewportPan {
+  cursor: grab !important;
+}
+
+.viewportPan:active {
+  cursor: grabbing !important;
 }
 
 .viewportEraser {
   cursor: none !important;
+}
+
+.viewportText {
+  cursor: text !important;
+}
+
+.stageTextTool,
+.stageTextTool * {
+  cursor: text !important;
+}
+
+.stageShapeTool,
+.stageShapeTool * {
+  cursor: crosshair !important;
+}
+
+/* Interactive Shape Drawing Overlay Surface */
+.shapeDrawingSurface {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  cursor: crosshair !important;
+  touch-action: none;
+  user-select: none;
+}
+
+/* Live Shape Dragging Preview */
+.shapePreviewContainer {
+  position: absolute;
+  pointer-events: none;
+  z-index: 130;
+}
+
+.shapePreviewBoundingBox {
+  position: absolute;
+  inset: 0;
+  border: 1.5px dashed #7c3aed;
+  border-radius: 2px;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.shapeDimensionBadge {
+  position: absolute;
+  bottom: -28px;
+  right: 0;
+  background: #1e1b4b;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: 0.4px;
+}
+
+.inlineEditTextarea {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: 1.5px dashed #7c3aed;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 2px 4px;
+  margin: 0;
+  display: block;
 }
 
 /* The Stage (Transforms with Pan & Zoom) */
@@ -357,15 +455,163 @@
   position: relative;
   display: inline-block;
   transform-origin: center center;
-  background-color: #27272a;
-  background-image: linear-gradient(45deg, #1f1f23 25%, transparent 25%),
-    linear-gradient(-45deg, #1f1f23 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #1f1f23 75%),
-    linear-gradient(-45deg, transparent 75%, #1f1f23 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  background-color: #ffffff;
+  background-image: linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+    linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+    linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   line-height: 0;
+  cursor: pointer;
+}
+
+/* Empty State Card Centered on Canvas */
+.emptyCanvasCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #ffffff;
+  border: 2px dashed #c4b5fd;
+  border-radius: 20px;
+  padding: 3rem 2.5rem;
+  max-width: 440px;
+  width: 88%;
+  box-shadow: 0 10px 30px -5px rgba(124, 58, 237, 0.08);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.emptyCanvasCardDrag {
+  border-color: #7c3aed;
+  background: #f5f0ff;
+  border-style: solid;
+  transform: scale(1.02);
+}
+
+.emptyUploadIconCircle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f5f3ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  color: #7c3aed;
+}
+
+.emptyCanvasHeading {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.015em;
+}
+
+.emptyCanvasSubtext {
+  font-size: 0.9375rem;
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+}
+
+.emptyCanvasUploadBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #c026d3 100%);
+  color: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+  transition: all 0.15s ease;
+}
+
+.emptyCanvasUploadBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+}
+
+/* Base Image Selection Frame & 8 Handles */
+.baseSelectionFrame {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #7c3aed;
+  pointer-events: none;
+  box-sizing: border-box;
+  z-index: 15;
+}
+
+.baseHandle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 2px solid #7c3aed;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+  z-index: 25;
+}
+
+.baseHandleNW {
+  top: -6px;
+  left: -6px;
+  cursor: nwse-resize;
+}
+
+.baseHandleN {
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.baseHandleNE {
+  top: -6px;
+  right: -6px;
+  cursor: nesw-resize;
+}
+
+.baseHandleE {
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.baseHandleSE {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+}
+
+.baseHandleS {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.baseHandleSW {
+  bottom: -6px;
+  left: -6px;
+  cursor: nesw-resize;
+}
+
+.baseHandleW {
+  top: 50%;
+  left: -6px;
+  transform: translateY(-50%);
+  cursor: ew-resize;
 }
 
 .stageImage {
@@ -434,6 +680,40 @@
   cursor: nwse-resize;
 }
 
+.layerHandleN {
+  left: 50%;
+  top: -6px;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.layerHandleS {
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.layerHandleW {
+  top: 50%;
+  left: -6px;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.layerHandleE {
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.emptyTextPlaceholder {
+  color: #94a3b8;
+  font-style: italic;
+  pointer-events: none;
+}
+
 .stageLayerLocked {
   outline: 1px dashed #94a3b8 !important;
   cursor: default !important;
@@ -442,26 +722,80 @@
 /* Rotate Stalk Handle */
 .layerRotateStalk {
   position: absolute;
-  top: -24px;
+  top: -28px;
   left: 50%;
   transform: translateX(-50%);
   width: 2px;
-  height: 20px;
+  height: 24px;
   background: #7c3aed;
   cursor: grab;
-  z-index: 20;
+  z-index: 90;
+}
+
+.layerRotateStalkGrabbing {
+  cursor: grabbing !important;
 }
 
 .layerRotateKnob {
   position: absolute;
-  top: -6px;
-  left: -5px;
-  width: 12px;
-  height: 12px;
+  top: -10px;
+  left: -10px;
+  width: 20px;
+  height: 20px;
   background: #ffffff;
   border: 2px solid #7c3aed;
   border-radius: 50%;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7c3aed;
+  transition: transform 0.12s ease, background 0.12s ease;
+  user-select: none;
+  cursor: grab;
+  z-index: 95;
+}
+
+.layerRotateKnob::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border-radius: 50%;
+}
+
+.layerRotateKnob:hover {
+  transform: scale(1.15);
+  background: #f5f3ff;
+}
+
+.rotateKnobIcon {
+  width: 11px;
+  height: 11px;
+  stroke-width: 2.2;
+  color: #7c3aed;
+  pointer-events: none;
+}
+
+/* Floating Live Angle Badge / Tooltip */
+.rotationAngleTooltip {
+  position: absolute;
+  top: -38px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e1b4b;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 150;
+  letter-spacing: 0.5px;
 }
 
 /* Floating Action Badge */
@@ -555,17 +889,21 @@
 
 .cropDimensionsBadge {
   position: absolute;
-  top: -28px;
+  top: -30px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(15, 23, 42, 0.85);
-  color: #ffffff;
-  padding: 0.2rem 0.55rem;
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid #ddd6fe;
+  padding: 3px 8px;
   border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(124, 58, 237, 0.06);
   pointer-events: none;
+  z-index: 25;
 }
 
 .cropHandle {
@@ -583,16 +921,19 @@
   left: -7px;
   cursor: nw-resize;
 }
+
 .handleNE {
   top: -7px;
   right: -7px;
   cursor: ne-resize;
 }
+
 .handleSE {
   bottom: -7px;
   right: -7px;
   cursor: se-resize;
 }
+
 .handleSW {
   bottom: -7px;
   left: -7px;
@@ -614,6 +955,7 @@
   border-radius: 3px;
   cursor: n-resize;
 }
+
 .edgeS {
   bottom: -4px;
   left: 50%;
@@ -623,6 +965,7 @@
   border-radius: 3px;
   cursor: s-resize;
 }
+
 .edgeW {
   left: -4px;
   top: 50%;
@@ -632,6 +975,7 @@
   border-radius: 3px;
   cursor: w-resize;
 }
+
 .edgeE {
   right: -4px;
   top: 50%;
@@ -1836,60 +2180,6 @@
   background: #f5f0ff;
   color: #7c3aed;
   transform: translateY(-1px);
-}
-
-/* =============================================================================
-   12. Bottom Status Bar
-   ========================================================================== */
-.bottomStatusBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.65rem 1.25rem;
-  background: #faf9fd;
-  border-top: 1px solid #e8e5f2;
-  font-size: 0.8125rem;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.statusSection {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.statusLabel {
-  color: #64748b;
-}
-
-.statusValue {
-  color: #1e293b;
-  font-weight: 600;
-}
-
-.statusHistory {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.historyStepBadge {
-  background: #ede9fe;
-  color: #6d28d9;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.2rem 0.55rem;
-  border-radius: 9999px;
-}
-
-.layersCountBadge {
-  background: #e2e8f0;
-  color: #334155;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.2rem 0.55rem;
-  border-radius: 9999px;
 }
 
 /* Workspace Alert */

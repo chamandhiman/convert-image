@@ -1,0 +1,101 @@
+/* Contextual Floating Toolbar on Canvas */
+
+.contextualPill {
+  position: absolute;
+  bottom: -44px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(24, 24, 27, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+  padding: 3px 5px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  z-index: 85;
+  pointer-events: auto;
+}
+
+.positionTop {
+  bottom: auto !important;
+  top: -38px !important;
+  left: auto !important;
+  right: -10px !important;
+  transform: none !important;
+}
+
+.pillBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: #e4e4e7;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  padding: 0;
+}
+
+.pillBtn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.pillBtnActive {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+.deleteBtn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.moreWrap {
+  position: relative;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 140px;
+  background: #18181b;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #d4d4d8;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dropdownItem:hover {
+  background: #7c3aed;
+  color: #ffffff;
+}
+
