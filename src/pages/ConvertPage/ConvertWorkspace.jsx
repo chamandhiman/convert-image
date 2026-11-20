@@ -14,6 +14,10 @@ import {
 } from 'lucide-react';
 import { formatFileSize } from '@/utils/formatFileSize';
 import { getFormatLabel } from '@/utils/imageProcessor';
+import {
+  getSupportedTextForFormat,
+  getAcceptStringForFormat,
+} from './convertValidation';
 import styles from './ConvertWorkspace.module.css';
 
 const FORMAT_CARDS = [
@@ -195,6 +199,9 @@ export function ConvertWorkspace({
   const [isDragOver, setIsDragOver] = useState(false);
 
   const totalFiles = queueItems.length;
+  const readyFilesCount = queueItems.filter((item) => item.status === 'ready').length;
+  const supportedText = getSupportedTextForFormat(outputFormat);
+  const dynamicAccept = getAcceptStringForFormat(outputFormat);
 
   // Drag & drop handlers
   const handleDragOver = useCallback((e) => {
@@ -238,7 +245,9 @@ export function ConvertWorkspace({
   };
 
   const progressPercent =
-    totalFiles > 0 ? Math.round(((convertingIndex + 1) / totalFiles) * 100) : 0;
+    readyFilesCount > 0
+      ? Math.min(100, Math.round(((convertingIndex + 1) / readyFilesCount) * 100))
+      : 0;
 
   return (
     <div className={styles.workspaceWrapper}>
@@ -271,7 +280,7 @@ export function ConvertWorkspace({
                 ref={fileInputRef}
                 type="file"
                 multiple
-                accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.svg,.heic,.tiff"
+                accept={dynamicAccept}
                 onChange={handleFileInputChange}
                 className={styles.hiddenFileInput}
                 tabIndex={-1}
@@ -296,7 +305,7 @@ export function ConvertWorkspace({
                 </button>
 
                 <div className={styles.supportMetaRow}>
-                  <span>Supports: JPG, PNG, WEBP, GIF, BMP, HEIC, TIFF</span>
+                  <span>{supportedText}</span>
                   <span className={styles.metaSeparator}>|</span>
                   <span>Max file size: 50 MB each</span>
                 </div>
@@ -337,7 +346,7 @@ export function ConvertWorkspace({
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.svg,.heic,.tiff"
+                  accept={dynamicAccept}
                   onChange={handleFileInputChange}
                   className={styles.hiddenFileInput}
                   tabIndex={-1}
@@ -353,6 +362,7 @@ export function ConvertWorkspace({
                     ? `${item.meta.width} × ${item.meta.height}`
                     : '';
                   const format = getFormatLabel(item.file?.type || '', name);
+                  const isIncompatible = item.status === 'incompatible';
 
                   return (
                     <div key={item.id} className={styles.fileCard}>
@@ -370,13 +380,37 @@ export function ConvertWorkspace({
                           <span className={styles.cardFileName} title={name}>
                             {name}
                           </span>
-                          <span className={styles.cardFormatTag}>{format}</span>
+                          <span
+                            className={
+                              isIncompatible
+                                ? styles.cardFormatTagIncompatible
+                                : styles.cardFormatTag
+                            }
+                          >
+                            {format}
+                          </span>
                         </div>
 
                         <div className={styles.cardMetaRow}>
-                          {dimensions && <span className={styles.cardMeta}>{dimensions}</span>}
-                          {dimensions && size && <span className={styles.metaDot}>•</span>}
-                          {size && <span className={styles.cardMeta}>{size}</span>}
+                          {isIncompatible ? (
+                            <span className={styles.cardStatusSkipped}>
+                              {item.incompatibleReason || 'Skipped'}
+                            </span>
+                          ) : (
+                            <span className={styles.cardStatusReady}>Ready</span>
+                          )}
+                          {dimensions && !isIncompatible && (
+                            <>
+                              <span className={styles.metaDot}>•</span>
+                              <span className={styles.cardMeta}>{dimensions}</span>
+                            </>
+                          )}
+                          {size && (
+                            <>
+                              <span className={styles.metaDot}>•</span>
+                              <span className={styles.cardMeta}>{size}</span>
+                            </>
+                          )}
                         </div>
                       </div>
 
@@ -521,7 +555,7 @@ export function ConvertWorkspace({
             <div className={styles.progressContainer}>
               <div className={styles.progressHeader}>
                 <span className={styles.progressLabel}>
-                  Converting image {convertingIndex + 1} of {totalFiles}...
+                  Converting image {Math.min(convertingIndex + 1, readyFilesCount || 1)} of {readyFilesCount || 1}...
                 </span>
                 <span className={styles.progressPercentText}>{progressPercent}%</span>
               </div>
@@ -539,7 +573,7 @@ export function ConvertWorkspace({
             type="button"
             className={styles.convertBtn}
             onClick={onConvert}
-            disabled={totalFiles === 0 || isConverting}
+            disabled={readyFilesCount === 0 || isConverting}
           >
             {isConverting ? (
               <>

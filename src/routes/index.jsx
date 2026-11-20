@@ -14,10 +14,8 @@ import OptimizePage from '@/pages/OptimizePage';
 import CleanPage from '@/pages/CleanPage';
 import AnalyzePage from '@/pages/AnalyzePage';
 import RemoveBackgroundPage from '@/pages/RemoveBackgroundPage';
-import ImageUpscalerPage from '@/pages/ImageUpscalerPage';
 import ObjectRemoverPage from '@/pages/ObjectRemoverPage';
 import ImageExtenderPage from '@/pages/ImageExtenderPage';
-import PhotoRestorerPage from '@/pages/PhotoRestorerPage';
 import GenerativeFillPage from '@/pages/GenerativeFillPage';
 import LicensesPage from '@/pages/LicensesPage';
 import {
@@ -56,14 +54,17 @@ export const router = createBrowserRouter([
       { path: ROUTES.pngToJpg, element: <PngToJpgPage /> },
       { path: ROUTES.imageToWebp, element: <ImageToWebpPage /> },
       { path: ROUTES.removeBackground, element: <RemoveBackgroundPage /> },
-      { path: ROUTES.photoRestorer, element: <PhotoRestorerPage /> },
-      { path: ROUTES.upscaler, element: <ImageUpscalerPage /> },
       { path: ROUTES.objectRemover, element: <ObjectRemoverPage /> },
       { path: ROUTES.imageExtender, element: <ImageExtenderPage /> },
       { path: ROUTES.generativeFill, element: <GenerativeFillPage /> },
       { path: ROUTES.optimize, element: <OptimizePage /> },
       { path: ROUTES.clean, element: <CleanPage /> },
       { path: ROUTES.analyze, element: <AnalyzePage /> },
+
+      // Permanent 301-equivalent redirects for decommissioned tools
+      { path: '/photo-restorer', element: <Navigate to={ROUTES.home} replace /> },
+      { path: '/image-upscaler', element: <Navigate to={ROUTES.home} replace /> },
+      { path: '/upscaler', element: <Navigate to={ROUTES.home} replace /> },
 
       // Permanent 301-equivalent redirects from old/short URLs
       { path: ROUTES.editOld, element: <Navigate to={ROUTES.edit} replace /> },

@@ -1,47 +1,76 @@
 import { useState } from 'react';
-import { Sliders, Layers as LayersIcon, Clock } from 'lucide-react';
-import PropertiesPanel from './PropertiesPanel';
-import LayersPanel from './LayersPanel';
-import HistoryPanel from './HistoryPanel';
+import {
+  SlidersHorizontal,
+  Layers as LayersIcon,
+  Clock,
+  ChevronRight,
+  ChevronLeft,
+} from 'lucide-react';
+import { LayersPanel } from './LayersPanel';
+import { PropertiesPanel } from './PropertiesPanel';
+import { HistoryPanel } from './HistoryPanel';
 import styles from './RightWorkspace.module.css';
 
 export function RightWorkspace({
-  activeTab,
-  activeTool = 'move',
-  selectedLayer,
-  onUpdateLayer,
+  // Global / Document State
+  hasImage = false,
+  currentWidth,
+  currentHeight,
+  zoom = 1,
+  // Layers State & Handlers
   layers = [],
+  selectedLayer,
   selectedLayerId,
+  selectedLayerIds = [],
+  onSelectLayers,
   onSelectLayer,
+  onUpdateLayer,
+  activeMaskLayerId = null,
+  onSelectMaskTarget,
   onAddBlankLayer,
-  onAddTextLayer,
-  onAddShape,
-  onAddImageLayer,
+  onAddBlankLayerAbove,
+  onAddBlankLayerBelow,
+  onAddGroup,
   onDuplicateLayer,
+  onDuplicateLayers,
   onDeleteLayer,
+  onDeleteLayers,
   onMoveLayer,
+  onMoveLayers,
+  onBringToFront,
+  onSendToBack,
   onToggleLock,
   onToggleHide,
   onRenameLayer,
   onReorderLayers,
-  backgroundThumbnail,
+  onOpenBlendingOptions,
+  onToggleClippingMask,
+  onAddLayerMask,
+  onDeleteLayerMask,
+  onMergeLayers,
+  sourceDocId = null,
+  onTransferLayer = null,
+  // History State & Handlers
   history = [],
   historyIndex = -1,
   onJumpToHistory,
-  canUndo,
-  canRedo,
+  canUndo = false,
+  canRedo = false,
   onUndo,
   onRedo,
   onResetOriginal,
-  canReset,
-  // Tool properties props
+  canReset = false,
+  // Tools / Canvas Settings for Properties Panel
+  activeTool = 'move',
+  foregroundColor = '#7C3AED',
+  backgroundColor = '#FFFFFF',
+  lockAspectRatio = true,
+  onToggleLockAspect,
+  onScalePreset,
   resizeWidth,
   resizeHeight,
   onResizeWidthChange,
   onResizeHeightChange,
-  lockAspectRatio,
-  onToggleLockAspect,
-  onScalePreset,
   onApplyResize,
   cropPreset,
   onSelectCropPreset,
@@ -51,211 +80,180 @@ export function RightWorkspace({
   rotateAngle,
   flipH,
   flipV,
-  onRotateLeft90,
-  onRotateRight90,
-  onRotate180,
-  onResetRotation,
+  onAngleChange,
   onFlipH,
   onFlipV,
-  onAngleChange,
+  onResetRotation,
   onApplyRotate,
   canvasWidth,
   canvasHeight,
   onCanvasWidthChange,
   onCanvasHeightChange,
-  canvasAnchor,
-  onCanvasAnchorChange,
   canvasBgOption,
   onCanvasBgOptionChange,
   canvasCustomColor,
   onCanvasCustomColorChange,
   onApplyCanvas,
+  textSettings,
+  onUpdateTextSettings,
   brushSize,
   onBrushSizeChange,
   brushHardness,
   onBrushHardnessChange,
   brushOpacity,
   onBrushOpacityChange,
-  onClearEraser,
-  hasImage = false,
-  currentWidth,
-  currentHeight,
-  zoom = 1,
-  foregroundColor = '#7C3AED',
-  onForegroundColorChange,
-  backgroundColor = '#FFFFFF',
-  onBackgroundColorChange,
 }) {
-  const [activeInspectorTab, setActiveInspectorTab] = useState('properties');
+  const [activeTab, setActiveTab] = useState('layers'); // 'properties' | 'layers' | 'history'
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <aside className={styles.rightWorkspace} aria-label="Editor Properties, Layers and History">
-      {/* 1. Unified 3-Tab Switcher Bar */}
-      <div className={styles.inspectorTabsRow}>
-        <button
-          type="button"
-          data-inspector-tab="properties"
-          className={`${styles.tabBtn} ${
-            activeInspectorTab === 'properties' ? styles.tabBtnActive : ''
-          }`}
-          onClick={() => setActiveInspectorTab('properties')}
-        >
-          <Sliders size={13} />
-          <span>Properties</span>
-        </button>
+    <aside
+      className={`${styles.rightWorkspace} ${isCollapsed ? styles.rightWorkspaceCollapsed : ''}`}
+      aria-label="Right Docked Panels"
+      data-testid="right-workspace"
+    >
+      {/* -------------------------------------------------------------
+          TOP TAB BAR
+          ------------------------------------------------------------- */}
+      {!isCollapsed ? (
+        <div className={styles.dockTabBar} role="tablist">
+          {/* Properties Tab */}
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'properties'}
+            className={`${styles.dockTab} ${activeTab === 'properties' ? styles.dockTabActive : ''}`}
+            onClick={() => setActiveTab('properties')}
+            title="Object and Document Properties"
+            data-testid="tab-properties"
+          >
+            <SlidersHorizontal size={14} className={styles.tabIcon} />
+            <span>Properties</span>
+          </button>
 
-        <button
-          type="button"
-          data-inspector-tab="layers"
-          className={`${styles.tabBtn} ${
-            activeInspectorTab === 'layers' ? styles.tabBtnActive : ''
-          }`}
-          onClick={() => setActiveInspectorTab('layers')}
-        >
-          <LayersIcon size={13} />
-          <span>Layers</span>
-          {hasImage && (
-            <span className={styles.tabBadge}>{layers.length}</span>
-          )}
-        </button>
+          {/* Layers Tab */}
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'layers'}
+            className={`${styles.dockTab} ${activeTab === 'layers' ? styles.dockTabActive : ''}`}
+            onClick={() => setActiveTab('layers')}
+            title="Layer Management"
+            data-testid="tab-layers"
+          >
+            <LayersIcon size={14} className={styles.tabIcon} />
+            <span>Layers</span>
+            {layers.length > 0 && <span className={styles.tabBadge}>{layers.length}</span>}
+          </button>
 
-        <button
-          type="button"
-          data-inspector-tab="history"
-          className={`${styles.tabBtn} ${
-            activeInspectorTab === 'history' ? styles.tabBtnActive : ''
-          }`}
-          onClick={() => setActiveInspectorTab('history')}
-        >
-          <Clock size={13} />
-          <span>History</span>
-        </button>
-      </div>
+          {/* History Tab */}
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'history'}
+            className={`${styles.dockTab} ${activeTab === 'history' ? styles.dockTabActive : ''}`}
+            onClick={() => setActiveTab('history')}
+            title="Action History Timeline"
+            data-testid="tab-history"
+          >
+            <Clock size={14} className={styles.tabIcon} />
+            <span>History</span>
+            {history.length > 0 && <span className={styles.tabBadge}>{history.length}</span>}
+          </button>
 
-      {/* 2. ONE Single Panel Body — Only Active Tab Rendered */}
-      <div className={styles.panelBody}>
-        {/* ===================================================================
-            EMPTY STATE: No Image / Canvas Open
-            =================================================================== */}
-        {!hasImage ? (
-          <div className={styles.emptyContainer}>
-            {activeInspectorTab === 'properties' && (
-              <div className={styles.emptyStateBox}>
-                <div className={styles.emptyIconCard}>
-                  {/* Vector SVG Sliders & Cursor Card matching mockup */}
-                  <svg width="72" height="64" viewBox="0 0 72 64" fill="none">
-                    <rect
-                      x="10"
-                      y="8"
-                      width="50"
-                      height="42"
-                      rx="9"
-                      stroke="#CBD5E1"
-                      strokeWidth="2.5"
-                      fill="#F8FAFC"
-                    />
-                    {/* Track 1 */}
-                    <line x1="18" y1="22" x2="52" y2="22" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" />
-                    <circle cx="28" cy="22" r="5" fill="#CBD5E1" />
-                    {/* Track 2 */}
-                    <line x1="18" y1="36" x2="52" y2="36" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" />
-                    <circle cx="42" cy="36" r="5" fill="#CBD5E1" />
-                    {/* Mouse pointer cursor overlapping */}
-                    <path
-                      d="M46 38L53 56L57 49L64 47L46 38Z"
-                      fill="#CBD5E1"
-                      stroke="#94A3B8"
-                      strokeWidth="1.5"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <h3 className={styles.emptyHeading}>No selection</h3>
-                <p className={styles.emptySubtext}>
-                  Create a canvas or open an image to start editing.
-                </p>
-              </div>
-            )}
+          {/* Collapse Panel Button */}
+          <button
+            type="button"
+            className={styles.collapseToggleBtn}
+            onClick={() => setIsCollapsed(true)}
+            title="Collapse Right Panel"
+            aria-label="Collapse Right Panel"
+            data-testid="btn-collapse-dock"
+          >
+            <ChevronRight size={14} />
+          </button>
+        </div>
+      ) : (
+        /* Collapsed Tab Strip */
+        <div className={styles.collapsedStrip}>
+          <button
+            type="button"
+            className={styles.collapseToggleBtn}
+            onClick={() => setIsCollapsed(false)}
+            title="Expand Right Panel"
+            aria-label="Expand Right Panel"
+            data-testid="btn-expand-dock"
+          >
+            <ChevronLeft size={15} />
+          </button>
 
-            {activeInspectorTab === 'layers' && (
-              <div className={styles.emptyStateBox}>
-                <div className={styles.emptyIconCard}>
-                  {/* Vector SVG Stacked Layers */}
-                  <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                    <path
-                      d="M32 14L14 24L32 34L50 24L32 14Z"
-                      stroke="#CBD5E1"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      fill="#F8FAFC"
-                    />
-                    <path
-                      d="M14 34L32 44L50 34"
-                      stroke="#CBD5E1"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M14 44L32 54L50 44"
-                      stroke="#CBD5E1"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <h3 className={styles.emptyHeading}>No layers yet</h3>
-                <p className={styles.emptySubtext}>
-                  Create a canvas or open an image to see your layers here.
-                </p>
-              </div>
-            )}
+          <button
+            type="button"
+            className={`${styles.collapsedTabBtn} ${activeTab === 'properties' ? styles.collapsedTabActive : ''}`}
+            onClick={() => {
+              setActiveTab('properties');
+              setIsCollapsed(false);
+            }}
+            title="Properties"
+          >
+            <SlidersHorizontal size={15} />
+          </button>
 
-            {activeInspectorTab === 'history' && (
-              <div className={styles.emptyStateBox}>
-                <div className={styles.emptyIconCard}>
-                  {/* Vector SVG Clock / History */}
-                  <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                    <circle cx="32" cy="32" r="22" stroke="#CBD5E1" strokeWidth="2.5" fill="#F8FAFC" />
-                    <path
-                      d="M32 20V32L40 36"
-                      stroke="#CBD5E1"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <h3 className={styles.emptyHeading}>No actions yet</h3>
-                <p className={styles.emptySubtext}>
-                  Your editing actions will appear here.
-                </p>
-              </div>
-            )}
-          </div>
-        ) : (
-          /* ===================================================================
-              ACTIVE EDITOR STATE: Normal Panels
-              =================================================================== */
-          <>
-            {activeInspectorTab === 'properties' && (
+          <button
+            type="button"
+            className={`${styles.collapsedTabBtn} ${activeTab === 'layers' ? styles.collapsedTabActive : ''}`}
+            onClick={() => {
+              setActiveTab('layers');
+              setIsCollapsed(false);
+            }}
+            title="Layers"
+          >
+            <LayersIcon size={15} />
+          </button>
+
+          <button
+            type="button"
+            className={`${styles.collapsedTabBtn} ${activeTab === 'history' ? styles.collapsedTabActive : ''}`}
+            onClick={() => {
+              setActiveTab('history');
+              setIsCollapsed(false);
+            }}
+            title="History"
+          >
+            <Clock size={15} />
+          </button>
+        </div>
+      )}
+
+      {/* -------------------------------------------------------------
+          PANEL CONTENT BODY
+          ------------------------------------------------------------- */}
+      {!isCollapsed && (
+        <div className={styles.dockPanelBody}>
+          {/* PROPERTIES PANEL */}
+          {activeTab === 'properties' && (
+            <div data-testid="properties-panel" style={{ height: '100%', overflowY: 'auto' }}>
               <PropertiesPanel
-                activeTab={activeTab}
+                hasImage={hasImage}
                 activeTool={activeTool}
                 selectedLayer={selectedLayer}
                 selectedLayerId={selectedLayerId}
                 onUpdateLayer={onUpdateLayer}
                 onDeleteLayer={onDeleteLayer}
                 onDuplicateLayer={onDuplicateLayer}
+                currentWidth={currentWidth}
+                currentHeight={currentHeight}
+                zoom={zoom}
+                layers={layers}
+                foregroundColor={foregroundColor}
+                backgroundColor={backgroundColor}
+                lockAspectRatio={lockAspectRatio}
+                onToggleLockAspect={onToggleLockAspect}
+                onScalePreset={onScalePreset}
                 resizeWidth={resizeWidth}
                 resizeHeight={resizeHeight}
                 onResizeWidthChange={onResizeWidthChange}
                 onResizeHeightChange={onResizeHeightChange}
-                lockAspectRatio={lockAspectRatio}
-                onToggleLockAspect={onToggleLockAspect}
-                onScalePreset={onScalePreset}
                 onApplyResize={onApplyResize}
                 cropPreset={cropPreset}
                 onSelectCropPreset={onSelectCropPreset}
@@ -265,78 +263,85 @@ export function RightWorkspace({
                 rotateAngle={rotateAngle}
                 flipH={flipH}
                 flipV={flipV}
-                onRotateLeft90={onRotateLeft90}
-                onRotateRight90={onRotateRight90}
-                onRotate180={onRotate180}
-                onResetRotation={onResetRotation}
+                onAngleChange={onAngleChange}
                 onFlipH={onFlipH}
                 onFlipV={onFlipV}
-                onAngleChange={onAngleChange}
+                onResetRotation={onResetRotation}
                 onApplyRotate={onApplyRotate}
                 canvasWidth={canvasWidth}
                 canvasHeight={canvasHeight}
                 onCanvasWidthChange={onCanvasWidthChange}
                 onCanvasHeightChange={onCanvasHeightChange}
-                canvasAnchor={canvasAnchor}
-                onCanvasAnchorChange={onCanvasAnchorChange}
                 canvasBgOption={canvasBgOption}
                 onCanvasBgOptionChange={onCanvasBgOptionChange}
                 canvasCustomColor={canvasCustomColor}
                 onCanvasCustomColorChange={onCanvasCustomColorChange}
                 onApplyCanvas={onApplyCanvas}
+                textSettings={textSettings}
+                onUpdateTextSettings={onUpdateTextSettings}
                 brushSize={brushSize}
                 onBrushSizeChange={onBrushSizeChange}
                 brushHardness={brushHardness}
                 onBrushHardnessChange={onBrushHardnessChange}
                 brushOpacity={brushOpacity}
                 onBrushOpacityChange={onBrushOpacityChange}
-                onClearEraser={onClearEraser}
-                onAddShape={onAddShape}
-                onAddTextLayer={onAddTextLayer}
-                hasImage={hasImage}
-                currentWidth={currentWidth}
-                currentHeight={currentHeight}
-                zoom={zoom}
-                foregroundColor={foregroundColor}
-                onForegroundColorChange={onForegroundColorChange}
-                backgroundColor={backgroundColor}
-                onBackgroundColorChange={onBackgroundColorChange}
-                layers={layers}
               />
-            )}
+            </div>
+          )}
 
-            {activeInspectorTab === 'layers' && (
-              <LayersPanel
-                layers={layers}
-                selectedLayerId={selectedLayerId}
-                onSelectLayer={onSelectLayer}
-                onAddBlankLayer={onAddBlankLayer}
-                onDuplicateLayer={onDuplicateLayer}
-                onDeleteLayer={onDeleteLayer}
-                onMoveLayer={onMoveLayer}
-                onToggleLock={onToggleLock}
-                onToggleHide={onToggleHide}
-                onRenameLayer={onRenameLayer}
-                onReorderLayers={onReorderLayers}
-              />
-            )}
+          {/* LAYERS PANEL */}
+          {activeTab === 'layers' && (
+            <LayersPanel
+              hasImage={hasImage}
+              layers={layers}
+              selectedLayerId={selectedLayerId}
+              selectedLayerIds={selectedLayerIds}
+              onSelectLayers={onSelectLayers}
+              onSelectLayer={onSelectLayer}
+              activeMaskLayerId={activeMaskLayerId}
+              onSelectMaskTarget={onSelectMaskTarget}
+              onAddBlankLayer={onAddBlankLayer}
+              onAddBlankLayerAbove={onAddBlankLayerAbove}
+              onAddBlankLayerBelow={onAddBlankLayerBelow}
+              onAddGroup={onAddGroup}
+              onDuplicateLayer={onDuplicateLayer}
+              onDuplicateLayers={onDuplicateLayers}
+              onDeleteLayer={onDeleteLayer}
+              onDeleteLayers={onDeleteLayers}
+              onMoveLayer={onMoveLayer}
+              onMoveLayers={onMoveLayers}
+              onBringToFront={onBringToFront}
+              onSendToBack={onSendToBack}
+              onToggleLock={onToggleLock}
+              onToggleHide={onToggleHide}
+              onRenameLayer={onRenameLayer}
+              onReorderLayers={onReorderLayers}
+              onOpenBlendingOptions={onOpenBlendingOptions}
+              onToggleClippingMask={onToggleClippingMask}
+              onAddLayerMask={onAddLayerMask}
+              onDeleteLayerMask={onDeleteLayerMask}
+              onMergeLayers={onMergeLayers}
+              sourceDocId={sourceDocId}
+              onTransferLayer={onTransferLayer}
+            />
+          )}
 
-            {activeInspectorTab === 'history' && (
-              <HistoryPanel
-                history={history}
-                historyIndex={historyIndex}
-                onJumpToHistory={onJumpToHistory}
-                canUndo={canUndo}
-                canRedo={canRedo}
-                onUndo={onUndo}
-                onRedo={onRedo}
-                onResetOriginal={onResetOriginal}
-                canReset={canReset}
-              />
-            )}
-          </>
-        )}
-      </div>
+          {/* HISTORY PANEL */}
+          {activeTab === 'history' && (
+            <HistoryPanel
+              history={history}
+              historyIndex={historyIndex}
+              onJumpToHistory={onJumpToHistory}
+              canUndo={canUndo}
+              canRedo={canRedo}
+              onUndo={onUndo}
+              onRedo={onRedo}
+              onResetOriginal={onResetOriginal}
+              canReset={canReset}
+            />
+          )}
+        </div>
+      )}
     </aside>
   );
 }

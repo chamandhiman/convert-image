@@ -152,16 +152,6 @@ const ALL_DIRECTORY_TOOLS = [
     iconColor: '#D97706',
   },
   {
-    id: 'upscaler',
-    name: 'Image Upscaler',
-    desc: 'Super-resolution 2x & 4x enhancement',
-    to: ROUTES.upscaler,
-    category: 'Optimize',
-    icon: Sparkles,
-    iconBg: '#EEF2FF',
-    iconColor: '#4F46E5',
-  },
-  {
     id: 'privacy-cleaner',
     name: 'Privacy Cleaner',
     desc: 'Remove GPS, EXIF and camera metadata',
@@ -170,16 +160,6 @@ const ALL_DIRECTORY_TOOLS = [
     icon: Shield,
     iconBg: '#F0FDF4',
     iconColor: '#16A34A',
-  },
-  {
-    id: 'photo-restorer',
-    name: 'Photo Restorer',
-    desc: 'Enhance vintage photos and restore face details',
-    to: ROUTES.photoRestorer,
-    category: 'Create',
-    icon: Sparkles,
-    iconBg: '#FDF4FF',
-    iconColor: '#C026D3',
   },
 ];
 

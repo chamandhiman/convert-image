@@ -368,12 +368,56 @@
   height: 100%;
 }
 
-.viewportPan {
+.viewportPan,
+.viewportPan * {
   cursor: grab !important;
 }
 
-.viewportPan:active {
+.viewportPan:active,
+.viewportPanning,
+.viewportPanning * {
   cursor: grabbing !important;
+  user-select: none !important;
+}
+
+.canvasLayerDropOverlay {
+  position: absolute;
+  inset: 16px;
+  border: 2px dashed #7c3aed;
+  border-radius: 14px;
+  background: rgba(124, 58, 237, 0.08);
+  backdrop-filter: blur(2px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: pulseDropOverlay 1s infinite alternate;
+}
+
+@keyframes pulseDropOverlay {
+  from {
+    background: rgba(124, 58, 237, 0.06);
+    border-color: #a78bfa;
+  }
+  to {
+    background: rgba(124, 58, 237, 0.14);
+    border-color: #7c3aed;
+  }
+}
+
+.canvasLayerDropBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #ffffff;
+  color: #7c3aed;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 30px;
+  box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.3);
+  border: 1px solid #c4b5fd;
 }
 
 .viewportEraser {
@@ -392,6 +436,11 @@
 .stageShapeTool,
 .stageShapeTool * {
   cursor: crosshair !important;
+}
+
+.stagePenTool,
+.stagePenTool * {
+  cursor: crosshair;
 }
 
 /* Interactive Shape Drawing Overlay Surface */
@@ -455,6 +504,23 @@
   position: relative;
   display: inline-block;
   transform-origin: center center;
+  line-height: 0;
+  cursor: pointer;
+  overflow: visible !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* Document Content Viewport - Fixed Document Clipping Boundary */
+.documentViewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
   background-color: #ffffff;
   background-image: linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
     linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
@@ -463,8 +529,19 @@
   background-size: 16px 16px;
   background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  line-height: 0;
-  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Selection & Transform Overlay - Unclipped for Handles */
+.selectionOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible !important;
+  pointer-events: none;
+  z-index: 40;
 }
 
 /* Empty State Card Centered on Canvas */
@@ -552,64 +629,64 @@
 
 .baseHandle {
   position: absolute;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   background: #ffffff;
-  border: 2px solid #7c3aed;
-  border-radius: 50%;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  border: 1.5px solid #7c3aed;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   pointer-events: auto;
   z-index: 25;
 }
 
 .baseHandleNW {
-  top: -6px;
-  left: -6px;
+  top: -5px;
+  left: -5px;
   cursor: nwse-resize;
 }
 
 .baseHandleN {
-  top: -6px;
+  top: -5px;
   left: 50%;
   transform: translateX(-50%);
   cursor: ns-resize;
 }
 
 .baseHandleNE {
-  top: -6px;
-  right: -6px;
+  top: -5px;
+  right: -5px;
   cursor: nesw-resize;
 }
 
 .baseHandleE {
   top: 50%;
-  right: -6px;
+  right: -5px;
   transform: translateY(-50%);
   cursor: ew-resize;
 }
 
 .baseHandleSE {
-  bottom: -6px;
-  right: -6px;
+  bottom: -5px;
+  right: -5px;
   cursor: nwse-resize;
 }
 
 .baseHandleS {
-  bottom: -6px;
+  bottom: -5px;
   left: 50%;
   transform: translateX(-50%);
   cursor: ns-resize;
 }
 
 .baseHandleSW {
-  bottom: -6px;
-  left: -6px;
+  bottom: -5px;
+  left: -5px;
   cursor: nesw-resize;
 }
 
 .baseHandleW {
   top: 50%;
-  left: -6px;
+  left: -5px;
   transform: translateY(-50%);
   cursor: ew-resize;
 }
@@ -625,6 +702,47 @@
 /* =============================================================================
    4. Overlay Layers (Text & Shapes)
    ========================================================================== */
+.stageDocumentClip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.stageTransformOverlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 25;
+}
+
+.stageTransformBox {
+  position: absolute;
+  box-sizing: border-box;
+  transform-origin: center center;
+  outline: 2px solid #7c3aed;
+  outline-offset: 1px;
+  pointer-events: auto;
+  cursor: move;
+  z-index: 50;
+}
+
+.stageTextFrameBox {
+  position: absolute;
+  box-sizing: border-box;
+  transform-origin: center center;
+  border: 1.5px dashed #7c3aed;
+  outline-offset: 1px;
+  pointer-events: auto;
+  cursor: text;
+  z-index: 45;
+}
+
 .stageLayerWrapper {
   position: absolute;
   box-sizing: border-box;
@@ -632,9 +750,14 @@
   z-index: 10;
 }
 
+.layerVisualContent {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
 .stageLayerSelected {
-  outline: 2px solid #7c3aed;
-  outline-offset: 1px;
+  /* Visual selection outline is rendered by unclipped .stageTransformBox in .selectionOverlay */
 }
 
 .stageTextContent {
@@ -647,63 +770,63 @@
 /* Selection Handles */
 .layerHandle {
   position: absolute;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   background: #ffffff;
-  border: 2px solid #7c3aed;
-  border-radius: 50%;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  border: 1.5px solid #7c3aed;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   z-index: 20;
 }
 
 .layerHandleNW {
-  left: -6px;
-  top: -6px;
+  left: -5px;
+  top: -5px;
   cursor: nwse-resize;
 }
 
 .layerHandleNE {
-  right: -6px;
-  top: -6px;
+  right: -5px;
+  top: -5px;
   cursor: nesw-resize;
 }
 
 .layerHandleSW {
-  left: -6px;
-  bottom: -6px;
+  left: -5px;
+  bottom: -5px;
   cursor: nesw-resize;
 }
 
 .layerHandleSE {
-  right: -6px;
-  bottom: -6px;
+  right: -5px;
+  bottom: -5px;
   cursor: nwse-resize;
 }
 
 .layerHandleN {
   left: 50%;
-  top: -6px;
+  top: -5px;
   transform: translateX(-50%);
   cursor: ns-resize;
 }
 
 .layerHandleS {
   left: 50%;
-  bottom: -6px;
+  bottom: -5px;
   transform: translateX(-50%);
   cursor: ns-resize;
 }
 
 .layerHandleW {
   top: 50%;
-  left: -6px;
+  left: -5px;
   transform: translateY(-50%);
   cursor: ew-resize;
 }
 
 .layerHandleE {
   top: 50%;
-  right: -6px;
+  right: -5px;
   transform: translateY(-50%);
   cursor: ew-resize;
 }
@@ -2195,6 +2318,33 @@
   font-weight: 600;
 }
 
+/* PSD Import Progress Banner */
+.workspaceProgressBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 1rem;
+  background: #f5f3ff;
+  border-bottom: 1px solid #ddd6fe;
+  color: #6d28d9;
+  font-size: 0.84375rem;
+  font-weight: 600;
+}
+
+.progressSpinner {
+  animation: progressSpin 1s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes progressSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .alertCloseBtn {
   margin-left: auto;
   background: none;
@@ -2249,4 +2399,250 @@
     width: 100%;
     justify-content: flex-start;
   }
+}
+
+/* =============================================================================
+   12. Advanced Photoshop Features Overlays: Selection, Pen, Patch, Multi-Select
+   ========================================================================== */
+@keyframes marchingAnts {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -16;
+  }
+}
+
+.marchingAntsSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 150;
+  overflow: visible;
+}
+
+.marchingAntsOutline {
+  fill: rgba(124, 58, 237, 0.08);
+  stroke: #ffffff;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  animation: marchingAnts 0.6s linear infinite;
+}
+
+.marchingAntsOutlineDark {
+  fill: none;
+  stroke: #1e1b4b;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  stroke-dashoffset: 4;
+  animation: marchingAnts 0.6s linear infinite;
+}
+
+/* Canvas Selection Marquee Box (while dragging with marquee tool or select tool) */
+.canvasMarqueeBox {
+  position: absolute;
+  pointer-events: none;
+  border: 1.5px dashed #7c3aed;
+  background-color: rgba(124, 58, 237, 0.12);
+  z-index: 160;
+}
+
+/* Multi-Layer Selection Combined Bounding Box */
+.multiSelectionBounds {
+  position: absolute;
+  pointer-events: none;
+  border: 1.5px dashed #7c3aed;
+  background-color: rgba(124, 58, 237, 0.04);
+  z-index: 140;
+}
+
+.multiSelectionLabel {
+  position: absolute;
+  top: -24px;
+  left: 0;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Pen Tool SVG Canvas Layer */
+.penToolCanvasOverlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 155;
+  overflow: visible;
+}
+
+.penPathLine {
+  fill: none;
+  stroke: #7c3aed;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.penHandleLine {
+  stroke: #94a3b8;
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.penAnchorPoint {
+  fill: #ffffff;
+  stroke: #7c3aed;
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+.penAnchorPointStart {
+  fill: #10b981;
+  stroke: #059669;
+}
+
+.penHandlePoint {
+  fill: #7c3aed;
+  stroke: #ffffff;
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+/* Patch Tool Preview Overlay */
+.patchOverlay {
+  position: absolute;
+  pointer-events: none;
+  border: 1.5px dashed #10b981;
+  background-color: rgba(16, 185, 129, 0.15);
+  z-index: 160;
+}
+
+/* =============================================================================
+   12. Advanced Photoshop Features Overlays: Selection, Pen, Patch, Multi-Select
+   ========================================================================== */
+@keyframes marchingAnts {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -16;
+  }
+}
+
+.marchingAntsSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 150;
+  overflow: visible;
+}
+
+.marchingAntsOutline {
+  fill: rgba(124, 58, 237, 0.08);
+  stroke: #ffffff;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  animation: marchingAnts 0.6s linear infinite;
+}
+
+.marchingAntsOutlineDark {
+  fill: none;
+  stroke: #1e1b4b;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  stroke-dashoffset: 4;
+  animation: marchingAnts 0.6s linear infinite;
+}
+
+/* Canvas Selection Marquee Box (while dragging with marquee tool or select tool) */
+.canvasMarqueeBox {
+  position: absolute;
+  pointer-events: none;
+  border: 1.5px dashed #7c3aed;
+  background-color: rgba(124, 58, 237, 0.12);
+  z-index: 160;
+}
+
+/* Multi-Layer Selection Combined Bounding Box */
+.multiSelectionBounds {
+  position: absolute;
+  pointer-events: none;
+  border: 1.5px dashed #7c3aed;
+  background-color: rgba(124, 58, 237, 0.04);
+  z-index: 140;
+}
+
+.multiSelectionLabel {
+  position: absolute;
+  top: -24px;
+  left: 0;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Pen Tool SVG Canvas Layer */
+.penToolCanvasOverlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 155;
+  overflow: visible;
+}
+
+.penPathLine {
+  fill: none;
+  stroke: #7c3aed;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.penHandleLine {
+  stroke: #94a3b8;
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.penAnchorPoint {
+  fill: #ffffff;
+  stroke: #7c3aed;
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+.penAnchorPointStart {
+  fill: #10b981;
+  stroke: #059669;
+}
+
+.penHandlePoint {
+  fill: #7c3aed;
+  stroke: #ffffff;
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+/* Patch Tool Preview Overlay */
+.patchOverlay {
+  position: absolute;
+  pointer-events: none;
+  border: 1.5px dashed #10b981;
+  background-color: rgba(16, 185, 129, 0.15);
+  z-index: 160;
 }

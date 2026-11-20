@@ -41,10 +41,10 @@
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 50px);
-  height: calc(100dvh - 50px);
-  max-height: calc(100vh - 50px);
-  max-height: calc(100dvh - 50px);
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
   min-height: 0;
   overflow: hidden;
   margin: 0;

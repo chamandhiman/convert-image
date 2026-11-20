@@ -57,7 +57,7 @@ async function main() {
     expression: `localStorage.setItem('webtoolocean_cookie_consent', JSON.stringify({ necessary: true, analytics: true, marketing: true, timestamp: Date.now() }));`
   });
 
-  const routes = ['/compress-image', '/convert-image', '/remove-background', '/photo-restorer', '/image-upscaler', '/'];
+  const routes = ['/compress-image', '/convert-image', '/remove-background', '/'];
   for (const r of routes) {
     await send('Page.navigate', { url: 'http://localhost:4173' + r });
     await sleep(1200);

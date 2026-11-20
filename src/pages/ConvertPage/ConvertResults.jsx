@@ -327,6 +327,10 @@ export function ConvertResults({
                           <Check size={11} strokeWidth={3} />
                           <span>Converted</span>
                         </span>
+                      ) : item.status === 'incompatible' ? (
+                        <span className={styles.statusSkippedPill}>
+                          <span>{item.incompatibleReason || 'Skipped'}</span>
+                        </span>
                       ) : (
                         <span className={styles.statusErrorPill}>
                           <AlertTriangle size={11} strokeWidth={3} />

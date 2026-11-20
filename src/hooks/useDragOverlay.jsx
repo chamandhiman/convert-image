@@ -7,19 +7,56 @@ export function DragProvider({ children }) {
   const [isDragging, setIsDragging] = useState(false);
   const dragCounterRef = useRef(0);
 
+  const shouldSuppressDragOverlay = useCallback((e) => {
+    // 1. Suppress generic overlay completely on editor routes
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname || '';
+      if (
+        pathname === '/edit-image' ||
+        pathname === '/edit' ||
+        pathname.startsWith('/edit')
+      ) {
+        return true;
+      }
+    }
+
+    // 2. Suppress generic overlay if dragging Photoshop files
+    if (e && e.dataTransfer && e.dataTransfer.items) {
+      const hasPsdItem = Array.from(e.dataTransfer.items).some((item) => {
+        const type = (item.type || '').toLowerCase();
+        return (
+          type === 'image/vnd.adobe.photoshop' ||
+          type === 'image/x-photoshop' ||
+          type === 'image/psd' ||
+          type.includes('photoshop')
+        );
+      });
+      if (hasPsdItem) {
+        return true;
+      }
+    }
+
+    return false;
+  }, []);
+
   const handleDragEnter = useCallback((e) => {
     // Only respond to actual external file drags
-    if (!isExternalFileDrag(e)) {
+    if (!isExternalFileDrag(e) || shouldSuppressDragOverlay(e)) {
       return;
     }
     e.preventDefault();
     e.stopPropagation();
     dragCounterRef.current += 1;
     setIsDragging(true);
-  }, []);
+  }, [shouldSuppressDragOverlay]);
 
   const handleDragLeave = useCallback((e) => {
     if (!isExternalFileDrag(e)) {
+      return;
+    }
+    if (shouldSuppressDragOverlay(e)) {
+      dragCounterRef.current = 0;
+      setIsDragging(false);
       return;
     }
     e.preventDefault();
@@ -29,15 +66,15 @@ export function DragProvider({ children }) {
       dragCounterRef.current = 0;
       setIsDragging(false);
     }
-  }, []);
+  }, [shouldSuppressDragOverlay]);
 
   const handleDragOver = useCallback((e) => {
-    if (!isExternalFileDrag(e)) {
+    if (!isExternalFileDrag(e) || shouldSuppressDragOverlay(e)) {
       return;
     }
     e.preventDefault();
     e.stopPropagation();
-  }, []);
+  }, [shouldSuppressDragOverlay]);
 
   const handleDrop = useCallback((e) => {
     if (!isExternalFileDrag(e)) {

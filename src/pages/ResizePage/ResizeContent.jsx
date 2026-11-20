@@ -71,7 +71,7 @@ const faqs = [
   },
   {
     q: 'Will resizing make my images blurry or distorted?',
-    a: 'Downscaling (making an image smaller) actually increases perceived sharpness when done with high-quality bicubic resampling. Upscaling (making an image significantly larger than its native resolution) with basic interpolation can look soft; for extreme enlargement, we recommend using our AI Image Upscaler tool.',
+    a: 'Downscaling (making an image smaller) actually increases perceived sharpness when done with high-quality bicubic resampling. When enlarging an image, bicubic interpolation smoothly renders additional pixels to minimize jagged pixelation.',
   },
   {
     q: 'Why should I lock the aspect ratio?',

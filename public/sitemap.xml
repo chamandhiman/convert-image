@@ -72,18 +72,6 @@
 
   <!-- AI & Advanced Enhancement Tools -->
   <url>
-    <loc>https://image.webtoolocean.com/photo-restorer</loc>
-    <lastmod>2026-11-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://image.webtoolocean.com/image-upscaler</loc>
-    <lastmod>2026-11-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://image.webtoolocean.com/object-remover</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>weekly</changefreq>

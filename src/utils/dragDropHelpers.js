@@ -41,3 +41,33 @@ export function isExternalFileDrag(e) {
   return true;
 }
 
+/**
+ * Safely extracts File objects from a DragEvent's dataTransfer.
+ * Checks both dataTransfer.files and dataTransfer.items (with item.getAsFile()).
+ *
+ * @param {DragEvent} e
+ * @returns {File[]}
+ */
+export function extractFilesFromEvent(e) {
+  if (!e || !e.dataTransfer) return [];
+  const dt = e.dataTransfer;
+
+  if (dt.files && dt.files.length > 0) {
+    return Array.from(dt.files);
+  }
+
+  if (dt.items && dt.items.length > 0) {
+    const list = [];
+    for (let i = 0; i < dt.items.length; i++) {
+      const item = dt.items[i];
+      if (item.kind === 'file') {
+        const file = typeof item.getAsFile === 'function' ? item.getAsFile() : null;
+        if (file) list.push(file);
+      }
+    }
+    if (list.length > 0) return list;
+  }
+
+  return [];
+}
+

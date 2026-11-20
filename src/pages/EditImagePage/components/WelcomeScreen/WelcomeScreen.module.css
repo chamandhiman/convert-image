@@ -1,0 +1,317 @@
+/* Welcome Screen Shell — Minimal, Compact & Upload-Focused */
+.welcomeScreenWrapper {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #fdfbfe;
+  background-image:
+    radial-gradient(ellipse at 50% 30%, rgba(245, 238, 255, 0.6) 0%, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(circle at 85% 15%, rgba(243, 232, 255, 0.4) 0%, rgba(255, 255, 255, 0) 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  padding: 1.5rem 1.25rem;
+  box-sizing: border-box;
+}
+
+/* Central Content Container */
+.welcomeContent {
+  width: 100%;
+  max-width: 780px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================================
+   TOP: 2 Compact Action Cards (New Project & Open File)
+   ========================================================= */
+.compactActionCardsRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.compactActionCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.compactActionCard:hover {
+  border-color: #c084fc;
+  background: #faf5ff;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 16px -2px rgba(124, 58, 237, 0.1);
+}
+
+.compactActionIconBox {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 8px;
+  background: #f5f3ff;
+  border: 1px solid #e9d5ff;
+  color: #7c3aed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.psdMiniBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 0.5rem;
+  font-weight: 800;
+  padding: 1px 3px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 1px 3px rgba(124, 58, 237, 0.3);
+}
+
+.compactActionTextBox {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  overflow: hidden;
+}
+
+.compactActionTitle {
+  font-size: 0.84375rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.compactActionDesc {
+  font-size: 0.71875rem;
+  color: #64748b;
+  margin: 0.1rem 0 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================
+   CENTER: Main Upload Area (Primary Focus)
+   ========================================================= */
+.mainUploadBox {
+  border: 2px dashed #c4b5fd;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);
+  padding: 2.25rem 2rem;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px -2px rgba(124, 58, 237, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
+  gap: 0.35rem;
+}
+
+.mainUploadBox:hover {
+  border-color: #8b5cf6;
+  background: linear-gradient(180deg, #ffffff 0%, #f3e8ff 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -4px rgba(124, 58, 237, 0.12);
+}
+
+.mainUploadBoxActive {
+  border-color: #7c3aed;
+  background: #f3e8ff;
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.18);
+  transform: scale(1.008);
+}
+
+.uploadIconCircle {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #f5f3ff;
+  border: 1.5px solid #e9d5ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+}
+
+.uploadCloudIcon {
+  color: #7c3aed;
+}
+
+.uploadHeading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.015em;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.uploadSubtext {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.browseLink {
+  color: #7c3aed;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.browseLink:hover {
+  color: #6d28d9;
+}
+
+.supportedFormatsText {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0.4rem 0 0;
+  font-weight: 500;
+}
+
+/* =========================================================
+   BOTTOM: Small, Compact Social Media Presets
+   ========================================================= */
+.presetsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.presetsHeaderRow {
+  display: flex;
+  align-items: center;
+  padding: 0 0.15rem;
+}
+
+.presetsSectionLabel {
+  font-size: 0.71875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.presetMiniCardsRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.6rem;
+}
+
+.presetMiniCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+}
+
+.presetMiniCard:hover {
+  border-color: #c084fc;
+  background: #faf5ff;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 10px -2px rgba(124, 58, 237, 0.1);
+}
+
+.presetMiniIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+}
+
+.presetMiniText {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  overflow: hidden;
+}
+
+.presetMiniName {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.presetMiniDims {
+  font-size: 0.65625rem;
+  font-weight: 500;
+  color: #64748b;
+  margin-top: 0.05rem;
+  line-height: 1.2;
+}
+
+/* Hidden File Input */
+.hiddenInput {
+  display: none;
+}
+
+/* =========================================================
+   Responsive Design
+   ========================================================= */
+@media (max-width: 768px) {
+  .welcomeContent {
+    max-width: 100%;
+    gap: 1rem;
+  }
+  .compactActionCardsRow {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+  .presetMiniCardsRow {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 580px) {
+  .welcomeScreenWrapper {
+    padding: 1rem 0.75rem;
+  }
+  .compactActionCardsRow {
+    grid-template-columns: 1fr;
+  }
+  .presetMiniCardsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .mainUploadBox {
+    padding: 1.75rem 1.25rem;
+    min-height: 180px;
+  }
+}

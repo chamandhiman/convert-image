@@ -10,7 +10,6 @@ import {
   IconCompress,
   IconMagic,
   IconSparkles,
-  IconMaximize,
 } from '@/components/ui/Icons/Icons';
 
 import styles from './ToolHub.module.css';
@@ -21,7 +20,6 @@ const MAIN_TOOLS = [
   { key: 'resize', label: 'Resize', to: ROUTES.resize, icon: IconCrop },
   { key: 'removeBackground', label: 'Background Remover', to: ROUTES.removeBackground, icon: IconMagic },
   { key: 'objectRemover', label: 'Object Remover', to: ROUTES.objectRemover, icon: IconSparkles },
-  { key: 'upscaler', label: 'Image Upscaler', to: ROUTES.upscaler, icon: IconMaximize },
   { key: 'generativeFill', label: 'AI Generative Fill', to: ROUTES.generativeFill, icon: IconSparkles },
 ];
 
@@ -31,7 +29,6 @@ const TOOL_COMPONENTS = {
   resize: lazy(() => import('@/pages/ResizePage/ResizePage').then((m) => ({ default: m.default }))),
   removeBackground: lazy(() => import('@/pages/RemoveBackgroundPage/RemoveBackgroundPage').then((m) => ({ default: m.default }))),
   objectRemover: lazy(() => import('@/pages/ObjectRemoverPage/ObjectRemoverPage').then((m) => ({ default: m.default }))),
-  upscaler: lazy(() => import('@/pages/ImageUpscalerPage/ImageUpscalerPage').then((m) => ({ default: m.default }))),
   generativeFill: lazy(() => import('@/pages/GenerativeFillPage/GenerativeFillPage').then((m) => ({ default: m.default }))),
 };
 

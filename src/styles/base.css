@@ -169,6 +169,26 @@ li+li {
   outline: none;
 }
 
+/* Prevent duplicate nested focus rings on form inputs and dropdowns */
+input,
+select,
+textarea {
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-primary, #7c3aed);
+}
+
 ::selection {
   background-color: var(--color-primary);
   color: var(--color-text-on-brand);

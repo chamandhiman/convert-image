@@ -1,1 +1,2 @@
-export { default } from './Header';
+export { default, Header, NAV_ITEMS } from './Header';
+

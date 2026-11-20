@@ -21,8 +21,6 @@ export const ROUTES = {
   pngToJpg: '/png-to-jpg',
   imageToWebp: '/image-to-webp',
   removeBackground: '/remove-background',
-  photoRestorer: '/photo-restorer',
-  upscaler: '/image-upscaler',
   objectRemover: '/object-remover',
   imageExtender: '/image-extender',
   generativeFill: '/generative-fill',

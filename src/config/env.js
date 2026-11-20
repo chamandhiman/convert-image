@@ -36,11 +36,6 @@ export const env = {
    * Specific URL for LaMa inpainting ONNX model (198.4 MB).
    */
   lamaModelUrl: raw.VITE_LAMA_MODEL_URL ? stripTrailingSlash(raw.VITE_LAMA_MODEL_URL) : '',
-
-  /**
-   * Specific URL for Real-ESRGAN restoration/upscaler ONNX model (4.6 MB).
-   */
-  upscalerModelUrl: raw.VITE_UPSCALER_MODEL_URL ? stripTrailingSlash(raw.VITE_UPSCALER_MODEL_URL) : '',
 };
 
 export default env;

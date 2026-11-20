@@ -13,7 +13,7 @@ export function HistoryPanel({
   canReset,
 }) {
   return (
-    <div className={styles.historyContainer}>
+    <div className={styles.historyContainer} data-testid="history-panel">
       {/* Header Bar */}
       <div className={styles.headerRow}>
         <div className={styles.titleWrap}>
@@ -68,9 +68,8 @@ export function HistoryPanel({
               <button
                 key={`${entry.timestamp || idx}-${idx}`}
                 type="button"
-                className={`${styles.historyItem} ${isCurrent ? styles.itemCurrent : ''} ${
-                  isFuture ? styles.itemFuture : ''
-                }`}
+                className={`${styles.historyItem} ${isCurrent ? styles.itemCurrent : ''} ${isFuture ? styles.itemFuture : ''
+                  }`}
                 onClick={() => onJumpToHistory(idx)}
                 title={`Jump to step ${idx + 1}`}
               >

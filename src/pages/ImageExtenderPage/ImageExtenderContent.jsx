@@ -103,9 +103,9 @@ const relatedTools = [
     icon: <RefreshCw size={20} />,
   },
   {
-    name: 'AI Photo Restorer',
-    description: 'Sharpen blurry photos and repair faded vintage family prints.',
-    href: ROUTES.photoRestorer,
+    name: 'Convert Image',
+    description: 'Convert between JPG, PNG, WebP, GIF, and modern formats.',
+    href: ROUTES.convert,
     icon: <Sparkles size={20} />,
   },
   {

@@ -109,9 +109,9 @@ const relatedTools = [
     icon: <Maximize size={20} />,
   },
   {
-    name: 'AI Photo Restorer',
-    description: 'Sharpen blurry photos and repair faded vintage family prints.',
-    href: ROUTES.photoRestorer,
+    name: 'Edit Image',
+    description: 'Full-featured canvas editor with layers, text, shapes, and filters.',
+    href: ROUTES.edit,
     icon: <Sparkles size={20} />,
   },
   {

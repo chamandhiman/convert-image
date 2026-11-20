@@ -35,7 +35,7 @@ const faqs = [
 
 const relatedTools = [
   { name: 'Remove Background', description: 'Isolate subjects and export transparent PNG cutouts instantly.', href: ROUTES.removeBackground },
-  { name: 'AI Image Upscaler', description: 'Increase resolution 2× or 4× with neural super-resolution.', href: ROUTES.upscaler },
+  { name: 'Convert Image', description: 'Convert images to JPG, PNG, WEBP, and modern formats.', href: ROUTES.convert },
   { name: 'Compress Image', description: 'Shrink file sizes while maintaining visual quality.', href: ROUTES.compress },
 ];
 

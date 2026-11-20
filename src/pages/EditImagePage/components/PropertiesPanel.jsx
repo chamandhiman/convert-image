@@ -36,6 +36,7 @@ import {
   AlignCenterVertical,
   AlignEndVertical,
   Info,
+  SlidersHorizontal,
 } from 'lucide-react';
 import styles from './PropertiesPanel.module.css';
 
@@ -401,15 +402,14 @@ export function PropertiesPanel({
   // Shape Props
   onAddShape,
   // Text Props
-  onAddTextLayer,
   hasImage = false,
   currentWidth = 0,
   currentHeight = 0,
   zoom = 1,
   foregroundColor = '#7C3AED',
   onForegroundColorChange,
-  backgroundColor = '#FFFFFF',
-  onBackgroundColorChange,
+  _backgroundColor = '#FFFFFF',
+  _onBackgroundColorChange,
   layers = [],
 }) {
   const [effectsOpen, setEffectsOpen] = useState(true);
@@ -451,7 +451,7 @@ export function PropertiesPanel({
   );
 
   const isShapeToolActive = ['rect', 'circle', 'ellipse', 'triangle', 'line', 'star', 'shapes'].includes(effectiveTool);
-  const isSelectedLayerReal = Boolean(selectedLayer && selectedLayerId && selectedLayerId !== 'background');
+  const isSelectedLayerReal = Boolean(selectedLayer && selectedLayerId);
 
   // ---------------------------------------------------------------------------
   // 1. RENDER: CROP TOOL
@@ -1099,18 +1099,6 @@ export function PropertiesPanel({
             />
           </div>
         </div>
-
-        {/* Action Button: Add Text to Canvas */}
-        {onAddTextLayer && (
-          <button
-            type="button"
-            className={styles.primaryActionBtn}
-            onClick={onAddTextLayer}
-          >
-            <Plus size={15} />
-            <span>Add Text Layer to Canvas</span>
-          </button>
-        )}
 
         {/* Instruction Guidance */}
         <div className={styles.tipCard}>
@@ -2513,11 +2501,64 @@ export function PropertiesPanel({
                     <span className={styles.docStatValue} style={{ fontSize: '0.8125rem' }}>Transparent</span>
                   </>
                 ) : (
-                  <span className={styles.docStatValue} style={{ fontSize: '0.8125rem' }}>Solid Color</span>
+                  <span className={styles.docStatValue} style={{ fontSize: '0.8125rem' }}>
+                    {canvasBgOption === 'white' ? 'White' : 'Solid Color'}
+                  </span>
                 )}
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Document Background Options */}
+        <div className={styles.docCard} data-testid="doc-bg-card">
+          <div className={styles.labelWithActionRow}>
+            <label className={styles.fieldLabel} style={{ marginBottom: 0 }}>
+              Document Background
+            </label>
+            <span className={styles.docStatMeta}>Underlying Canvas</span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.5rem' }}>
+            <button
+              type="button"
+              className={`${styles.cropPresetBtn} ${canvasBgOption === 'transparent' ? styles.cropPresetBtnActive : ''}`}
+              onClick={() => onCanvasBgOptionChange?.('transparent')}
+              style={{ flex: 1, padding: '0.35rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+            >
+              <span className={styles.checkerThumbSmall} style={{ width: 10, height: 10 }} />
+              Transparent
+            </button>
+            <button
+              type="button"
+              className={`${styles.cropPresetBtn} ${canvasBgOption === 'white' ? styles.cropPresetBtnActive : ''}`}
+              onClick={() => onCanvasBgOptionChange?.('white')}
+              style={{ flex: 1, padding: '0.35rem 0.5rem', fontSize: '0.75rem' }}
+            >
+              White
+            </button>
+            <button
+              type="button"
+              className={`${styles.cropPresetBtn} ${canvasBgOption === 'custom' || canvasBgOption === 'color' ? styles.cropPresetBtnActive : ''}`}
+              onClick={() => onCanvasBgOptionChange?.('custom')}
+              style={{ flex: 1, padding: '0.35rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+            >
+              <span style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: canvasCustomColor || '#7c3aed', border: '1px solid rgba(0,0,0,0.15)' }} />
+              Color
+            </button>
+          </div>
+
+          {(canvasBgOption === 'custom' || canvasBgOption === 'color') && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <input
+                type="color"
+                value={canvasCustomColor || '#ffffff'}
+                onChange={(e) => onCanvasCustomColorChange?.(e.target.value)}
+                style={{ width: 32, height: 26, padding: 0, border: '1px solid #cbd5e1', borderRadius: 4, cursor: 'pointer' }}
+              />
+              <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#475569' }}>{canvasCustomColor}</span>
+            </div>
+          )}
         </div>
 
         {/* Selection Guidance Info Box — Sleek matching mockup */}
@@ -2533,6 +2574,21 @@ export function PropertiesPanel({
   // TOP-LEVEL DYNAMIC PROPERTIES ROUTER
   // Single source of truth: active tool & selected object
   // ===========================================================================
+
+  // Case 0: No document open
+  if (!hasImage) {
+    return (
+      <div className={styles.propertiesContainer}>
+        <div className={styles.emptyPropertiesState} data-testid="properties-empty">
+          <SlidersHorizontal size={40} className={styles.emptyPropertiesIcon} />
+          <h3 className={styles.emptyPropertiesTitle}>No Document Open</h3>
+          <p className={styles.emptyPropertiesSubtext}>
+            Create a new canvas or open an image to view and edit document properties.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Case 1: Crop Tool
   if (effectiveTool === 'crop') {

@@ -8,14 +8,6 @@ import {
   Layout,
   Type,
   LayoutGrid,
-  Square,
-  Circle,
-  Triangle,
-  Minus,
-  Star,
-  Paintbrush,
-  Eraser,
-  PaintBucket,
   Undo2,
   Redo2,
   Maximize,
@@ -24,11 +16,45 @@ import {
   Download,
   ChevronDown,
   Upload,
+  FolderOpen,
+  Square,
   FileImage,
   RotateCcw,
   X,
+  SlidersHorizontal,
+  PenTool,
+  Bandage,
+  Wand2,
+  LassoSelect,
+  Scissors,
+  Check,
 } from 'lucide-react';
 import styles from './EditorTopBar.module.css';
+
+export const FILTER_ITEMS = [
+  { category: 'BLUR', id: 'blur-gaussian', label: 'Gaussian Blur...', paramName: 'Radius', min: 1, max: 40, defaultVal: 6, unit: 'px', type: 'gaussian' },
+  { category: 'BLUR', id: 'blur-motion', label: 'Motion Blur...', paramName: 'Distance', min: 2, max: 50, defaultVal: 15, unit: 'px', type: 'motion' },
+  { category: 'BLUR', id: 'blur-radial', label: 'Radial Zoom Blur...', paramName: 'Amount', min: 2, max: 30, defaultVal: 10, unit: '%', type: 'radial' },
+  { category: 'BLUR', id: 'blur-box', label: 'Box Blur...', paramName: 'Radius', min: 1, max: 30, defaultVal: 5, unit: 'px', type: 'box' },
+
+  { category: 'SHARPEN', id: 'sharpen-basic', label: 'Sharpen...', paramName: 'Amount', min: 10, max: 100, defaultVal: 45, unit: '%', type: 'sharpen' },
+  { category: 'SHARPEN', id: 'sharpen-unsharp', label: 'Unsharp Mask...', paramName: 'Amount', min: 10, max: 100, defaultVal: 60, unit: '%', type: 'unsharp' },
+
+  { category: 'NOISE & TEXTURE', id: 'noise-add', label: 'Add Noise...', paramName: 'Amount', min: 5, max: 80, defaultVal: 25, unit: '%', type: 'noise' },
+  { category: 'NOISE & TEXTURE', id: 'noise-grain', label: 'Film Grain...', paramName: 'Intensity', min: 5, max: 70, defaultVal: 30, unit: '%', type: 'grain' },
+  { category: 'NOISE & TEXTURE', id: 'texture-pixelate', label: 'Pixelate...', paramName: 'Cell Size', min: 4, max: 60, defaultVal: 16, unit: 'px', type: 'pixelate' },
+
+  { category: 'STYLIZE', id: 'stylize-emboss', label: 'Emboss...', paramName: 'Depth', min: 10, max: 100, defaultVal: 50, unit: '%', type: 'emboss' },
+  { category: 'STYLIZE', id: 'stylize-find-edges', label: 'Find Edges', paramName: 'Sensitivity', min: 10, max: 100, defaultVal: 50, unit: '%', type: 'find-edges' },
+  { category: 'STYLIZE', id: 'stylize-solarize', label: 'Solarize...', paramName: 'Threshold', min: 10, max: 90, defaultVal: 50, unit: '%', type: 'solarize' },
+  { category: 'STYLIZE', id: 'stylize-posterize', label: 'Posterize...', paramName: 'Levels', min: 20, max: 90, defaultVal: 40, unit: '%', type: 'posterize' },
+
+  { category: 'ADJUSTMENTS', id: 'adj-brightness', label: 'Brightness / Contrast...', paramName: 'Brightness', min: 0, max: 100, defaultVal: 65, unit: '', type: 'brightness' },
+  { category: 'ADJUSTMENTS', id: 'adj-contrast', label: 'High Contrast...', paramName: 'Contrast', min: 10, max: 90, defaultVal: 60, unit: '', type: 'contrast' },
+  { category: 'ADJUSTMENTS', id: 'adj-grayscale', label: 'Grayscale (Black & White)', paramName: 'Fade', min: 0, max: 100, defaultVal: 100, unit: '%', type: 'grayscale' },
+  { category: 'ADJUSTMENTS', id: 'adj-sepia', label: 'Sepia Vintage Tone', paramName: 'Warmth', min: 0, max: 100, defaultVal: 100, unit: '%', type: 'sepia' },
+  { category: 'ADJUSTMENTS', id: 'adj-invert', label: 'Invert Colors', paramName: 'Amount', min: 0, max: 100, defaultVal: 100, unit: '%', type: 'invert' },
+];
 
 export function EditorTopBar({
   hasImage = false,
@@ -44,64 +70,96 @@ export function EditorTopBar({
   onFitScreen,
   isPanActive = false,
   onTogglePan,
+  onOpenFile,
   onTriggerUpload,
   onNewBlankCanvas,
   onAddImageLayer,
   onDownload,
   onResetOriginal,
   canReset = false,
+  onOpenFilter,
+  activeSelection = null,
+  onInvertSelection,
+  onDeselect,
+  onSelectAll,
+  onDeleteSelectedPixels,
+  onConvertSelectionToMask,
+  onFeatherSelection,
 }) {
   const [fileMenuOpen, setFileMenuOpen] = useState(false);
-  const [shapesMenuOpen, setShapesMenuOpen] = useState(false);
+  const [filtersMenuOpen, setFiltersMenuOpen] = useState(false);
+  const [selectionMenuOpen, setSelectionMenuOpen] = useState(false);
   const [zoomMenuOpen, setZoomMenuOpen] = useState(false);
-  const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
 
   const fileMenuRef = useRef(null);
-  const shapesMenuRef = useRef(null);
+  const filtersMenuRef = useRef(null);
+  const selectionMenuRef = useRef(null);
   const zoomMenuRef = useRef(null);
-  const downloadMenuRef = useRef(null);
 
-  // Close dropdowns on outside click
+  // Close dropdowns on outside click or Escape
   useEffect(() => {
     function handleClickOutside(e) {
       if (fileMenuRef.current && !fileMenuRef.current.contains(e.target)) {
         setFileMenuOpen(false);
       }
-      if (shapesMenuRef.current && !shapesMenuRef.current.contains(e.target)) {
-        setShapesMenuOpen(false);
+      if (filtersMenuRef.current && !filtersMenuRef.current.contains(e.target)) {
+        setFiltersMenuOpen(false);
+      }
+      if (selectionMenuRef.current && !selectionMenuRef.current.contains(e.target)) {
+        setSelectionMenuOpen(false);
       }
       if (zoomMenuRef.current && !zoomMenuRef.current.contains(e.target)) {
         setZoomMenuOpen(false);
       }
-      if (downloadMenuRef.current && !downloadMenuRef.current.contains(e.target)) {
-        setDownloadMenuOpen(false);
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        setFileMenuOpen(false);
+        setFiltersMenuOpen(false);
+        setSelectionMenuOpen(false);
+        setZoomMenuOpen(false);
       }
     }
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
-  const ZOOM_PRESETS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
+  const ZOOM_PRESETS = [0.25, 0.45, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
 
   // Helper to check tool active state
-  const isSelectActive = !hasImage || activeTool === 'move';
+  const isSelectActive = hasImage && (activeTool === 'move' || !activeTool);
+  const isSelectionToolActive = [
+    'marquee-rect',
+    'marquee-ellipse',
+    'lasso',
+    'polygonal-lasso',
+    'magic-wand',
+  ].includes(activeTool);
   const isCropActive = hasImage && activeTool === 'crop';
   const isResizeActive = hasImage && activeTool === 'resize';
   const isRotateActive = hasImage && activeTool === 'rotate';
   const isCanvasActive = hasImage && activeTool === 'canvas';
   const isTextActive = hasImage && activeTool === 'text';
+  const isPenActive = hasImage && activeTool === 'pen';
+  const isPatchActive = hasImage && activeTool === 'patch';
   const isShapesActive =
     hasImage &&
     [
       'rect',
+      'rounded-rect',
       'circle',
       'ellipse',
       'triangle',
       'line',
       'star',
-      'brush',
-      'eraser',
-      'fill',
+      'polygon',
+      'arrow',
       'shapes',
     ].includes(activeTool);
 
@@ -110,26 +168,25 @@ export function EditorTopBar({
     onToolSelect?.(toolId);
   };
 
-  const handleShapeSelect = (shapeToolId) => {
-    setShapesMenuOpen(false);
-    if (!hasImage) return;
-    onToolSelect?.(shapeToolId);
-  };
-
   return (
     <div className={styles.topSectionWrapper} data-testid="editor-top-bar">
       <div className={styles.subToolbar} data-testid="sub-toolbar">
-        {/* Horizontal Tools Scroll Track */}
+        {/* Horizontal Tools Track */}
         <div className={styles.toolsTrack}>
           {/* 1. File Dropdown */}
           <div className={styles.dropdownContainer} ref={fileMenuRef}>
             <button
               type="button"
               data-file-btn="true"
+              data-testid="file-menu-btn"
               className={`${styles.toolbarItemBtn} ${styles.fileBtn} ${
                 fileMenuOpen ? styles.itemBtnActive : ''
               }`}
-              onClick={() => setFileMenuOpen((prev) => !prev)}
+              onClick={() => {
+                setFileMenuOpen((prev) => !prev);
+                setFiltersMenuOpen(false);
+                setSelectionMenuOpen(false);
+              }}
               aria-expanded={fileMenuOpen}
               title="File Operations"
             >
@@ -139,7 +196,7 @@ export function EditorTopBar({
             </button>
 
             {fileMenuOpen && (
-              <div className={styles.menuDropdown} role="menu">
+              <div className={styles.menuDropdown} role="menu" data-testid="file-dropdown-menu">
                 <button
                   type="button"
                   className={styles.menuItem}
@@ -147,6 +204,7 @@ export function EditorTopBar({
                     setFileMenuOpen(false);
                     onNewBlankCanvas?.();
                   }}
+                  data-testid="file-new-canvas"
                 >
                   <Square size={14} />
                   <span>New Blank Canvas...</span>
@@ -156,11 +214,12 @@ export function EditorTopBar({
                   className={styles.menuItem}
                   onClick={() => {
                     setFileMenuOpen(false);
-                    onTriggerUpload?.();
+                    onOpenFile ? onOpenFile() : onTriggerUpload?.();
                   }}
+                  data-testid="file-open-file"
                 >
-                  <Upload size={14} />
-                  <span>Open Image...</span>
+                  <FolderOpen size={14} />
+                  <span>Open File...</span>
                 </button>
                 <button
                   type="button"
@@ -170,6 +229,7 @@ export function EditorTopBar({
                     setFileMenuOpen(false);
                     onAddImageLayer?.();
                   }}
+                  data-testid="file-add-layer"
                 >
                   <ImagePlus size={14} />
                   <span>Add Image as Layer...</span>
@@ -185,6 +245,7 @@ export function EditorTopBar({
                     setFileMenuOpen(false);
                     onDownload?.('image/png');
                   }}
+                  data-testid="file-export-png"
                 >
                   <FileImage size={14} />
                   <span>Export as PNG</span>
@@ -197,6 +258,7 @@ export function EditorTopBar({
                     setFileMenuOpen(false);
                     onDownload?.('image/jpeg');
                   }}
+                  data-testid="file-export-jpg"
                 >
                   <FileImage size={14} />
                   <span>Export as JPG</span>
@@ -209,12 +271,38 @@ export function EditorTopBar({
                     setFileMenuOpen(false);
                     onDownload?.('image/webp');
                   }}
+                  data-testid="file-export-webp"
                 >
                   <FileImage size={14} />
                   <span>Export as WebP</span>
                 </button>
 
                 <div className={styles.menuDivider} />
+
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  disabled={!canUndo}
+                  onClick={() => {
+                    setFileMenuOpen(false);
+                    onUndo?.();
+                  }}
+                >
+                  <Undo2 size={14} />
+                  <span>Undo (Ctrl+Z)</span>
+                </button>
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  disabled={!canRedo}
+                  onClick={() => {
+                    setFileMenuOpen(false);
+                    onRedo?.();
+                  }}
+                >
+                  <Redo2 size={14} />
+                  <span>Redo (Ctrl+Y)</span>
+                </button>
 
                 <button
                   type="button"
@@ -249,12 +337,62 @@ export function EditorTopBar({
             )}
           </div>
 
-          {/* 2. Select Tool */}
+          {/* 2. Filters Dropdown (Requirement #9) */}
+          <div className={styles.dropdownContainer} ref={filtersMenuRef}>
+            <button
+              type="button"
+              data-testid="filters-menu-btn"
+              disabled={!hasImage}
+              className={`${styles.toolbarItemBtn} ${styles.fileBtn} ${
+                filtersMenuOpen ? styles.itemBtnActive : ''
+              }`}
+              onClick={() => {
+                setFiltersMenuOpen((prev) => !prev);
+                setFileMenuOpen(false);
+                setSelectionMenuOpen(false);
+              }}
+              aria-expanded={filtersMenuOpen}
+              title="Filter Effects & Adjustments"
+            >
+              <SlidersHorizontal size={14} className={styles.btnIcon} />
+              <span>Filters</span>
+              <ChevronDown size={11} className={styles.chevron} />
+            </button>
+
+            {filtersMenuOpen && (
+              <div className={styles.menuDropdown} role="menu" data-testid="filters-dropdown-menu">
+                {['BLUR', 'SHARPEN', 'NOISE & TEXTURE', 'STYLIZE', 'ADJUSTMENTS'].map((cat, idx) => (
+                  <div key={cat}>
+                    {idx > 0 && <div className={styles.menuDivider} />}
+                    <div className={styles.menuSectionTitle}>{cat}</div>
+                    {FILTER_ITEMS.filter((f) => f.category === cat).map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className={styles.menuItem}
+                        onClick={() => {
+                          setFiltersMenuOpen(false);
+                          onOpenFilter?.(item);
+                        }}
+                        data-testid={`filter-item-${item.id}`}
+                      >
+                        <span>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className={styles.vDivider} aria-hidden="true" />
+
+          {/* 3. Select / Move Tool */}
           <button
             type="button"
             className={`${styles.toolbarItemBtn} ${isSelectActive ? styles.itemBtnActive : ''}`}
             onClick={() => handleToolClick('move')}
-            title="Select & Move Tool (V)"
+            title="Move & Select Tool (V)"
             aria-label="Select Tool"
             data-testid="tool-select"
           >
@@ -262,7 +400,176 @@ export function EditorTopBar({
             <span>Select</span>
           </button>
 
-          {/* 3. Crop Tool */}
+          {/* 4. Selection Tools Dropdown (Requirement #6) */}
+          <div className={styles.dropdownContainer} ref={selectionMenuRef}>
+            <button
+              type="button"
+              data-testid="selection-tools-btn"
+              disabled={!hasImage}
+              className={`${styles.toolbarItemBtn} ${
+                isSelectionToolActive ? styles.itemBtnActive : ''
+              }`}
+              onClick={() => {
+                setSelectionMenuOpen((prev) => !prev);
+                setFileMenuOpen(false);
+                setFiltersMenuOpen(false);
+              }}
+              title="Marquee & Lasso Selection Tools (M, L, W)"
+            >
+              <LassoSelect size={14} className={styles.btnIcon} />
+              <span>Marquee</span>
+              <ChevronDown size={11} className={styles.chevron} />
+            </button>
+
+            {selectionMenuOpen && (
+              <div
+                className={styles.menuDropdown}
+                role="menu"
+                data-testid="selection-dropdown-menu"
+              >
+                <div className={styles.menuSectionTitle}>MARQUEE SELECTION</div>
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  onClick={() => {
+                    handleToolClick('marquee-rect');
+                    setSelectionMenuOpen(false);
+                  }}
+                  data-testid="tool-marquee-rect"
+                >
+                  <Square size={14} />
+                  <span>Rectangular Marquee (M)</span>
+                </button>
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  onClick={() => {
+                    handleToolClick('marquee-ellipse');
+                    setSelectionMenuOpen(false);
+                  }}
+                  data-testid="tool-marquee-ellipse"
+                >
+                  <span style={{ fontSize: 13, fontWeight: 700 }}>◯</span>
+                  <span>Elliptical Marquee</span>
+                </button>
+
+                <div className={styles.menuSectionTitle}>FREEFORM SELECTION</div>
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  onClick={() => {
+                    handleToolClick('lasso');
+                    setSelectionMenuOpen(false);
+                  }}
+                  data-testid="tool-lasso"
+                >
+                  <LassoSelect size={14} />
+                  <span>Lasso Tool (L)</span>
+                </button>
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  onClick={() => {
+                    handleToolClick('polygonal-lasso');
+                    setSelectionMenuOpen(false);
+                  }}
+                  data-testid="tool-polygonal-lasso"
+                >
+                  <Scissors size={14} />
+                  <span>Polygonal Lasso</span>
+                </button>
+
+                <div className={styles.menuSectionTitle}>COLOR SELECTION</div>
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  onClick={() => {
+                    handleToolClick('magic-wand');
+                    setSelectionMenuOpen(false);
+                  }}
+                  data-testid="tool-magic-wand"
+                >
+                  <Wand2 size={14} />
+                  <span>Magic Wand (W)</span>
+                </button>
+
+                <div className={styles.menuDivider} />
+
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  disabled={!activeSelection}
+                  onClick={() => {
+                    onInvertSelection?.();
+                    setSelectionMenuOpen(false);
+                  }}
+                >
+                  <span>Invert Selection (Ctrl+Shift+I)</span>
+                </button>
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  disabled={!activeSelection}
+                  onClick={() => {
+                    onDeselect?.();
+                    setSelectionMenuOpen(false);
+                  }}
+                >
+                  <span>Deselect (Ctrl+D)</span>
+                </button>
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  onClick={() => {
+                    onSelectAll?.();
+                    setSelectionMenuOpen(false);
+                  }}
+                >
+                  <span>Select All (Ctrl+A)</span>
+                </button>
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  disabled={!activeSelection}
+                  onClick={() => {
+                    onFeatherSelection?.(5);
+                    setSelectionMenuOpen(false);
+                  }}
+                >
+                  <span>Feather Selection (5px)</span>
+                </button>
+
+                <div className={styles.menuDivider} />
+
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  disabled={!activeSelection}
+                  onClick={() => {
+                    onDeleteSelectedPixels?.();
+                    setSelectionMenuOpen(false);
+                  }}
+                  data-testid="delete-selection-pixels-btn"
+                >
+                  <span style={{ color: '#ef4444' }}>Delete Selected Pixels</span>
+                </button>
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  disabled={!activeSelection}
+                  onClick={() => {
+                    onConvertSelectionToMask?.();
+                    setSelectionMenuOpen(false);
+                  }}
+                  data-testid="convert-selection-mask-btn"
+                >
+                  <span>Convert to Layer Mask</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* 5. Crop Tool */}
           <button
             type="button"
             className={`${styles.toolbarItemBtn} ${isCropActive ? styles.itemBtnActive : ''}`}
@@ -276,7 +583,7 @@ export function EditorTopBar({
             <span>Crop</span>
           </button>
 
-          {/* 4. Resize Tool */}
+          {/* 6. Resize Tool */}
           <button
             type="button"
             className={`${styles.toolbarItemBtn} ${isResizeActive ? styles.itemBtnActive : ''}`}
@@ -290,7 +597,7 @@ export function EditorTopBar({
             <span>Resize</span>
           </button>
 
-          {/* 5. Rotate Tool */}
+          {/* 7. Rotate Tool */}
           <button
             type="button"
             className={`${styles.toolbarItemBtn} ${isRotateActive ? styles.itemBtnActive : ''}`}
@@ -304,7 +611,7 @@ export function EditorTopBar({
             <span>Rotate</span>
           </button>
 
-          {/* 6. Canvas Tool */}
+          {/* 8. Canvas Tool */}
           <button
             type="button"
             className={`${styles.toolbarItemBtn} ${isCanvasActive ? styles.itemBtnActive : ''}`}
@@ -318,7 +625,7 @@ export function EditorTopBar({
             <span>Canvas</span>
           </button>
 
-          {/* 7. Text Tool */}
+          {/* 9. Text Tool */}
           <button
             type="button"
             className={`${styles.toolbarItemBtn} ${isTextActive ? styles.itemBtnActive : ''}`}
@@ -332,118 +639,51 @@ export function EditorTopBar({
             <span>Text</span>
           </button>
 
-          {/* 8. Shapes Dropdown */}
-          <div className={styles.dropdownContainer} ref={shapesMenuRef}>
-            <button
-              type="button"
-              className={`${styles.toolbarItemBtn} ${
-                isShapesActive || shapesMenuOpen ? styles.itemBtnActive : ''
-              }`}
-              onClick={() => {
-                if (hasImage) setShapesMenuOpen((prev) => !prev);
-              }}
-              disabled={!hasImage}
-              aria-expanded={shapesMenuOpen}
-              title="Shapes & Drawing Tools"
-              data-testid="tool-shapes-dropdown"
-            >
-              <LayoutGrid size={14} className={styles.btnIcon} />
-              <span>Shapes</span>
-              <ChevronDown size={11} className={styles.chevron} />
-            </button>
+          {/* 10. Shapes Tool */}
+          <button
+            type="button"
+            className={`${styles.toolbarItemBtn} ${isShapesActive ? styles.itemBtnActive : ''}`}
+            onClick={() => handleToolClick('shapes')}
+            disabled={!hasImage}
+            title="Shapes & Drawing Tools (U)"
+            aria-label="Shapes Tool"
+            data-testid="tool-shapes"
+          >
+            <LayoutGrid size={14} className={styles.btnIcon} />
+            <span>Shapes</span>
+          </button>
 
-            {shapesMenuOpen && (
-              <div className={styles.shapesDropdownMenu} role="menu" data-testid="shapes-menu">
-                <button
-                  type="button"
-                  className={`${styles.shapeMenuItem} ${
-                    activeTool === 'rect' ? styles.shapeMenuItemActive : ''
-                  }`}
-                  onClick={() => handleShapeSelect('rect')}
-                >
-                  <Square size={14} />
-                  <span>Rectangle</span>
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.shapeMenuItem} ${
-                    activeTool === 'circle' ? styles.shapeMenuItemActive : ''
-                  }`}
-                  onClick={() => handleShapeSelect('circle')}
-                >
-                  <Circle size={14} />
-                  <span>Ellipse</span>
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.shapeMenuItem} ${
-                    activeTool === 'triangle' ? styles.shapeMenuItemActive : ''
-                  }`}
-                  onClick={() => handleShapeSelect('triangle')}
-                >
-                  <Triangle size={14} />
-                  <span>Triangle</span>
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.shapeMenuItem} ${
-                    activeTool === 'line' ? styles.shapeMenuItemActive : ''
-                  }`}
-                  onClick={() => handleShapeSelect('line')}
-                >
-                  <Minus size={14} />
-                  <span>Line</span>
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.shapeMenuItem} ${
-                    activeTool === 'star' ? styles.shapeMenuItemActive : ''
-                  }`}
-                  onClick={() => handleShapeSelect('star')}
-                >
-                  <Star size={14} />
-                  <span>Star</span>
-                </button>
+          {/* 11. Pen Tool (Requirement #7) */}
+          <button
+            type="button"
+            className={`${styles.toolbarItemBtn} ${isPenActive ? styles.itemBtnActive : ''}`}
+            onClick={() => handleToolClick('pen')}
+            disabled={!hasImage}
+            title="Pen Tool (P) — Vector paths & Bézier curves"
+            aria-label="Pen Tool"
+            data-testid="tool-pen"
+          >
+            <PenTool size={14} className={styles.btnIcon} />
+            <span>Pen</span>
+          </button>
 
-                <div className={styles.menuDivider} />
-
-                <button
-                  type="button"
-                  className={`${styles.shapeMenuItem} ${
-                    activeTool === 'brush' ? styles.shapeMenuItemActive : ''
-                  }`}
-                  onClick={() => handleShapeSelect('brush')}
-                >
-                  <Paintbrush size={14} />
-                  <span>Brush</span>
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.shapeMenuItem} ${
-                    activeTool === 'eraser' ? styles.shapeMenuItemActive : ''
-                  }`}
-                  onClick={() => handleShapeSelect('eraser')}
-                >
-                  <Eraser size={14} />
-                  <span>Eraser</span>
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.shapeMenuItem} ${
-                    activeTool === 'fill' ? styles.shapeMenuItemActive : ''
-                  }`}
-                  onClick={() => handleShapeSelect('fill')}
-                >
-                  <PaintBucket size={14} />
-                  <span>Fill</span>
-                </button>
-              </div>
-            )}
-          </div>
+          {/* 12. Patch Tool (Requirement #8) */}
+          <button
+            type="button"
+            className={`${styles.toolbarItemBtn} ${isPatchActive ? styles.itemBtnActive : ''}`}
+            onClick={() => handleToolClick('patch')}
+            disabled={!hasImage}
+            title="Patch Tool (J) — Seamless content-aware patch"
+            aria-label="Patch Tool"
+            data-testid="tool-patch"
+          >
+            <Bandage size={14} className={styles.btnIcon} />
+            <span>Patch</span>
+          </button>
 
           <div className={styles.vDivider} aria-hidden="true" />
 
-          {/* 9. Undo */}
+          {/* 13. Undo */}
           <button
             type="button"
             className={styles.squareIconBtn}
@@ -456,7 +696,7 @@ export function EditorTopBar({
             <Undo2 size={14} />
           </button>
 
-          {/* 10. Redo */}
+          {/* 14. Redo */}
           <button
             type="button"
             className={styles.squareIconBtn}
@@ -469,7 +709,7 @@ export function EditorTopBar({
             <Redo2 size={14} />
           </button>
 
-          {/* 11. Zoom Dropdown */}
+          {/* 15. Zoom Dropdown */}
           <div className={styles.dropdownContainer} ref={zoomMenuRef}>
             <button
               type="button"
@@ -477,25 +717,23 @@ export function EditorTopBar({
               className={styles.zoomDropdownBtn}
               onClick={() => setZoomMenuOpen((prev) => !prev)}
               aria-label="Zoom percentage"
-              title="Canvas Zoom"
+              title="Zoom Level"
             >
               <span>{Math.round(zoom * 100)}%</span>
               <ChevronDown size={11} className={styles.chevron} />
             </button>
 
             {zoomMenuOpen && (
-              <div className={styles.zoomDropdownMenu} role="menu">
+              <div className={styles.zoomMenuDropdown} role="menu">
                 {ZOOM_PRESETS.map((z) => (
                   <button
                     key={z}
                     type="button"
                     className={`${styles.zoomMenuItem} ${
-                      Math.round(zoom * 100) === Math.round(z * 100)
-                        ? styles.zoomMenuItemActive
-                        : ''
+                      Math.abs(zoom - z) < 0.01 ? styles.zoomMenuItemActive : ''
                     }`}
                     onClick={() => {
-                      onZoomChange?.(z);
+                      onZoomChange(z);
                       setZoomMenuOpen(false);
                     }}
                   >
@@ -517,7 +755,7 @@ export function EditorTopBar({
             )}
           </div>
 
-          {/* 12. Fullscreen / Fit Screen */}
+          {/* 16. Fullscreen / Fit Screen */}
           <button
             type="button"
             className={styles.squareIconBtn}
@@ -529,7 +767,7 @@ export function EditorTopBar({
             <Maximize size={14} />
           </button>
 
-          {/* 13. Hand / Pan Tool */}
+          {/* 17. Hand / Pan Tool */}
           <button
             type="button"
             className={`${styles.squareIconBtn} ${
@@ -546,7 +784,7 @@ export function EditorTopBar({
 
         {/* Right Action Controls: Add Image & Download */}
         <div className={styles.rightActions}>
-          {/* 14. Add Image */}
+          {/* Add Image */}
           <button
             type="button"
             className={styles.addImageBtn}
@@ -558,80 +796,20 @@ export function EditorTopBar({
             <span>Add Image</span>
           </button>
 
-          {/* 15. Download (with format dropdown) */}
-          <div className={styles.dropdownContainer} ref={downloadMenuRef}>
-            <div className={styles.downloadSplitGroup}>
-              <button
-                type="button"
-                className={styles.downloadPrimaryBtn}
-                onClick={() => {
-                  if (hasImage) onDownload?.('image/png');
-                }}
-                disabled={!hasImage}
-                title="Download image as PNG"
-                data-testid="download-btn"
-              >
-                <Download size={15} />
-                <span>Download</span>
-              </button>
-              <button
-                type="button"
-                className={styles.downloadChevronBtn}
-                onClick={() => {
-                  if (hasImage) setDownloadMenuOpen((prev) => !prev);
-                }}
-                disabled={!hasImage}
-                title="Download formats (PNG, JPG, WebP)"
-                aria-label="Download format options"
-              >
-                <ChevronDown size={12} />
-              </button>
-            </div>
-
-            {downloadMenuOpen && (
-              <div className={styles.exportDropdownMenu} role="menu">
-                <button
-                  type="button"
-                  className={styles.exportItem}
-                  onClick={() => {
-                    setDownloadMenuOpen(false);
-                    onDownload?.('image/png');
-                  }}
-                >
-                  <div className={styles.exportMeta}>
-                    <strong>PNG Image</strong>
-                    <span>Best quality with transparency</span>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  className={styles.exportItem}
-                  onClick={() => {
-                    setDownloadMenuOpen(false);
-                    onDownload?.('image/jpeg');
-                  }}
-                >
-                  <div className={styles.exportMeta}>
-                    <strong>JPG / JPEG</strong>
-                    <span>Optimized file size for web</span>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  className={styles.exportItem}
-                  onClick={() => {
-                    setDownloadMenuOpen(false);
-                    onDownload?.('image/webp');
-                  }}
-                >
-                  <div className={styles.exportMeta}>
-                    <strong>WebP Modern</strong>
-                    <span>Ultra-fast modern compression</span>
-                  </div>
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Download */}
+          <button
+            type="button"
+            className={styles.downloadPrimaryBtn}
+            onClick={() => {
+              if (hasImage) onDownload?.('image/png');
+            }}
+            disabled={!hasImage}
+            title="Download image as PNG"
+            data-testid="download-btn"
+          >
+            <Download size={15} />
+            <span>Download</span>
+          </button>
         </div>
       </div>
     </div>

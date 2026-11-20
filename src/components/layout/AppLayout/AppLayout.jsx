@@ -15,7 +15,8 @@ function AppLayout() {
   const navigation = useNavigation();
   const location = useLocation();
   const isNavigating = navigation.state === 'loading';
-  const isFullBleedEditor = location.pathname === ROUTES.edit;
+  const isFullBleedEditor =
+    location.pathname === ROUTES.edit || location.pathname === ROUTES.editOld;
 
   return (
     <DragProvider>
@@ -30,7 +31,7 @@ function AppLayout() {
           Skip to main content
         </a>
 
-        <Header />
+        {!isFullBleedEditor && <Header />}
 
         <main
           id="main-content"
@@ -44,7 +45,7 @@ function AppLayout() {
         {!isFullBleedEditor && <Footer />}
 
         <BackToTopButton />
-        <DragOverlay />
+        {!isFullBleedEditor && <DragOverlay />}
         <CookieConsentModal />
       </div>
     </DragProvider>

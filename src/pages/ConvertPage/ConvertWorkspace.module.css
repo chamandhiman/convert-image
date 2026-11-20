@@ -329,6 +329,33 @@
   flex-shrink: 0;
 }
 
+.cardFormatTagIncompatible {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.cardStatusReady {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  color: #16a34a;
+  font-size: 0.72rem;
+}
+
+.cardStatusSkipped {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  color: #dc2626;
+  font-size: 0.72rem;
+}
+
 .cardMetaRow {
   display: flex;
   align-items: center;

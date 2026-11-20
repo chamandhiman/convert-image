@@ -1,0 +1,161 @@
+/* =============================================================================
+   Bottom Status Bar Styles
+   Matches the compact status bar in the mockup
+   ========================================================================== */
+
+.statusBar {
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  width: 100%;
+  background: #ffffff;
+  border-top: 1px solid #e8e5f2;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  z-index: 30;
+  user-select: none;
+}
+
+.leftStats {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.statItem {
+  display: inline-flex;
+  align-items: center;
+}
+
+.statDivider {
+  color: #cbd5e1;
+}
+
+.rightControls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.zoomBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.zoomBtn:hover:not(:disabled) {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.zoomBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.zoomDropdownWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.zoomDisplayBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  height: 24px;
+  padding: 0 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.zoomDisplayBtn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.zoomDropdownMenu {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  right: 0;
+  min-width: 90px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  padding: 0.3rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.zoomMenuItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: #1e293b;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.12s ease;
+}
+
+.zoomMenuItem:hover {
+  background: #f8fafc;
+  color: #7c3aed;
+}
+
+.zoomMenuItemActive {
+  background: #f3e8ff !important;
+  color: #7c3aed !important;
+  font-weight: 600;
+}
+
+.fullscreenBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: 0.25rem;
+}
+
+.fullscreenBtn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
